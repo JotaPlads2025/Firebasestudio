@@ -152,7 +152,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 md:flex">
               <Avatar className="h-8 w-8">
                 {userAvatar && (
                   <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />

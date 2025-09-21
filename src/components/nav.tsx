@@ -7,6 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   BookOpenCheck,
@@ -52,21 +53,27 @@ const navItems = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
 
   return (
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          <SidebarMenuButton
-            asChild
-            isActive={pathname === item.href}
-            tooltip={item.label}
-          >
-            <Link href={item.href}>
+          <Link href={item.href} passHref legacyBehavior>
+            <SidebarMenuButton
+              as="a"
+              isActive={pathname === item.href}
+              tooltip={item.label}
+              onClick={handleLinkClick}
+            >
               <item.icon />
               <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
+            </SidebarMenuButton>
+          </Link>
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
