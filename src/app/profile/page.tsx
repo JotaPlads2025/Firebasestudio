@@ -62,7 +62,7 @@ export default function ProfilePage() {
         <div className="lg:col-span-2 flex flex-col gap-8">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Sobre Cami Paredes</CardTitle>
+              <CardTitle className="font-headline">Sobre Susana </CardTitle>
               <CardDescription>
                 Profesora profesional de Bachata
               </CardDescription>
