@@ -35,6 +35,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
 
+const getFutureDate = (daysToAdd: number) => {
+  const date = new Date(2024, 6, 15); // Use a fixed base date (July 15, 2024)
+  date.setDate(date.getDate() + daysToAdd);
+  return date;
+};
+
 const classes: Class[] = [
   {
     id: 'cls-001',
@@ -45,7 +51,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 120,
     revenue: 1800,
-    date: new Date(new Date().setDate(new Date().getDate() + 2)),
+    date: getFutureDate(2),
   },
   {
     id: 'cls-002',
@@ -56,7 +62,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 80,
     revenue: 3200,
-    date: new Date(new Date().setDate(new Date().getDate() + 3)),
+    date: getFutureDate(3),
   },
   {
     id: 'cls-003',
@@ -67,7 +73,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 150,
     revenue: 3000,
-    date: new Date(new Date().setDate(new Date().getDate() + 5)),
+    date: getFutureDate(5),
   },
   {
     id: 'cls-004',
@@ -88,7 +94,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 95,
     revenue: 950,
-    date: new Date(new Date().setDate(new Date().getDate() + 8)),
+    date: getFutureDate(8),
   },
   {
     id: 'coach-001',
@@ -99,7 +105,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 5,
     revenue: 250,
-    date: new Date(new Date().setDate(new Date().getDate() + 4)),
+    date: getFutureDate(4),
   },
   {
     id: 'bootcamp-001',
@@ -110,7 +116,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 25,
     revenue: 3750,
-    date: new Date(new Date().setDate(new Date().getDate() + 10)),
+    date: getFutureDate(10),
   },
 ];
 
