@@ -21,17 +21,27 @@ import {
 import { Input } from './ui/input';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { SidebarTrigger } from './ui/sidebar';
-import Image from 'next/image';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
-    <Image
-      src="https://i.imgur.com/6c2rrtU.png"
-      alt="Plads Pro Logo"
-      width={120}
-      height={30}
-      className="w-auto h-7"
-    />
+    <div className="p-1.5 bg-primary rounded-lg">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="hsl(var(--sidebar-primary))"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-6 w-6"
+      >
+        <path d="M10 8v8h2.5c2.21 0 4-1.79 4-4s-1.79-4-4-4H10z" />
+        <path d="M6 18L6 6" />
+      </svg>
+    </div>
+    <span className="font-headline text-xl font-bold text-sidebar-foreground">
+      Plads Pro
+    </span>
   </div>
 );
 
