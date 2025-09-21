@@ -3,6 +3,7 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -27,6 +28,9 @@ import {
   XAxis,
   YAxis,
   BarChart as RechartsBarChart,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 
@@ -48,6 +52,8 @@ const classPerformanceData = [
   { name: 'Bachata Intermedio', bookings: 60, revenue: 3000 },
 ];
 
+const totalRevenue = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
+
 const chartConfig = {
   revenue: {
     label: 'Ingresos',
@@ -56,6 +62,26 @@ const chartConfig = {
   bookings: {
     label: 'Cupos Agendados',
     color: 'hsl(var(--chart-2))',
+  },
+  'Bachata Básico': {
+    label: 'Bachata Básico',
+    color: 'hsl(var(--chart-1))',
+  },
+  'Bachata Open Lady': {
+    label: 'Bachata Open Lady',
+    color: 'hsl(var(--chart-2))',
+  },
+  'Bachata Amateur': {
+    label: 'Bachata Amateur',
+    color: 'hsl(var(--chart-3))',
+  },
+  'Bachata Alumna': {
+    label: 'Bachata Alumna',
+    color: 'hsl(var(--chart-4))',
+  },
+  'Bachata Intermedio': {
+    label: 'Bachata Intermedio',
+    color: 'hsl(var(--chart-5))',
   },
 };
 
@@ -107,8 +133,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="font-headline">Vistas de Ingresos</CardTitle>
           </CardHeader>
@@ -138,17 +164,54 @@ export default function DashboardPage() {
             </ChartContainer>
           </CardContent>
         </Card>
-
+        
         <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Ingresos por Clase</CardTitle>
+            <CardDescription>
+                Distribución de ingresos en las clases activas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 pb-0">
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[250px]"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={classPerformanceData}
+                  dataKey="revenue"
+                  nameKey="name"
+                  innerRadius={60}
+                  strokeWidth={5}
+                >
+                  {classPerformanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig]?.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          </CardContent>
+          <CardFooter className="flex-col gap-2 text-sm pt-4">
+              <div className="flex items-center justify-between w-full">
+                  <span>Total Ingresos:</span>
+                  <span className="font-bold">${totalRevenue.toLocaleString()}</span>
+              </div>
+          </CardFooter>
+        </Card>
+
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="font-headline">Desempeño de la Clase</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsBarChart data={classPerformanceData} layout="vertical">
+              <RechartsBarChart data={classPerformanceData} layout="vertical">
                   <CartesianGrid horizontal={false} />
-                  <XAxis type="number" hide />
                   <YAxis
                     dataKey="name"
                     type="category"
@@ -158,13 +221,13 @@ export default function DashboardPage() {
                     width={110}
                     className="text-xs"
                   />
+                  <XAxis type="number" hide />
                   <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent indicator="dot" />}
                   />
                   <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
-                </RechartsBarChart>
-              </ResponsiveContainer>
+              </RechartsBarChart>
             </ChartContainer>
           </CardContent>
         </Card>
