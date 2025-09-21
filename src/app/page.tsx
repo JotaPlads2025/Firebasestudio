@@ -36,7 +36,6 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { Badge } from '@/components/ui/badge';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import {
   Select,
@@ -98,11 +97,7 @@ const chartConfig = {
   },
 };
 
-const totalRevenue = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
-
 export default function DashboardPage() {
-  const formattedTotalRevenue = totalRevenue.toLocaleString();
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -277,7 +272,7 @@ export default function DashboardPage() {
           <CardFooter className="flex-col gap-2 text-sm pt-4">
               <div className="flex items-center justify-between w-full">
                   <span>Total Ingresos:</span>
-                  <span className="font-bold">${formattedTotalRevenue}</span>
+                  <span className="font-bold">${classPerformanceData.reduce((acc, c) => acc + c.revenue, 0).toLocaleString()}</span>
               </div>
           </CardFooter>
         </Card>
