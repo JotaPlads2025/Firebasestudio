@@ -8,12 +8,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Instagram, Rocket, Star } from 'lucide-react';
+import { Edit, Instagram, Rocket } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon } from '@/components/ui/icons';
+import { StarRating } from '@/components/ui/star-rating';
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -33,13 +34,7 @@ export default function ProfilePage() {
               <CardTitle className="font-headline text-2xl">Susana González</CardTitle>
               <CardDescription>SG Ladies</CardDescription>
               <div className="flex items-center gap-2 pt-2">
-                <div className="flex items-center text-primary">
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current text-muted" />
-                </div>
+                <StarRating rating={4.8} />
                 <span className="text-sm font-semibold text-muted-foreground">(4.8)</span>
               </div>
               <div className="flex flex-wrap gap-2 pt-4">
