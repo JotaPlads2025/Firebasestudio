@@ -96,8 +96,8 @@ function ClassesTable({ classes }: { classes: Class[] }) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Class Name</TableHead>
-          <TableHead>Category</TableHead>
+          <TableHead>Nombre de Clase</TableHead>
+          <TableHead>Categoria</TableHead>
           <TableHead className="hidden md:table-cell">Schedule</TableHead>
           <TableHead className="hidden md:table-cell">Price</TableHead>
           <TableHead className="hidden sm:table-cell">Status</TableHead>
@@ -157,7 +157,7 @@ export default function ClassesPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-headline text-3xl font-semibold">My Classes</h1>
+        <h1 className="font-headline text-3xl font-semibold">Mis Clases</h1>
         <Button size="sm" className="gap-1">
           <PlusCircle className="h-4 w-4" />
           Crear Clase
@@ -169,8 +169,8 @@ export default function ClassesPage() {
           <Tabs defaultValue="active">
             <div className="border-b p-4">
               <TabsList>
-                <TabsTrigger value="active">Active</TabsTrigger>
-                <TabsTrigger value="inactive">Inactive</TabsTrigger>
+                <TabsTrigger value="active">Activa</TabsTrigger>
+                <TabsTrigger value="inactive">Inactiva</TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="active" className="m-0">

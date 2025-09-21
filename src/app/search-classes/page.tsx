@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { regions, communesByRegion } from '@/lib/locations';
 
 const availableClasses = [
   {
@@ -93,6 +94,8 @@ export default function SearchClassesPage() {
   const [priceRange, setPriceRange] = useState([0, 50]);
   const [category, setCategory] = useState('all');
   const [level, setLevel] = useState('all');
+  const [selectedRegion, setSelectedRegion] = useState('all');
+  const [selectedCommune, setSelectedCommune] = useState('all');
 
   const filteredClasses = availableClasses.filter((c) => {
     const searchMatch =
@@ -102,8 +105,16 @@ export default function SearchClassesPage() {
     const categoryMatch = category === 'all' || c.category === category;
     const levelMatch = level === 'all' || c.level === level;
 
-    return searchMatch && priceMatch && categoryMatch && levelMatch;
+    // Lógica de filtrado por ubicación (a futuro se puede conectar a datos reales)
+    const locationMatch = selectedRegion === 'all' || selectedCommune === 'all' || true;
+
+    return searchMatch && priceMatch && categoryMatch && levelMatch && locationMatch;
   });
+
+  const handleRegionChange = (value: string) => {
+    setSelectedRegion(value);
+    setSelectedCommune('all'); // Reset commune when region changes
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -131,23 +142,30 @@ export default function SearchClassesPage() {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Select>
+            <Select value={selectedRegion} onValueChange={handleRegionChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Región" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rm">Región Metropolitana</SelectItem>
-                <SelectItem value="valpo">Valparaíso</SelectItem>
+                <SelectItem value="all">Todas las regiones</SelectItem>
+                {regions.map((region) => (
+                  <SelectItem key={region.value} value={region.value}>
+                    {region.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={selectedRegion === 'all'}>
               <SelectTrigger>
                 <SelectValue placeholder="Comuna" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="stgo">Santiago</SelectItem>
-                <SelectItem value="prov">Providencia</SelectItem>
-                <SelectItem value="vit">Vitacura</SelectItem>
+                <SelectItem value="all">Todas las comunas</SelectItem>
+                {communesByRegion[selectedRegion]?.map((commune) => (
+                  <SelectItem key={commune.value} value={commune.value}>
+                    {commune.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={category} onValueChange={setCategory}>
