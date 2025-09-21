@@ -101,7 +101,7 @@ const chartConfig = {
 export default function DashboardPage() {
   const formattedTotalRevenue = classPerformanceData
     .reduce((acc, c) => acc + c.revenue, 0)
-    .toLocaleString();
+    .toLocaleString()
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
