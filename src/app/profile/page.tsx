@@ -12,6 +12,7 @@ import { Edit, Rocket } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import VideoGallery from '@/components/video-gallery';
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -35,6 +36,7 @@ export default function ProfilePage() {
                 <Badge>Bachata Intermedio</Badge>
                 <Badge>Bachata Amateur</Badge>
                 <Badge>Bachata Open Lady</Badge>
+                <Badge>Coaching</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -76,6 +78,17 @@ export default function ProfilePage() {
 
 Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada alumno a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
               </p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Galería de Videos</CardTitle>
+              <CardDescription>
+                Sube hasta 5 videos para mostrar tu talento a potenciales alumnos.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <VideoGallery />
             </CardContent>
           </Card>
           <Card>

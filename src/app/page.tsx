@@ -121,7 +121,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">445</div>
-            <p className="text-xs text-accent-foreground">+8.2% Último mes</p>
+            <p className="text-xs font-bold text-brand-green">+8.2% Último mes</p>
           </CardContent>
         </Card>
         <Card>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+72</div>
-            <p className="text-xs text-accent-foreground">+20% Último mes</p>
+            <p className="text-xs font-bold text-brand-green">+20% Último mes</p>
           </CardContent>
         </Card>
         <Card>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-accent-foreground">2 inactivas</p>
+            <p className="text-xs font-bold text-brand-green">2 inactivas</p>
           </CardContent>
         </Card>
         <Card>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">2</div>
-                <p className="text-xs text-accent-foreground">1 próximo</p>
+                <p className="text-xs font-bold text-brand-green">1 próximo</p>
             </CardContent>
         </Card>
         <Card>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">5</div>
-                <p className="text-xs text-accent-foreground">3 completados</p>
+                <p className="text-xs font-bold text-brand-green">3 completados</p>
             </CardContent>
         </Card>
       </div>
