@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -59,7 +58,7 @@ export default function Nav() {
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          <Link href={item.href} onClick={handleLinkClick} legacyBehavior={false} passHref>
+          <Link href={item.href} onClick={handleLinkClick} passHref legacyBehavior>
             <SidebarMenuButton
               as="a"
               isActive={pathname === item.href}
