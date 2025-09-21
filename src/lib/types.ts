@@ -1,7 +1,7 @@
 export type Class = {
   id: string;
   name: string;
-  category: 'Dance' | 'Sports' | 'Health';
+  category: 'Dance' | 'Sports' | 'Health' | 'Coaching' | 'Bootcamp';
   schedule: string;
   price: number;
   status: 'Active' | 'Inactive';

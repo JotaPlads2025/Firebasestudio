@@ -18,11 +18,13 @@ import {
 import type { Class } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
+  Briefcase,
   Dumbbell,
   HeartPulse,
   MoreHorizontal,
   Palette,
   PlusCircle,
+  Users,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -83,20 +85,46 @@ const classes: Class[] = [
     bookings: 95,
     revenue: 950,
   },
+  {
+    id: 'coach-001',
+    name: 'Coaching Personalizado de Bachata',
+    category: 'Coaching',
+    schedule: 'A convenir',
+    price: 50,
+    status: 'Active',
+    bookings: 5,
+    revenue: 250,
+  },
+  {
+    id: 'bootcamp-001',
+    name: 'Bootcamp Intensivo de Verano',
+    category: 'Bootcamp',
+    schedule: '15-17 de Julio',
+    price: 150,
+    status: 'Active',
+    bookings: 25,
+    revenue: 3750,
+  },
 ];
 
 const categoryIcons: Record<Class['category'], React.ReactNode> = {
   Dance: <Palette className="h-4 w-4" />,
   Sports: <Dumbbell className="h-4 w-4" />,
   Health: <HeartPulse className="h-4 w-4" />,
+  Coaching: <Briefcase className="h-4 w-4" />,
+  Bootcamp: <Users className="h-4 w-4" />,
 };
 
 function ClassesTable({ classes }: { classes: Class[] }) {
+  if (classes.length === 0) {
+    return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
+  }
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Nombre de Clase</TableHead>
+          <TableHead>Nombre</TableHead>
           <TableHead>Categoria</TableHead>
           <TableHead className="hidden md:table-cell">Schedule</TableHead>
           <TableHead className="hidden md:table-cell">Price</TableHead>
@@ -151,13 +179,17 @@ function ClassesTable({ classes }: { classes: Class[] }) {
 }
 
 export default function ClassesPage() {
-  const activeClasses = classes.filter((c) => c.status === 'Active');
-  const inactiveClasses = classes.filter((c) => c.status === 'Inactive');
+  const regularClasses = classes.filter((c) => c.category === 'Dance' || c.category === 'Sports' || c.category === 'Health');
+  const coachingClasses = classes.filter((c) => c.category === 'Coaching');
+  const bootcampClasses = classes.filter((c) => c.category === 'Bootcamp');
+  
+  const activeClasses = regularClasses.filter((c) => c.status === 'Active');
+  const inactiveClasses = regularClasses.filter((c) => c.status === 'Inactive');
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-headline text-3xl font-semibold">Mis Clases</h1>
+        <h1 className="font-headline text-3xl font-semibold">Mis Creaciones</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1">
@@ -174,6 +206,10 @@ export default function ClassesPage() {
       </div>
 
       <Card>
+        <CardHeader>
+            <CardTitle>Mis Clases</CardTitle>
+            <CardDescription>Clases grupales regulares que impartes.</CardDescription>
+        </CardHeader>
         <CardContent className="p-0">
           <Tabs defaultValue="active">
             <div className="border-b p-4">
@@ -189,6 +225,26 @@ export default function ClassesPage() {
               <ClassesTable classes={inactiveClasses} />
             </TabsContent>
           </Tabs>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Clases Personalizadas / Coaches</CardTitle>
+            <CardDescription>Sesiones uno a uno o para grupos pequeños.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+              <ClassesTable classes={coachingClasses} />
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Bootcamps</CardTitle>
+            <CardDescription>Eventos intensivos de corta duración.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+              <ClassesTable classes={bootcampClasses} />
         </CardContent>
       </Card>
     </div>
