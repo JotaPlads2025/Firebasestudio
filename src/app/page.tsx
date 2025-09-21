@@ -1,8 +1,6 @@
 
-
 "use client";
 
-import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -70,9 +68,6 @@ const classPerformanceData = [
   { name: 'Bachata Intermedio', bookings: 60, revenue: 3000 },
 ];
 
-const totalRevenue = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
-const formattedTotalRevenue = totalRevenue.toLocaleString();
-
 const chartConfig = {
   revenue: {
     label: 'Ingresos',
@@ -105,7 +100,10 @@ const chartConfig = {
 };
 
 export default function DashboardPage() {
-  
+  const formattedTotalRevenue = classPerformanceData
+    .reduce((acc, c) => acc + c.revenue, 0)
+    .toLocaleString();
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -248,7 +246,7 @@ export default function DashboardPage() {
             <CardDescription>
                 Distribución de ingresos en las clases activas.
             </CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent className="flex-1 pb-0">
             <ChartContainer
               config={chartConfig}
