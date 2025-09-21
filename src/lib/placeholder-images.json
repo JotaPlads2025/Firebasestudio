@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "A portrait of an instructor",
+      "imageUrl": "https://picsum.photos/seed/instructor1/200/200",
+      "imageHint": "person portrait"
+    }
+  ]
 }
