@@ -16,6 +16,7 @@ import {
   BookCopy,
   CalendarCheck,
   DollarSign,
+  FileDown,
   MessageCircle,
   Users,
   Video,
@@ -40,6 +41,14 @@ import {
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import AiAssistantForm from '@/components/ai-assistant-form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 const revenueData = [
   { month: 'Ene', revenue: 4000 },
@@ -103,12 +112,33 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
+        <div className="flex items-center gap-4">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por mes" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los meses</SelectItem>
+              {revenueData.map((item) => (
+                <SelectItem key={item.month} value={item.month.toLowerCase()}>
+                  {item.month}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <FileDown className="mr-2 h-4 w-4" />
+            Descargar Excel
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-bold text-primary">Total Ingresos</CardTitle>
+            <CardTitle className="text-base font-bold text-primary text-[25px]">Total Ingresos</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -118,7 +148,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[30px]">Total Cupos agendados</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary text-[25px]">Total Cupos agendados</CardTitle>
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -128,7 +158,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[30px]">Nuevos alumn@s</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary text-[25px]">Nuevos alumn@s</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -138,7 +168,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[30px]">Clases Activas</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary text-[25px]">Clases Activas</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -148,7 +178,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-primary text-[30px]">Bootcamps Activos</CardTitle>
+                <CardTitle className="text-sm font-bold text-primary text-[25px]">Bootcamps Activos</CardTitle>
                 <CalendarCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -158,7 +188,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-primary text-[30px]">Coachings en Curso</CardTitle>
+                <CardTitle className="text-sm font-bold text-primary text-[25px]">Coachings en Curso</CardTitle>
                 <Video className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -286,6 +316,8 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
 
