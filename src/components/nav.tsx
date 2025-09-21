@@ -32,14 +32,14 @@ const navItems = [
     label: 'Buscar Clases',
   },
   {
-    href: '/pro-plan',
-    icon: Rocket,
-    label: 'Plan Pro',
-  },
-  {
     href: '/profile',
     icon: UserCircle,
     label: 'Perfíl',
+  },
+  {
+    href: '/pro-plan',
+    icon: Rocket,
+    label: 'Plan Pro',
   },
   {
     href: '/settings',
