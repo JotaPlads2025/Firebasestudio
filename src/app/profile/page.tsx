@@ -12,9 +12,11 @@ import { Edit, Rocket } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { StarRating } from '@/components/ui/star-rating';
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const instructorRating = 4.8;
 
   return (
     <div className="flex flex-col gap-8">
@@ -30,6 +32,10 @@ export default function ProfilePage() {
               </Avatar>
               <CardTitle className="font-headline text-2xl">Susana González</CardTitle>
               <CardDescription>SG Ladies</CardDescription>
+              <div className="flex items-center gap-2 pt-2">
+                <StarRating rating={instructorRating} />
+                <span className="text-sm text-muted-foreground">({instructorRating})</span>
+              </div>
               <div className="flex flex-wrap gap-2 pt-4">
                 <Badge>Bachata Básico</Badge>
                 <Badge>Bachata Intermedio</Badge>
