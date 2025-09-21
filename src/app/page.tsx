@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -88,6 +89,12 @@ const chartConfig = {
 };
 
 export default function DashboardPage() {
+  const [formattedTotalRevenue, setFormattedTotalRevenue] = useState(String(totalRevenue));
+
+  useEffect(() => {
+    setFormattedTotalRevenue(totalRevenue.toLocaleString());
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
@@ -201,7 +208,7 @@ export default function DashboardPage() {
           <CardFooter className="flex-col gap-2 text-sm pt-4">
               <div className="flex items-center justify-between w-full">
                   <span>Total Ingresos:</span>
-                  <span className="font-bold">${totalRevenue.toLocaleString()}</span>
+                  <span className="font-bold">${formattedTotalRevenue}</span>
               </div>
           </CardFooter>
         </Card>
