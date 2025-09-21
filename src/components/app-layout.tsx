@@ -95,9 +95,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </a>
             </div>
              <div className="group-data-[collapsible=icon]:hidden text-center text-xs text-sidebar-foreground/60 space-y-1">
-                <Link href="#" className="text-xs hover:underline">
-                  Terminos y condiciones
-                </Link>
+                <p>
+                  <Link href="#" className="text-xs hover:underline">
+                    Terminos y condiciones
+                  </Link>
+                </p>
                 <p>hola@plads.cl</p>
              </div>
           </div>
