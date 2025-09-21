@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -151,7 +153,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             <TableCell className="font-medium">{c.name}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                {categoryIcons[c.category]}
+                {c.category in categoryIcons ? categoryIcons[c.category] : null}
                 <span>{c.category}</span>
               </div>
             </TableCell>
@@ -195,7 +197,8 @@ export default function ClassesPage() {
   useEffect(() => {
     const today = new Date();
     const processedClasses = initialClassesData.map(item => {
-      const classDate = new Date(today);
+      const classDate = new Date();
+      classDate.setHours(0, 0, 0, 0); // Normalize time part
       if (item.daysOffset !== -1) {
         classDate.setDate(today.getDate() + item.daysOffset);
         return { ...item, date: classDate };
