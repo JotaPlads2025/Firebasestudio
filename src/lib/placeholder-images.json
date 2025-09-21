@@ -5,6 +5,42 @@
       "description": "A portrait of an instructor",
       "imageUrl": "https://picsum.photos/seed/instructor1/200/200",
       "imageHint": "person portrait"
+    },
+    {
+      "id": "class-salsa",
+      "description": "A couple dancing salsa",
+      "imageUrl": "https://picsum.photos/seed/salsa/600/400",
+      "imageHint": "couple dancing"
+    },
+    {
+      "id": "class-yoga",
+      "description": "A person doing yoga",
+      "imageUrl": "https://picsum.photos/seed/yoga/600/400",
+      "imageHint": "yoga studio"
+    },
+    {
+      "id": "class-ceramics",
+      "description": "Hands working on a pottery wheel",
+      "imageUrl": "https://picsum.photos/seed/ceramics/600/400",
+      "imageHint": "pottery wheel"
+    },
+    {
+      "id": "class-fitness",
+      "description": "People in a functional training class",
+      "imageUrl": "https://picsum.photos/seed/fitness/600/400",
+      "imageHint": "gym class"
+    },
+    {
+      "id": "class-art",
+      "description": "Watercolor painting supplies",
+      "imageUrl": "https://picsum.photos/seed/art/600/400",
+      "imageHint": "watercolor painting"
+    },
+    {
+      "id": "class-kizomba",
+      "description": "A couple dancing kizomba",
+      "imageUrl": "https://picsum.photos/seed/kizomba/600/400",
+      "imageHint": "couple dancing"
     }
   ]
 }

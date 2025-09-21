@@ -26,17 +26,17 @@ const PladsProLogo = () => (
   <div className="flex items-center gap-2">
     <div className="p-1.5 bg-primary rounded-lg">
       <svg
-        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="hsl(var(--sidebar-primary))"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-6 w-6"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        <path d="M10 8v8h2.5c2.21 0 4-1.79 4-4s-1.79-4-4-4H10z" />
-        <path d="M6 18L6 6" />
+        <rect width="24" height="24" rx="6" fill="hsl(var(--primary))" />
+        <path
+          d="M12.7333 7.53331H9.39999V16.4666H12.7333C14.5333 16.4666 16 15.0666 16 13.2666V10.7333C16 8.93331 14.6 7.53331 12.7333 7.53331Z"
+          fill="hsl(var(--accent))"
+        />
       </svg>
     </div>
     <span className="font-headline text-xl font-bold text-sidebar-foreground">
