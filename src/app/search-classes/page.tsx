@@ -105,11 +105,33 @@ const availableClasses = [
     style: 'Bachata',
     level: 'Intermedio',
   },
+   {
+    id: 'cls-108',
+    name: 'Bootcamp de Verano',
+    instructor: 'Equipo Plads',
+    description: 'Bootcamp intensivo de 3 días para mejorar tu condición física general.',
+    image: PlaceHolderImages.find((img) => img.id === 'class-bootcamp'),
+    price: 150,
+    category: 'Bootcamp',
+    style: 'General',
+    level: 'Todos',
+  },
+  {
+    id: 'cls-109',
+    name: 'Coaching Personalizado de Baile',
+    instructor: 'Susana González',
+    description: 'Sesiones uno a uno para perfeccionar tu técnica y estilo en bachata.',
+    image: PlaceHolderImages.find((img) => img.id === 'class-coaching'),
+    price: 50,
+    category: 'Coaching',
+    style: 'Baile',
+    level: 'Todos',
+  },
 ];
 
 export default function SearchClassesPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 50]);
+  const [priceRange, setPriceRange] = useState([0, 150]);
   const [category, setCategory] = useState('all');
   const [style, setStyle] = useState('all');
   const [level, setLevel] = useState('all');
@@ -132,7 +154,7 @@ export default function SearchClassesPage() {
       c.instructor.toLowerCase().includes(searchTerm.toLowerCase());
     const priceMatch = c.price >= priceRange[0] && c.price <= priceRange[1];
     const categoryMatch = category === 'all' || c.category === category;
-    const styleMatch = style === 'all' || c.style === style;
+    const styleMatch = style === 'all' || !c.style || c.style === style;
     const levelMatch = level === 'all' || c.level === level;
 
     // Lógica de filtrado por ubicación (a futuro se puede conectar a datos reales)
@@ -151,7 +173,7 @@ export default function SearchClassesPage() {
             <div className="flex-grow">
               <Input
                 type="text"
-                placeholder="Buscar por clase o instructor..."
+                placeholder="Buscar por clase, bootcamp, instructor..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full"
@@ -206,7 +228,7 @@ export default function SearchClassesPage() {
                 ))}
               </SelectContent>
             </Select>
-            {(category === 'Baile' || category === 'Deporte') && (
+            {subCategories[category] && (
               <Select value={style} onValueChange={setStyle}>
                 <SelectTrigger>
                   <SelectValue placeholder="Estilo" />
@@ -244,10 +266,10 @@ export default function SearchClassesPage() {
             <Slider
               id="price-range"
               min={0}
-              max={50}
-              step={1}
+              max={150}
+              step={5}
               value={priceRange}
-              onValueChange={(value) => setPriceRange(value)}
+              onValueChange={(value) => setPriceRange(value as [number, number])}
             />
           </div>
         </CardContent>
@@ -289,3 +311,5 @@ export default function SearchClassesPage() {
     </div>
   );
 }
+
+    

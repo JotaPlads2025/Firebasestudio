@@ -48,6 +48,20 @@
       "description": "A couple dancing bachata",
       "imageUrl": "https://picsum.photos/seed/bachata/600/400",
       "imageHint": "couple dancing"
+    },
+    {
+      "id": "class-bootcamp",
+      "description": "A group of people training outdoors for a bootcamp",
+      "imageUrl": "https://picsum.photos/seed/bootcamp/600/400",
+      "imageHint": "outdoor bootcamp"
+    },
+    {
+      "id": "class-coaching",
+      "description": "One on one coaching session",
+      "imageUrl": "https://picsum.photos/seed/coaching/600/400",
+      "imageHint": "coaching session"
     }
   ]
 }
+
+    

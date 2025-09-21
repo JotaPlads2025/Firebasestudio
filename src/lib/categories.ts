@@ -4,6 +4,8 @@ export const categories = [
     { value: 'Baile', label: 'Baile' },
     { value: 'Arte', label: 'Arte' },
     { value: 'Salud', label: 'Salud' },
+    { value: 'Bootcamp', label: 'Bootcamp' },
+    { value: 'Coaching', label: 'Coaching' },
 ];
 
 export const subCategories: Record<string, { value: string; label: string }[]> = {
@@ -25,3 +27,5 @@ export const subCategories: Record<string, { value: string; label: string }[]> =
         { value: 'Pilates', label: 'Pilates' },
     ],
 };
+
+    
