@@ -98,7 +98,11 @@ const chartConfig = {
   },
 };
 
+const totalRevenue = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
+
 export default function DashboardPage() {
+  const formattedTotalRevenue = totalRevenue.toLocaleString();
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -209,28 +213,30 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <LineChart data={revenueData}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => `${"$" + (value / 1000).toFixed(0)}k`}
-                  tick={{ fontWeight: 'bold' }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-                <Line
-                  dataKey="revenue"
-                  type="monotone"
-                  stroke="var(--color-revenue)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
+              <ResponsiveContainer>
+                <LineChart data={revenueData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => `${"$" + (value / 1000).toFixed(0)}k`}
+                    tick={{ fontWeight: 'bold' }}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" />}
+                  />
+                  <Line
+                    dataKey="revenue"
+                    type="monotone"
+                    stroke="var(--color-revenue)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -247,29 +253,31 @@ export default function DashboardPage() {
               config={chartConfig}
               className="mx-auto aspect-square max-h-[250px]"
             >
-              <PieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Pie
-                  data={classPerformanceData}
-                  dataKey="revenue"
-                  nameKey="name"
-                  innerRadius={60}
-                  strokeWidth={5}
-                >
-                  {classPerformanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig]?.color} />
-                  ))}
-                </Pie>
-              </PieChart>
+              <ResponsiveContainer>
+                <PieChart>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
+                  <Pie
+                    data={classPerformanceData}
+                    dataKey="revenue"
+                    nameKey="name"
+                    innerRadius={60}
+                    strokeWidth={5}
+                  >
+                    {classPerformanceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig]?.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
           <CardFooter className="flex-col gap-2 text-sm pt-4">
               <div className="flex items-center justify-between w-full">
                   <span>Total Ingresos:</span>
-                  <span className="font-bold">${classPerformanceData.reduce((acc, c) => acc + c.revenue, 0).toLocaleString()}</span>
+                  <span className="font-bold">${formattedTotalRevenue}</span>
               </div>
           </CardFooter>
         </Card>
@@ -280,24 +288,26 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <RechartsBarChart data={classPerformanceData} layout="vertical">
-                  <CartesianGrid horizontal={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={110}
-                    className="text-xs"
-                  />
-                  <XAxis type="number" hide />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
-              </RechartsBarChart>
+              <ResponsiveContainer>
+                <RechartsBarChart data={classPerformanceData} layout="vertical">
+                    <CartesianGrid horizontal={false} />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      width={110}
+                      className="text-xs"
+                    />
+                    <XAxis type="number" hide />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator="dot" />}
+                    />
+                    <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
+                </RechartsBarChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
