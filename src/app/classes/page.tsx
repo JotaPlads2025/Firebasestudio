@@ -35,8 +35,8 @@ import {
 const classes: Class[] = [
   {
     id: 'cls-001',
-    name: 'Beginner Yoga Flow',
-    category: 'Health',
+    name: 'Bachata Básico',
+    category: 'Dance',
     schedule: 'Mon, Wed, Fri at 9:00 AM',
     price: 15,
     status: 'Active',
@@ -45,9 +45,9 @@ const classes: Class[] = [
   },
   {
     id: 'cls-002',
-    name: 'Advanced Pottery Wheel',
-    category: 'Art',
-    schedule: 'Tue, Thu at 6:00 PM',
+    name: 'Bachata Open Lady',
+    category: 'Dance',
+    schedule: 'Jue, Jue de 6:00 PM',
     price: 40,
     status: 'Active',
     bookings: 80,
@@ -55,8 +55,8 @@ const classes: Class[] = [
   },
   {
     id: 'cls-003',
-    name: 'HIIT Cardio Blast',
-    category: 'Sports',
+    name: 'Bachata Intermedio',
+    category: 'Dance',
     schedule: 'Sat at 10:00 AM',
     price: 20,
     status: 'Active',
@@ -65,8 +65,8 @@ const classes: Class[] = [
   },
   {
     id: 'cls-004',
-    name: 'Introduction to Watercolor',
-    category: 'Art',
+    name: 'Bachata Amateur',
+    category: 'Dance',
     schedule: 'Sun at 2:00 PM',
     price: 35,
     status: 'Inactive',
@@ -75,8 +75,8 @@ const classes: Class[] = [
   },
   {
     id: 'cls-005',
-    name: 'Mindfulness and Meditation',
-    category: 'Health',
+    name: 'Bachata Alumnas',
+    category: 'Dance',
     schedule: 'Mon at 7:00 PM',
     price: 10,
     status: 'Active',
@@ -86,7 +86,7 @@ const classes: Class[] = [
 ];
 
 const categoryIcons: Record<Class['category'], React.ReactNode> = {
-  Art: <Palette className="h-4 w-4" />,
+  Dance: <Palette className="h-4 w-4" />,
   Sports: <Dumbbell className="h-4 w-4" />,
   Health: <HeartPulse className="h-4 w-4" />,
 };

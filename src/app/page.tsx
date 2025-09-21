@@ -10,6 +10,7 @@ import {
   BarChart,
   BookCopy,
   DollarSign,
+  MessageCircle,
   Users,
 } from 'lucide-react';
 import {
@@ -30,30 +31,30 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 const revenueData = [
-  { month: 'Jan', revenue: 4000 },
-  { month: 'Feb', revenue: 3000 },
-  { month: 'Mar', revenue: 5000 },
-  { month: 'Apr', revenue: 4500 },
-  { month: 'May', revenue: 6000 },
-  { month: 'Jun', revenue: 5500 },
-  { month: 'Jul', revenue: 7000 },
+  { mes: 'Jan', revenue: 4000 },
+  { mes: 'Feb', revenue: 3000 },
+  { mes: 'Mar', revenue: 5000 },
+  { mes: 'Apr', revenue: 4500 },
+  { mes: 'May', revenue: 6000 },
+  { mes: 'Jun', revenue: 5500 },
+  { mes: 'Jul', revenue: 7000 },
 ];
 
 const classPerformanceData = [
-  { name: 'Yoga Basics', bookings: 120, revenue: 2400 },
-  { name: 'Advanced Pottery', bookings: 80, revenue: 3200 },
-  { name: 'HIIT Workout', bookings: 150, revenue: 2250 },
-  { name: 'Meditation 101', bookings: 95, revenue: 1425 },
-  { name: 'Oil Painting', bookings: 60, revenue: 3000 },
+  { name: 'Bachata Básico', bookings: 120, revenue: 2400 },
+  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200 },
+  { name: 'Bachata Amateur', bookings: 150, revenue: 2250 },
+  { name: 'Bachata Alumna', bookings: 95, revenue: 1425 },
+  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000 },
 ];
 
 const chartConfig = {
   revenue: {
-    label: 'Revenue',
+    label: 'Ingresos',
     color: 'hsl(var(--chart-1))',
   },
   bookings: {
-    label: 'Bookings',
+    label: 'Cupos Agendados',
     color: 'hsl(var(--chart-2))',
   },
 };
@@ -66,27 +67,27 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Ingresos</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$17,575</div>
-            <p className="text-xs text-muted-foreground">+12.5% from last month</p>
+            <p className="text-xs text-muted-foreground">+12.5% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Cupos agendados</CardTitle>
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">445</div>
-            <p className="text-xs text-muted-foreground">+8.2% from last month</p>
+            <p className="text-xs text-muted-foreground">+8.2% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Students</CardTitle>
+            <CardTitle className="text-sm font-medium">Nuevos alumn@s</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -96,12 +97,12 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Classes</CardTitle>
+            <CardTitle className="text-sm font-medium">Clases Activas</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">2 inactive</p>
+            <p className="text-xs text-muted-foreground">2 inactivas</p>
           </CardContent>
         </Card>
       </div>
@@ -109,13 +110,13 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Revenue Overview</CardTitle>
+            <CardTitle className="font-headline">Vistas de Ingresos</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
               <LineChart data={revenueData}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                <XAxis dataKey="mes" tickLine={false} axisLine={false} tickMargin={8} />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
@@ -140,7 +141,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Class Performance</CardTitle>
+            <CardTitle className="font-headline">Desempeño de la Clase</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
