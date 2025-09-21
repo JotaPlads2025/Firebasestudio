@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -36,6 +37,7 @@ import {
   Cell,
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+import AiAssistantForm from '@/components/ai-assistant-form';
 
 const revenueData = [
   { month: 'Jan', revenue: 4000 },
@@ -141,6 +143,21 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center gap-2">
+            <MessageCircle className="h-6 w-6 text-primary" />
+            Asistente de IA
+          </CardTitle>
+          <CardDescription>
+            Haz una pregunta sobre tus datos y la IA te responderá.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AiAssistantForm />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
