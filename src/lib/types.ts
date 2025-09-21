@@ -7,4 +7,5 @@ export type Class = {
   status: 'Active' | 'Inactive';
   bookings: number;
   revenue: number;
+  date?: Date;
 };

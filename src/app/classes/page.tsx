@@ -33,6 +33,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import ClassCalendar from '@/components/class-calendar';
 
 const classes: Class[] = [
   {
@@ -44,6 +45,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 120,
     revenue: 1800,
+    date: new Date(new Date().setDate(new Date().getDate() + 2)),
   },
   {
     id: 'cls-002',
@@ -54,6 +56,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 80,
     revenue: 3200,
+    date: new Date(new Date().setDate(new Date().getDate() + 3)),
   },
   {
     id: 'cls-003',
@@ -64,6 +67,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 150,
     revenue: 3000,
+    date: new Date(new Date().setDate(new Date().getDate() + 5)),
   },
   {
     id: 'cls-004',
@@ -84,6 +88,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 95,
     revenue: 950,
+    date: new Date(new Date().setDate(new Date().getDate() + 8)),
   },
   {
     id: 'coach-001',
@@ -94,6 +99,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 5,
     revenue: 250,
+    date: new Date(new Date().setDate(new Date().getDate() + 4)),
   },
   {
     id: 'bootcamp-001',
@@ -104,6 +110,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 25,
     revenue: 3750,
+    date: new Date(new Date().setDate(new Date().getDate() + 10)),
   },
 ];
 
@@ -204,6 +211,18 @@ export default function ClassesPage() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendario de Clases</CardTitle>
+          <CardDescription>
+            Visualiza tu programación y los cupos de tus clases.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ClassCalendar classes={classes} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
