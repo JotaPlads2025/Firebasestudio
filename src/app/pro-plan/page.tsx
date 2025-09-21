@@ -144,6 +144,9 @@ export default function ProPlanPage() {
               <span className="text-4xl font-bold text-primary">$29.990</span>
               <span className="text-muted-foreground">/mes</span>
             </div>
+             <p className="text-sm text-muted-foreground pt-1">
+              o $329.890 al año (1 mes gratis)
+            </p>
           </CardHeader>
           <CardContent className="space-y-4 flex-1">
             <ul className="space-y-2">
