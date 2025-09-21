@@ -1,5 +1,7 @@
+
 "use client";
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   SidebarMenu,
@@ -60,10 +62,10 @@ export default function Nav() {
             isActive={pathname === item.href}
             tooltip={item.label}
           >
-            <a href={item.href}>
+            <Link href={item.href}>
               <item.icon />
               <span>{item.label}</span>
-            </a>
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}
