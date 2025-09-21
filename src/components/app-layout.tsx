@@ -26,7 +26,7 @@ import Link from 'next/link';
 
 const PladsProLogo = () => (
     <div className="flex items-center gap-2">
-      <div className="rounded-lg bg-primary p-1.5">
+      <div className="rounded-lg bg-white/20 p-1.5">
         <svg
           width="24"
           height="24"
@@ -34,13 +34,13 @@ const PladsProLogo = () => (
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect width="24" height="24" rx="6" fill="hsl(var(--primary))" />
+          <rect width="24" height="24" rx="6" fill="transparent" />
           <text
             x="50%"
             y="50%"
             dominantBaseline="middle"
             textAnchor="middle"
-            fill="hsl(var(--accent))"
+            fill="white"
             fontSize="16"
             fontWeight="bold"
             fontFamily="sans-serif"
@@ -63,7 +63,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar
         variant="sidebar"
         collapsible="icon"
-        className="group data-[state=expanded]:bg-sidebar"
+        className="group data-[state=expanded]:bg-gradient-to-b from-brand-purple to-brand-green"
       >
         <SidebarHeader className="flex items-center justify-between">
           <PladsProLogo />
@@ -137,7 +137,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-sidebar px-4 text-sidebar-foreground md:px-6">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 " />
