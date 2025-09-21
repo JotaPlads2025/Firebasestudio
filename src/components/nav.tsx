@@ -22,17 +22,17 @@ const navItems = [
   {
     href: '/classes',
     icon: BookOpenCheck,
-    label: 'Classes',
+    label: 'Mis Clases',
   },
   {
     href: '/profile',
     icon: UserCircle,
-    label: 'Profile',
+    label: 'Perfíl',
   },
   {
     href: '/settings',
     icon: Settings,
-    label: 'Settings',
+    label: 'Configuraciones',
   },
 ];
 

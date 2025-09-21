@@ -13,23 +13,24 @@ import { Button } from '@/components/ui/button';
 export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Settings</h1>
+      <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Notification Settings</CardTitle>
+          <CardTitle className="font-headline">Configuración de Notificaciones</CardTitle>
           <CardDescription>
-            Manage how you receive notifications from Plads Pro.
+            Administra tus notificaciones de Plads Pro.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="new-bookings-email" className="text-base">
-                New Bookings
+                Nuevo agendamiento
               </Label>
               <p className="text-sm text-muted-foreground">
-                Send an email when a student books a new class.
+                Envíame una notificación por correo electrónico cuando un nuevo
+                agendamiento es creado.
               </p>
             </div>
             <Switch id="new-bookings-email" defaultChecked />
@@ -37,10 +38,10 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="class-reminders-push" className="text-base">
-                Class Reminders
+                Recordatorios de Clases
               </Label>
               <p className="text-sm text-muted-foreground">
-                Send a push notification 24 hours before a class starts.
+                Envíame una notificación 24 horas antes.
               </p>
             </div>
             <Switch id="class-reminders-push" defaultChecked />
@@ -48,10 +49,10 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="cancellations-email" className="text-base">
-                Cancellations
+                Cancelaciones
               </Label>
               <p className="text-sm text-muted-foreground">
-                Notify me by email when a student cancels a booking.
+                Notifícame por correo cuando se cancele un cupo agendado.
               </p>
             </div>
             <Switch id="cancellations-email" />
@@ -59,10 +60,10 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="weekly-summary" className="text-base">
-                Weekly Performance Summary
+                Analisis Semanal
               </Label>
               <p className="text-sm text-muted-foreground">
-                Send a weekly email with your key performance metrics.
+              Envía un correo semanal con tus métricas clave de rendimiento.
               </p>
             </div>
             <Switch id="weekly-summary" defaultChecked />
@@ -72,11 +73,11 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Account</CardTitle>
-          <CardDescription>Manage your account settings.</CardDescription>
+          <CardTitle className="font-headline">Cuenta</CardTitle>
+          <CardDescription>.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="destructive">Delete Account</Button>
+          <Button variant="destructive">Eliminar cuenta</Button>
           <p className="text-sm text-muted-foreground mt-2">
             Permanently delete your account and all associated data. This action
             cannot be undone.

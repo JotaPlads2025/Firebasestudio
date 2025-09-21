@@ -17,7 +17,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">My Profile</h1>
+      <h1 className="font-headline text-3xl font-semibold">Mi Perfíl</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -25,21 +25,21 @@ export default function ProfilePage() {
             <CardHeader className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
                  {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
-                <AvatarFallback className="text-3xl">JD</AvatarFallback>
+                <AvatarFallback className="text-3xl">SG</AvatarFallback>
               </Avatar>
-              <CardTitle className="font-headline text-2xl">Jane Doe</CardTitle>
-              <CardDescription>Yoga & Wellness Instructor</CardDescription>
+              <CardTitle className="font-headline text-2xl">Susana González</CardTitle>
+              <CardDescription>SG Ladies</CardDescription>
               <div className="flex flex-wrap gap-2 pt-4">
-                <Badge>Yoga</Badge>
-                <Badge>Meditation</Badge>
-                <Badge>Wellness</Badge>
-                <Badge>RYT 500</Badge>
+                <Badge>Bachata Básico</Badge>
+                <Badge>Bachata Intermedio</Badge>
+                <Badge>Bachata Amateur</Badge>
+                <Badge>Bachata Open Lady</Badge>
               </div>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full">
                 <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
+                Editar Perfíl
               </Button>
             </CardContent>
           </Card>
@@ -47,28 +47,27 @@ export default function ProfilePage() {
         <div className="lg:col-span-2 flex flex-col gap-8">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Current Profile</CardTitle>
+              <CardTitle className="font-headline">Sobre Cami Paredes</CardTitle>
               <CardDescription>
-                This is what students see on your public profile.
+                Profesora profesional de Bachata
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
               <p>
-                As a RYT 500 certified yoga and wellness coach with over 10 years of experience,
-                I am dedicated to helping individuals find balance, strength, and peace through the practice of yoga and meditation.
+              Con más de 6 años de experiencia en la enseñanza de bachata, ha formado a decenas de estudiantes en diferentes niveles, desde principiantes hasta bailarines avanzados. Su trayectoria incluye múltiples campeonatos ganados tanto en categoría solista como en equipo, lo que respalda su nivel técnico, disciplina y pasión por el baile.
               </p>
               <p>
-                My journey began in the serene landscapes of the Himalayas, and I bring that authentic, grounding energy to every class I teach.
-                I specialize in Vinyasa, Hatha, and Restorative yoga, creating an inclusive and supportive environment for all levels.
-                Join me to reconnect with your body, calm your mind, and uplift your spirit.
+              Su estilo de enseñanza se caracteriza por la cercanía, la claridad en la explicación y el énfasis en la musicalidad y la conexión, haciendo que cada clase sea una experiencia única y motivadora. Ofrece clases en distintos formatos y niveles: básico, intermedio, amateur, open, escuela y un espacio exclusivo para ladies, donde se potencia la confianza, el estilo y la expresión individual.
+
+Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada alumno a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">AI Profile Assistant</CardTitle>
+              <CardTitle className="font-headline">Asistente de IA</CardTitle>
               <CardDescription>
-                Let our AI help you craft a standout profile. Describe your expertise, and we&apos;ll generate a professional draft.
+                Deja a nuestra IA ayudarte a crear un perfíl de usuario llamativo.
               </CardDescription>
             </CardHeader>
             <CardContent>

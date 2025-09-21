@@ -160,7 +160,7 @@ export default function ClassesPage() {
         <h1 className="font-headline text-3xl font-semibold">My Classes</h1>
         <Button size="sm" className="gap-1">
           <PlusCircle className="h-4 w-4" />
-          Create Class
+          Crear Clase
         </Button>
       </div>
 
