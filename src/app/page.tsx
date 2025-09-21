@@ -71,6 +71,7 @@ const classPerformanceData = [
 ];
 
 const totalRevenue = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
+const formattedTotalRevenue = totalRevenue.toLocaleString();
 
 const chartConfig = {
   revenue: {
@@ -104,16 +105,11 @@ const chartConfig = {
 };
 
 export default function DashboardPage() {
-  const [formattedTotalRevenue, setFormattedTotalRevenue] = useState(String(totalRevenue));
-
-  useEffect(() => {
-    setFormattedTotalRevenue(totalRevenue.toLocaleString());
-  }, []);
-
+  
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
+        <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
         <div className="flex items-center gap-4">
           <Select defaultValue="all">
             <SelectTrigger className="w-[180px]">
@@ -138,62 +134,62 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-bold text-primary text-[25px]">Total Ingresos</CardTitle>
+            <CardTitle className="text-base font-bold text-primary">Total Ingresos</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$890.000</div>
-            <p className="text-xs font-bold text-brand-green">+12.5% Último mes</p>
+            <p className="text-xs font-bold text-accent">+12.5% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[25px]">Total Cupos agendados</CardTitle>
+            <CardTitle className="text-base font-bold text-primary">Total Cupos agendados</CardTitle>
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">445</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">+8.2% Último mes</p>
+            <p className="text-xs font-bold text-accent">+8.2% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[25px]">Nuevos alumn@s</CardTitle>
+            <CardTitle className="text-base font-bold text-primary">Nuevos alumn@s</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+72</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">+20% Último mes</p>
+            <p className="text-xs font-bold text-accent">+20% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary text-[25px]">Clases Activas</CardTitle>
+            <CardTitle className="text-base font-bold text-primary">Clases Activas</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">2 inactivas</p>
+            <p className="text-xs text-muted-foreground">2 inactivas</p>
           </CardContent>
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-primary text-[25px]">Bootcamps Activos</CardTitle>
+                <CardTitle className="text-base font-bold text-primary">Bootcamps Activos</CardTitle>
                 <CalendarCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">2</div>
-                <p className="text-xs font-bold text-[#008000] text-[15px]">1 próximo</p>
+                <p className="text-xs text-accent">1 próximo</p>
             </CardContent>
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-primary text-[25px]">Coachings en Curso</CardTitle>
+                <CardTitle className="text-base font-bold text-primary">Coachings en Curso</CardTitle>
                 <Video className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">5</div>
-                <p className="text-xs font-bold text-[#008000] text-[15px]">3 completados</p>
+                <p className="text-xs text-muted-foreground">3 completados</p>
             </CardContent>
         </Card>
       </div>
@@ -316,9 +312,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
