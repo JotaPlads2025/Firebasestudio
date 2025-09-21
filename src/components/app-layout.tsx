@@ -9,7 +9,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, UserCircle } from 'lucide-react';
+import { Bell, Instagram, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,7 @@ import { Input } from './ui/input';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { SidebarTrigger } from './ui/sidebar';
 import { TikTokIcon } from './ui/icons';
+import Link from 'next/link';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -35,7 +36,7 @@ const PladsProLogo = () => (
       >
         <rect width="24" height="24" rx="6" fill="hsl(var(--primary))" />
         <path
-          d="M12.7333 7.53331H9.39999V16.4666H12.7333C14.5333 16.4666 16 15.0666 16 13.2666V10.7333C16 8.93331 14.6 7.53331 12.7333 7.53331Z"
+          d="M12 7.5C10.62 7.5 9.5 8.62 9.5 10V14C9.5 15.38 10.62 16.5 12 16.5C13.38 16.5 14.5 15.38 14.5 14V10C14.5 8.62 13.38 7.5 12 7.5ZM11.5 14.5V9.5H12.5V14.5H11.5Z"
           fill="hsl(var(--accent))"
         />
       </svg>
@@ -63,6 +64,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Nav />
         </SidebarContent>
         <SidebarFooter>
+           <div className="flex flex-col gap-4 p-2 group-data-[collapsible=icon]:items-center">
+             <div className="flex items-center gap-4 justify-center text-sidebar-foreground/80 group-data-[collapsible=icon]:flex-col">
+              <a
+                href="https://www.instagram.com/pladsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sidebar-foreground"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/pladsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sidebar-foreground"
+                aria-label="TikTok"
+              >
+                <TikTokIcon className="h-4 w-4" />
+              </a>
+            </div>
+             <div className="group-data-[collapsible=icon]:hidden text-center text-xs text-sidebar-foreground/60 space-y-1">
+                <Link href="#" className="text-xs hover:underline">
+                  Terminos y condiciones
+                </Link>
+                <p>hola@plads.cl</p>
+             </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -113,8 +142,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <span className="sr-only">Toggle notifications</span>
             </Button>
             <div className="flex items-center gap-2">
-                <UserCircle className="h-6 w-6" />
-                <span className="hidden sm:inline">Susana González</span>
+              <Avatar className="h-8 w-8">
+                {userAvatar && (
+                  <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />
+                )}
+                <AvatarFallback>SG</AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline">Susana González</span>
             </div>
           </div>
         </header>
