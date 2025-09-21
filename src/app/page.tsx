@@ -235,7 +235,7 @@ export default function DashboardPage() {
             </ChartContainer>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Ingresos por Clase</CardTitle>
