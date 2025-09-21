@@ -82,7 +82,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
-    daysOffset: -1,
+    daysOffset: -1, // No date
   },
   {
     id: 'cls-005',
@@ -120,7 +120,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
 ];
 
 
-const categoryIcons: Record<Class['category'], React.ReactNode> = {
+const categoryIcons: Record<string, React.ReactNode> = {
   Dance: <Palette className="h-4 w-4" />,
   Sports: <Dumbbell className="h-4 w-4" />,
   Health: <HeartPulse className="h-4 w-4" />,
@@ -153,7 +153,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             <TableCell className="font-medium">{c.name}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                {c.category in categoryIcons ? categoryIcons[c.category] : null}
+                {categoryIcons[c.category]}
                 <span>{c.category}</span>
               </div>
             </TableCell>
@@ -193,23 +193,27 @@ function ClassesTable({ classes }: { classes: Class[] }) {
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
+  const [calendarStartDate, setCalendarStartDate] = useState<Date>();
 
   useEffect(() => {
     const today = new Date();
     const processedClasses = initialClassesData.map(item => {
-      const classDate = new Date();
-      classDate.setHours(0, 0, 0, 0); // Normalize time part
-      if (item.daysOffset !== -1) {
+      if (item.daysOffset !== -1 && item.daysOffset !== undefined) {
+        const classDate = new Date();
+        classDate.setHours(0, 0, 0, 0); // Normalize time part
         classDate.setDate(today.getDate() + item.daysOffset);
         return { ...item, date: classDate };
       }
-      // For items with no valid date, return as is without a date property
-      const { daysOffset, ...rest } = item;
-      return rest as Omit<Class, 'date' | 'daysOffset'>;
+      return item;
     }) as Class[];
+
+    const firstClassWithDate = processedClasses.find(c => c.date);
+    if(firstClassWithDate) {
+      setCalendarStartDate(firstClassWithDate.date);
+    }
     setClasses(processedClasses);
   }, []);
-
+  
   if (classes.length === 0) {
     return <div>Cargando clases...</div>;
   }
@@ -220,7 +224,6 @@ export default function ClassesPage() {
   
   const activeClasses = regularClasses.filter((c) => c.status === 'Active');
   const inactiveClasses = regularClasses.filter((c) => c.status === 'Inactive');
-  const calendarStartDate = classes.find(c => c.date)?.date;
 
   return (
     <div className="flex flex-col gap-8">

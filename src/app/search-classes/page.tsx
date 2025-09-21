@@ -26,7 +26,6 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
-import { StarRating } from '@/components/ui/star-rating';
 
 const availableClasses = [
   {
@@ -39,7 +38,6 @@ const availableClasses = [
     category: 'Baile',
     style: 'Salsa',
     level: 'Avanzado',
-    rating: 4.9,
   },
   {
     id: 'cls-102',
@@ -51,7 +49,6 @@ const availableClasses = [
     category: 'Salud',
     style: 'Yoga',
     level: 'Todos',
-    rating: 4.7,
   },
   {
     id: 'cls-103',
@@ -63,7 +60,6 @@ const availableClasses = [
     category: 'Arte',
     style: 'Cerámica',
     level: 'Principiante',
-    rating: 4.8,
   },
   {
     id: 'cls-104',
@@ -75,7 +71,6 @@ const availableClasses = [
     category: 'Deporte',
     style: 'Crossfit',
     level: 'Intermedio',
-    rating: 4.6,
   },
   {
     id: 'cls-105',
@@ -87,7 +82,6 @@ const availableClasses = [
     category: 'Arte',
     style: 'Pintura',
     level: 'Principiante',
-    rating: 4.9,
   },
   {
     id: 'cls-106',
@@ -99,7 +93,6 @@ const availableClasses = [
     category: 'Baile',
     style: 'Kizomba',
     level: 'Intermedio',
-    rating: 4.5,
   },
   {
     id: 'cls-107',
@@ -111,7 +104,6 @@ const availableClasses = [
     category: 'Baile',
     style: 'Bachata',
     level: 'Intermedio',
-    rating: 4.8,
   },
    {
     id: 'cls-108',
@@ -123,7 +115,6 @@ const availableClasses = [
     category: 'Bootcamp',
     style: 'General',
     level: 'Todos',
-    rating: 5.0,
   },
   {
     id: 'cls-109',
@@ -135,7 +126,6 @@ const availableClasses = [
     category: 'Coaching',
     style: 'Baile',
     level: 'Todos',
-    rating: 4.9,
   },
 ];
 
@@ -242,7 +232,7 @@ export default function SearchClassesPage() {
               <Select value={style} onValueChange={setStyle}>
                 <SelectTrigger>
                   <SelectValue placeholder="Estilo" />
-                </SelectTrigger>
+                </Trigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los estilos</SelectItem>
                   {subCategories[category]?.map((subCat) => (
@@ -300,10 +290,6 @@ export default function SearchClassesPage() {
             )}
             <CardHeader>
               <CardTitle>{c.name}</CardTitle>
-              <div className="flex items-center gap-2 pt-1">
-                <StarRating rating={c.rating} />
-                <span className="text-xs text-muted-foreground">({c.rating})</span>
-              </div>
               <CardDescription>Por {c.instructor}</CardDescription>
             </CardHeader>
             <CardContent>

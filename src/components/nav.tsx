@@ -29,15 +29,15 @@ const navItems = [
     icon: BookOpenCheck,
     label: 'Mis Clases',
   },
+    {
+    href: '/profile',
+    icon: UserCircle,
+    label: 'Perfíl',
+  },
   {
     href: '/search-classes',
     icon: Search,
     label: 'Buscar Clases',
-  },
-  {
-    href: '/profile',
-    icon: UserCircle,
-    label: 'Perfíl',
   },
   {
     href: '/pro-plan',
@@ -63,10 +63,11 @@ export default function Nav() {
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          <Link href={item.href} onClick={handleLinkClick}>
+          <Link href={item.href} onClick={handleLinkClick} legacyBehavior={false}>
             <SidebarMenuButton
               isActive={pathname === item.href}
               tooltip={item.label}
+              as="a"
             >
               <item.icon />
               <span>{item.label}</span>
