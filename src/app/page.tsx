@@ -25,6 +25,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
+  BarChart as RechartsBarChart,
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 
@@ -144,7 +145,7 @@ export default function DashboardPage() {
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={classPerformanceData} layout="vertical">
+                <RechartsBarChart data={classPerformanceData} layout="vertical">
                   <CartesianGrid horizontal={false} />
                   <XAxis type="number" hide />
                   <YAxis
@@ -161,7 +162,7 @@ export default function DashboardPage() {
                     content={<ChartTooltipContent indicator="dot" />}
                   />
                   <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
-                </BarChart>
+                </RechartsBarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
