@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import type { Class } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +10,18 @@ import { isSameDay } from 'date-fns';
 
 interface ClassCalendarProps {
   classes: Class[];
+  startDate?: Date;
 }
 
-export default function ClassCalendar({ classes }: ClassCalendarProps) {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+export default function ClassCalendar({ classes, startDate }: ClassCalendarProps) {
+  const [date, setDate] = useState<Date | undefined>(startDate);
+  
+  useEffect(() => {
+    if (startDate) {
+      setDate(startDate);
+    }
+  }, [startDate]);
+
 
   const classesByDate = classes.reduce((acc, cls) => {
     if (cls.date) {
@@ -45,6 +53,9 @@ export default function ClassCalendar({ classes }: ClassCalendarProps) {
         modifiersClassNames={{
           events: 'bg-primary/20 rounded-full',
         }}
+        // The key forces a re-render when the startDate changes, ensuring the calendar shows the correct month.
+        key={startDate?.toISOString()}
+        defaultMonth={startDate}
       />
       <div>
         <Card>

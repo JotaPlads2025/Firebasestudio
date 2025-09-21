@@ -8,4 +8,5 @@ export type Class = {
   bookings: number;
   revenue: number;
   date?: Date;
+  daysOffset?: number;
 };

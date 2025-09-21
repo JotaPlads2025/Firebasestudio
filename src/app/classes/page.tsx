@@ -34,14 +34,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
+import { useEffect, useState } from 'react';
 
-const getFutureDate = (daysToAdd: number) => {
-  const date = new Date(2024, 6, 15); // Use a fixed base date (July 15, 2024)
-  date.setDate(date.getDate() + daysToAdd);
-  return date;
-};
 
-const classes: Class[] = [
+const initialClassesData: Omit<Class, 'date'>[] = [
   {
     id: 'cls-001',
     name: 'Bachata Básico',
@@ -51,7 +47,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 120,
     revenue: 1800,
-    date: getFutureDate(2),
+    daysOffset: 2,
   },
   {
     id: 'cls-002',
@@ -62,7 +58,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 80,
     revenue: 3200,
-    date: getFutureDate(3),
+    daysOffset: 3,
   },
   {
     id: 'cls-003',
@@ -73,7 +69,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 150,
     revenue: 3000,
-    date: getFutureDate(5),
+    daysOffset: 5,
   },
   {
     id: 'cls-004',
@@ -84,6 +80,7 @@ const classes: Class[] = [
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
+    daysOffset: -1,
   },
   {
     id: 'cls-005',
@@ -94,7 +91,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 95,
     revenue: 950,
-    date: getFutureDate(8),
+    daysOffset: 8,
   },
   {
     id: 'coach-001',
@@ -105,7 +102,7 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 5,
     revenue: 250,
-    date: getFutureDate(4),
+    daysOffset: 4,
   },
   {
     id: 'bootcamp-001',
@@ -116,9 +113,10 @@ const classes: Class[] = [
     status: 'Active',
     bookings: 25,
     revenue: 3750,
-    date: getFutureDate(10),
+    daysOffset: 10,
   },
 ];
+
 
 const categoryIcons: Record<Class['category'], React.ReactNode> = {
   Dance: <Palette className="h-4 w-4" />,
@@ -192,12 +190,34 @@ function ClassesTable({ classes }: { classes: Class[] }) {
 }
 
 export default function ClassesPage() {
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  useEffect(() => {
+    const today = new Date();
+    const processedClasses = initialClassesData.map(item => {
+      const classDate = new Date(today);
+      if (item.daysOffset !== -1) {
+        classDate.setDate(today.getDate() + item.daysOffset);
+        return { ...item, date: classDate };
+      }
+      // For items with no valid date, return as is without a date property
+      const { daysOffset, ...rest } = item;
+      return rest as Omit<Class, 'date' | 'daysOffset'>;
+    }) as Class[];
+    setClasses(processedClasses);
+  }, []);
+
+  if (classes.length === 0) {
+    return <div>Cargando clases...</div>;
+  }
+
   const regularClasses = classes.filter((c) => c.category === 'Dance' || c.category === 'Sports' || c.category === 'Health');
   const coachingClasses = classes.filter((c) => c.category === 'Coaching');
   const bootcampClasses = classes.filter((c) => c.category === 'Bootcamp');
   
   const activeClasses = regularClasses.filter((c) => c.status === 'Active');
   const inactiveClasses = regularClasses.filter((c) => c.status === 'Inactive');
+  const calendarStartDate = classes.find(c => c.date)?.date;
 
   return (
     <div className="flex flex-col gap-8">
@@ -226,7 +246,7 @@ export default function ClassesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ClassCalendar classes={classes} />
+          <ClassCalendar classes={classes} startDate={calendarStartDate} />
         </CardContent>
       </Card>
 
