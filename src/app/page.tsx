@@ -31,13 +31,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 const revenueData = [
-  { mes: 'Jan', revenue: 4000 },
-  { mes: 'Feb', revenue: 3000 },
-  { mes: 'Mar', revenue: 5000 },
-  { mes: 'Apr', revenue: 4500 },
-  { mes: 'May', revenue: 6000 },
-  { mes: 'Jun', revenue: 5500 },
-  { mes: 'Jul', revenue: 7000 },
+  { month: 'Jan', revenue: 4000 },
+  { month: 'Feb', revenue: 3000 },
+  { month: 'Mar', revenue: 5000 },
+  { month: 'Apr', revenue: 4500 },
+  { month: 'May', revenue: 6000 },
+  { month: 'Jun', revenue: 5500 },
+  { month: 'Jul', revenue: 7000 },
 ];
 
 const classPerformanceData = [
@@ -67,42 +67,42 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Ingresos</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary">Total Ingresos</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$17,575</div>
-            <p className="text-xs text-muted-foreground">+12.5% Último mes</p>
+            <p className="text-xs text-accent-foreground">+12.5% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cupos agendados</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary">Total Cupos agendados</CardTitle>
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">445</div>
-            <p className="text-xs text-muted-foreground">+8.2% Último mes</p>
+            <p className="text-xs text-accent-foreground">+8.2% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nuevos alumn@s</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary">Nuevos alumn@s</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+72</div>
-            <p className="text-xs text-muted-foreground">+20% from last month</p>
+            <p className="text-xs text-accent-foreground">+20% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clases Activas</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary">Clases Activas</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">2 inactivas</p>
+            <p className="text-xs text-accent-foreground">2 inactivas</p>
           </CardContent>
         </Card>
       </div>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
               <LineChart data={revenueData}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="mes" tickLine={false} axisLine={false} tickMargin={8} />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
