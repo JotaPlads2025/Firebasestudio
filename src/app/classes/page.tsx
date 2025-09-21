@@ -58,7 +58,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     schedule: 'Jue, Jue de 6:00 PM',
     price: 40,
     status: 'Active',
-    bookings: 80,
+    bookings: 30,
     revenue: 3200,
     daysOffset: 3,
   },
@@ -69,7 +69,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     schedule: 'Sab at 10:00 AM',
     price: 20,
     status: 'Active',
-    bookings: 150,
+    bookings: 25,
     revenue: 3000,
     daysOffset: 5,
   },
@@ -91,7 +91,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     schedule: 'Lun at 7:00 PM',
     price: 10,
     status: 'Active',
-    bookings: 95,
+    bookings: 20,
     revenue: 950,
     daysOffset: 8,
   },
@@ -113,7 +113,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     schedule: '15-17 de Julio',
     price: 150,
     status: 'Active',
-    bookings: 25,
+    bookings: 40,
     revenue: 3750,
     daysOffset: 10,
   },
@@ -176,10 +176,10 @@ function ClassesTable({ classes }: { classes: Class[] }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                  <DropdownMenuItem>Editar</DropdownMenuItem>
+                  <DropdownMenuItem>Duplicar</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive">
-                    Delete
+                    Eliminar
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -228,7 +228,7 @@ export default function ClassesPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-headline text-3xl font-semibold">Mis Creaciones</h1>
+        <h1 className="font-headline text-3xl font-semibold">Mis Clases</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1">

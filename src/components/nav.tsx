@@ -35,7 +35,7 @@ const navItems = [
   {
     href: '/pro-plan',
     icon: Rocket,
-    label: 'Plan Pro',
+    label: 'Planes',
   },
   {
     href: '/settings',
