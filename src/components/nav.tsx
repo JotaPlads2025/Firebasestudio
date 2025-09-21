@@ -67,7 +67,6 @@ export default function Nav() {
             <SidebarMenuButton
               isActive={pathname === item.href}
               tooltip={item.label}
-              as="a"
             >
               <item.icon />
               <span>{item.label}</span>
