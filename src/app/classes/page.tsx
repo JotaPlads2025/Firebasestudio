@@ -158,10 +158,19 @@ export default function ClassesPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="font-headline text-3xl font-semibold">Mis Clases</h1>
-        <Button size="sm" className="gap-1">
-          <PlusCircle className="h-4 w-4" />
-          Crear Clase
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" className="gap-1">
+              <PlusCircle className="h-4 w-4" />
+              Crear
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Crear Clase</DropdownMenuItem>
+            <DropdownMenuItem>Crear Clase Personalizada</DropdownMenuItem>
+            <DropdownMenuItem>Crear Bootcamp</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <Card>
