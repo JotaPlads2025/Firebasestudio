@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import AppLayout from '@/components/app-layout';
+import Footer from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'Plads Pro',
@@ -31,8 +32,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body bg-background text-foreground antialiased">
+      <body className="font-body bg-background text-foreground antialiased flex flex-col min-h-screen">
         <AppLayout>{children}</AppLayout>
+        <Footer />
         <Toaster />
       </body>
     </html>

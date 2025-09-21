@@ -9,7 +9,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Instagram, Search, UserCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import {
 import { Input } from './ui/input';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { SidebarTrigger } from './ui/sidebar';
+import { TikTokIcon } from './ui/icons';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -69,12 +70,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
               >
                 <Avatar className="h-8 w-8">
-                  {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
+                  {userAvatar && (
+                    <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />
+                  )}
                   <AvatarFallback>SG</AvatarFallback>
                 </Avatar>
                 <div className="group-data-[collapsible=icon]:hidden">
-                  <p className="font-medium text-sidebar-foreground">Susana González</p>
-                  <p className="text-xs text-muted-foreground">susana.gonzalez@example.com</p>
+                  <p className="font-medium text-sidebar-foreground">
+                    Susana González
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    susana.gonzalez@example.com
+                  </p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
@@ -90,20 +97,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-sidebar-background px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 " />
             <Input
               type="search"
               placeholder="Search..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+              className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[200px] lg:w-[320px]"
             />
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Bell className="h-5 w-5" />
+              <span className="sr-only">Toggle notifications</span>
+            </Button>
+            <div className="flex items-center gap-2">
+                <UserCircle className="h-6 w-6" />
+                <span className="hidden sm:inline">Susana González</span>
+            </div>
+          </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
