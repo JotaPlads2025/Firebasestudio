@@ -65,8 +65,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         collapsible="icon"
         className="group data-[state=expanded]:bg-sidebar"
       >
-        <SidebarHeader>
+        <SidebarHeader className="flex items-center justify-between">
           <PladsProLogo />
+          <SidebarTrigger className="hidden md:flex" />
         </SidebarHeader>
         <SidebarContent className="p-2">
           <Nav />
