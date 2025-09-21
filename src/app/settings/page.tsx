@@ -7,13 +7,31 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Rocket } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Plan Actual</CardTitle>
+          <CardDescription>
+            Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/pro-plan">
+            <Button>
+              <Rocket className="mr-2 h-4 w-4" />
+              Mejorar a Pro
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -74,13 +92,12 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Cuenta</CardTitle>
-          <CardDescription>.</CardDescription>
+          <CardDescription>Gestión de tu cuenta.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="destructive">Eliminar cuenta</Button>
           <p className="text-sm text-muted-foreground mt-2">
-            Permanently delete your account and all associated data. This action
-            cannot be undone.
+            Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.
           </p>
         </CardContent>
       </Card>

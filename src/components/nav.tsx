@@ -9,6 +9,7 @@ import {
 import {
   BookOpenCheck,
   LayoutDashboard,
+  Rocket,
   Search,
   Settings,
   UserCircle,
@@ -29,6 +30,11 @@ const navItems = [
     href: '/search-classes',
     icon: Search,
     label: 'Buscar Clases',
+  },
+  {
+    href: '/pro-plan',
+    icon: Rocket,
+    label: 'Plan Pro',
   },
   {
     href: '/profile',

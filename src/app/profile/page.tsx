@@ -8,9 +8,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
+import { Edit, Rocket } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -20,7 +21,7 @@ export default function ProfilePage() {
       <h1 className="font-headline text-3xl font-semibold">Mi Perfíl</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 flex flex-col gap-8">
           <Card>
             <CardHeader className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
@@ -41,6 +42,20 @@ export default function ProfilePage() {
                 <Edit className="mr-2 h-4 w-4" />
                 Editar Perfíl
               </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-lg">Plan Actual</CardTitle>
+              <CardDescription>Actualmente estás en el plan Gratuito.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/pro-plan" className="w-full">
+                <Button className="w-full">
+                  <Rocket className="mr-2 h-4 w-4" />
+                  Mejorar a Pro
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
