@@ -13,7 +13,6 @@ import {
   BookOpenCheck,
   LayoutDashboard,
   Rocket,
-  Search,
   Settings,
   UserCircle,
 } from 'lucide-react';
@@ -35,11 +34,6 @@ const navItems = [
     label: 'Perfíl',
   },
   {
-    href: '/search-classes',
-    icon: Search,
-    label: 'Buscar Clases',
-  },
-  {
     href: '/pro-plan',
     icon: Rocket,
     label: 'Plan Pro',
@@ -53,18 +47,21 @@ const navItems = [
 
 export default function Nav() {
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  const { openMobile, setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {
-    setOpenMobile(false);
+    if (openMobile) {
+      setOpenMobile(false);
+    }
   };
 
   return (
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          <Link href={item.href} onClick={handleLinkClick} legacyBehavior={false}>
+          <Link href={item.href} onClick={handleLinkClick} legacyBehavior={false} passHref>
             <SidebarMenuButton
+              as="a"
               isActive={pathname === item.href}
               tooltip={item.label}
             >
