@@ -25,27 +25,35 @@ import { TikTokIcon } from './ui/icons';
 import Link from 'next/link';
 
 const PladsProLogo = () => (
-  <div className="flex items-center gap-2">
-    <div className="p-1.5 bg-primary rounded-lg">
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="24" height="24" rx="6" fill="hsl(var(--primary))" />
-        <path
-          d="M12 7.5C10.62 7.5 9.5 8.62 9.5 10V14C9.5 15.38 10.62 16.5 12 16.5C13.38 16.5 14.5 15.38 14.5 14V10C14.5 8.62 13.38 7.5 12 7.5ZM11.5 14.5V9.5H12.5V14.5H11.5Z"
-          fill="hsl(var(--accent))"
-        />
-      </svg>
+    <div className="flex items-center gap-2">
+      <div className="rounded-lg bg-primary p-1.5">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="24" height="24" rx="6" fill="hsl(var(--primary))" />
+          <text
+            x="50%"
+            y="50%"
+            dominantBaseline="middle"
+            textAnchor="middle"
+            fill="hsl(var(--accent))"
+            fontSize="16"
+            fontWeight="bold"
+            fontFamily="sans-serif"
+          >
+            P
+          </text>
+        </svg>
+      </div>
+      <span className="font-headline text-xl font-bold text-sidebar-foreground">
+        Plads Pro
+      </span>
     </div>
-    <span className="font-headline text-xl font-bold text-sidebar-foreground">
-      Plads Pro
-    </span>
-  </div>
-);
+  );
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -55,7 +63,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar
         variant="sidebar"
         collapsible="icon"
-        className="group data-[state=expanded]:bg-sidebar-background"
+        className="group data-[state=expanded]:bg-sidebar"
       >
         <SidebarHeader>
           <PladsProLogo />
@@ -126,7 +134,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-sidebar-background px-4 text-sidebar-foreground md:px-6">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-sidebar px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 " />
