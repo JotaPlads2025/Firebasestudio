@@ -42,10 +42,10 @@ import { Badge } from '@/components/ui/badge';
 import AiAssistantForm from '@/components/ai-assistant-form';
 
 const revenueData = [
-  { month: 'Jan', revenue: 4000 },
+  { month: 'Ene', revenue: 4000 },
   { month: 'Feb', revenue: 3000 },
   { month: 'Mar', revenue: 5000 },
-  { month: 'Apr', revenue: 4500 },
+  { month: 'Abr', revenue: 4500 },
   { month: 'May', revenue: 6000 },
   { month: 'Jun', revenue: 5500 },
   { month: 'Jul', revenue: 7000 },
@@ -101,27 +101,27 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
+      <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-bold text-primary">Total Ingresos</CardTitle>
+            <CardTitle className="text-base font-bold text-primary text-[30px]">Total Ingresos</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$890.000</div>
-            <p className="text-xs font-bold text-brand-green">+12.5% Último mes</p>
+            <p className="text-xs font-bold text-[#008000] text-[15px]">+12.5% Último mes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-primary">Total Cupos agendados</CardTitle>
+            <CardTitle className="text-sm font-bold text-primary ">Total Cupos agendados</CardTitle>
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">445</div>
-            <p className="text-xs font-bold text-brand-green">+8.2% Último mes</p>
+            <p className="text-xs font-bold text-[#008000] text-[15px]">+8.2% Último mes</p>
           </CardContent>
         </Card>
         <Card>

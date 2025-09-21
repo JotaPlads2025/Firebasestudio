@@ -25,35 +25,31 @@ import { TikTokIcon } from './ui/icons';
 import Link from 'next/link';
 
 const PladsProLogo = () => (
-    <div className="flex items-center gap-2">
-      <div className="rounded-lg bg-white/20 p-1.5">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect width="24" height="24" rx="6" fill="transparent" />
-          <text
-            x="50%"
-            y="50%"
-            dominantBaseline="middle"
-            textAnchor="middle"
-            fill="white"
-            fontSize="16"
-            fontWeight="bold"
-            fontFamily="sans-serif"
-          >
-            P
-          </text>
-        </svg>
-      </div>
-      <span className="font-headline text-xl font-bold text-sidebar-foreground">
-        Plads Pro
-      </span>
+  <div className="flex items-center gap-2">
+    <div className="rounded-lg p-1.5">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect width="24" height="24" rx="6" fill="#4A3186" />
+        <path
+          d="M16.1263 7.8737C15.0355 6.78284 13.5977 6.18841 12.094 6.18841C10.5902 6.18841 9.15243 6.78284 8.06157 7.8737C7.54593 8.38933 7.15112 9.01182 6.90382 9.6993C6.65651 10.3868 6.56277 11.1213 6.62939 11.8478C7.03986 11.7588 7.44955 11.7588 7.85923 11.8478C8.1691 11.9099 8.46594 12.0289 8.73812 12.1979C9.0103 12.3669 9.25265 12.5828 9.45332 12.8348C9.65399 13.0868 9.80959 13.3705 9.91244 13.6732C10.0153 13.9759 10.0634 14.2926 10.0544 14.6094C9.96541 15.0191 9.96541 15.4288 10.0544 15.8385C10.121 16.565 10.347 17.2625 10.7118 17.881C11.4582 19.1415 12.7533 20 14.1802 20C15.6071 20 16.9023 19.1415 17.6486 17.881C18.0134 17.2625 18.2394 16.565 18.3061 15.8385C18.3951 15.4288 18.3951 15.0191 18.3061 14.6094C18.2971 14.2926 18.2489 13.9759 18.1461 13.6732C18.0432 13.3705 17.8876 13.0868 17.687 12.8348C17.4863 12.5828 17.244 12.3669 16.9718 12.1979C16.6996 12.0289 16.4028 11.9099 16.0929 11.8478C16.5026 11.7588 16.9123 11.7588 17.322 11.8478C17.4373 11.1383 17.3061 10.4202 16.9427 9.78284C16.5794 9.14552 16.0013 8.61869 15.2818 8.2713C14.5623 7.92391 13.7383 7.77336 12.926 7.84008C12.1137 7.9068 11.3484 8.18784 10.7118 8.64964"
+          transform="matrix(0.85, 0.4, -0.4, 0.85, 4, 0)"
+          stroke="#5EE783"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
-  );
+    <span className="font-headline text-xl font-bold text-sidebar-foreground">
+      Plads Pro
+    </span>
+  </div>
+);
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
