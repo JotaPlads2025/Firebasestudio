@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -40,6 +41,12 @@
       "id": "class-kizomba",
       "description": "A couple dancing kizomba",
       "imageUrl": "https://picsum.photos/seed/kizomba/600/400",
+      "imageHint": "couple dancing"
+    },
+    {
+      "id": "class-bachata",
+      "description": "A couple dancing bachata",
+      "imageUrl": "https://picsum.photos/seed/bachata/600/400",
       "imageHint": "couple dancing"
     }
   ]

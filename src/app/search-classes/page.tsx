@@ -25,6 +25,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { regions, communesByRegion } from '@/lib/locations';
+import { categories, subCategories } from '@/lib/categories';
 
 const availableClasses = [
   {
@@ -35,6 +36,7 @@ const availableClasses = [
     image: PlaceHolderImages.find((img) => img.id === 'class-salsa'),
     price: 25,
     category: 'Baile',
+    style: 'Salsa',
     level: 'Avanzado',
   },
   {
@@ -45,6 +47,7 @@ const availableClasses = [
     image: PlaceHolderImages.find((img) => img.id === 'class-yoga'),
     price: 20,
     category: 'Salud',
+    style: 'Yoga',
     level: 'Todos',
   },
   {
@@ -55,16 +58,18 @@ const availableClasses = [
     image: PlaceHolderImages.find((img) => img.id === 'class-ceramics'),
     price: 30,
     category: 'Arte',
+    style: 'Cerámica',
     level: 'Principiante',
   },
   {
     id: 'cls-104',
-    name: 'Entrenamiento Funcional',
+    name: 'Entrenamiento Crossfit',
     instructor: 'Javier Torres',
     description: 'Mejora tu fuerza, resistencia y agilidad con este entrenamiento de alta intensidad.',
     image: PlaceHolderImages.find((img) => img.id === 'class-fitness'),
     price: 15,
     category: 'Deporte',
+    style: 'Crossfit',
     level: 'Intermedio',
   },
   {
@@ -75,6 +80,7 @@ const availableClasses = [
     image: PlaceHolderImages.find((img) => img.id === 'class-art'),
     price: 28,
     category: 'Arte',
+    style: 'Pintura',
     level: 'Principiante',
   },
   {
@@ -85,6 +91,18 @@ const availableClasses = [
     image: PlaceHolderImages.find((img) => img.id === 'class-kizomba'),
     price: 22,
     category: 'Baile',
+    style: 'Kizomba',
+    level: 'Intermedio',
+  },
+  {
+    id: 'cls-107',
+    name: 'Bachata Sensual',
+    instructor: 'Susana González',
+    description: 'Aprende los movimientos más sensuales y fluidos de la bachata.',
+    image: PlaceHolderImages.find((img) => img.id === 'class-bachata'),
+    price: 20,
+    category: 'Baile',
+    style: 'Bachata',
     level: 'Intermedio',
   },
 ];
@@ -93,9 +111,20 @@ export default function SearchClassesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState([0, 50]);
   const [category, setCategory] = useState('all');
+  const [style, setStyle] = useState('all');
   const [level, setLevel] = useState('all');
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedCommune, setSelectedCommune] = useState('all');
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setStyle('all'); // Reset style when category changes
+  };
+  
+  const handleRegionChange = (value: string) => {
+    setSelectedRegion(value);
+    setSelectedCommune('all'); // Reset commune when region changes
+  };
 
   const filteredClasses = availableClasses.filter((c) => {
     const searchMatch =
@@ -103,18 +132,14 @@ export default function SearchClassesPage() {
       c.instructor.toLowerCase().includes(searchTerm.toLowerCase());
     const priceMatch = c.price >= priceRange[0] && c.price <= priceRange[1];
     const categoryMatch = category === 'all' || c.category === category;
+    const styleMatch = style === 'all' || c.style === style;
     const levelMatch = level === 'all' || c.level === level;
 
     // Lógica de filtrado por ubicación (a futuro se puede conectar a datos reales)
     const locationMatch = selectedRegion === 'all' || selectedCommune === 'all' || true;
 
-    return searchMatch && priceMatch && categoryMatch && levelMatch && locationMatch;
+    return searchMatch && priceMatch && categoryMatch && styleMatch && levelMatch && locationMatch;
   });
-
-  const handleRegionChange = (value: string) => {
-    setSelectedRegion(value);
-    setSelectedCommune('all'); // Reset commune when region changes
-  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -141,7 +166,7 @@ export default function SearchClassesPage() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <Select value={selectedRegion} onValueChange={handleRegionChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Región" />
@@ -168,18 +193,34 @@ export default function SearchClassesPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={handleCategoryChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las categorías</SelectItem>
-                <SelectItem value="Deporte">Deporte</SelectItem>
-                <SelectItem value="Baile">Baile</SelectItem>
-                <SelectItem value="Arte">Arte</SelectItem>
-                <SelectItem value="Salud">Salud</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {(category === 'Baile' || category === 'Deporte') && (
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Estilo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estilos</SelectItem>
+                  {subCategories[category]?.map((subCat) => (
+                    <SelectItem key={subCat.value} value={subCat.value}>
+                      {subCat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Select value={level} onValueChange={setLevel}>
               <SelectTrigger>
                 <SelectValue placeholder="Nivel" />
