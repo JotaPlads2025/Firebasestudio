@@ -232,7 +232,7 @@ export default function SearchClassesPage() {
               <Select value={style} onValueChange={setStyle}>
                 <SelectTrigger>
                   <SelectValue placeholder="Estilo" />
-                </Trigger>
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los estilos</SelectItem>
                   {subCategories[category]?.map((subCat) => (
@@ -311,3 +311,5 @@ export default function SearchClassesPage() {
     </div>
   );
 }
+
+    
