@@ -50,23 +50,23 @@ import {
 import { Button } from '@/components/ui/button';
 
 const revenueData = [
-  { month: 'Ene', revenue: 4000, newStudents: 10, activeClasses: 5, bookings: 120 },
-  { month: 'Feb', revenue: 3000, newStudents: 8, activeClasses: 5, bookings: 110 },
-  { month: 'Mar', revenue: 5000, newStudents: 15, activeClasses: 6, bookings: 150 },
-  { month: 'Abr', revenue: 4500, newStudents: 12, activeClasses: 6, bookings: 140 },
-  { month: 'May', revenue: 6000, newStudents: 18, activeClasses: 7, bookings: 160 },
-  { month: 'Jun', revenue: 5500, newStudents: 16, activeClasses: 7, bookings: 155 },
-  { month: 'Jul', revenue: 7000, newStudents: 20, activeClasses: 8, bookings: 180 },
-  { month: 'Ago', revenue: 7500, newStudents: 22, activeClasses: 8, bookings: 190 },
-  { month: 'Sep', revenue: 8000, newStudents: 25, activeClasses: 9, bookings: 200 },
+  { month: 'Ene', revenue: 4000000, newStudents: 10, activeClasses: 5, bookings: 120 },
+  { month: 'Feb', revenue: 3000000, newStudents: 8, activeClasses: 5, bookings: 110 },
+  { month: 'Mar', revenue: 5000000, newStudents: 15, activeClasses: 6, bookings: 150 },
+  { month: 'Abr', revenue: 4500000, newStudents: 12, activeClasses: 6, bookings: 140 },
+  { month: 'May', revenue: 6000000, newStudents: 18, activeClasses: 7, bookings: 160 },
+  { month: 'Jun', revenue: 5500000, newStudents: 16, activeClasses: 7, bookings: 155 },
+  { month: 'Jul', revenue: 7000000, newStudents: 20, activeClasses: 8, bookings: 180 },
+  { month: 'Ago', revenue: 7500000, newStudents: 22, activeClasses: 8, bookings: 190 },
+  { month: 'Sep', revenue: 8000000, newStudents: 25, activeClasses: 9, bookings: 200 },
 ];
 
 const classPerformanceData = [
-  { name: 'Bachata Básico', bookings: 120, revenue: 2400 },
-  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200 },
-  { name: 'Bachata Amateur', bookings: 150, revenue: 2250 },
-  { name: 'Bachata Alumna', bookings: 95, revenue: 1425 },
-  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000 },
+  { name: 'Bachata Básico', bookings: 120, revenue: 2400000 },
+  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200000 },
+  { name: 'Bachata Amateur', bookings: 150, revenue: 2250000 },
+  { name: 'Bachata Alumna', bookings: 95, revenue: 1425000 },
+  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000000 },
 ];
 
 const chartConfig = {
@@ -156,7 +156,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString() : '...'}</div>
+            <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString('es-CL') : '...'}</div>
             <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString() : '...'}</div>
+            <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString('es-CL') : '...'}</div>
              <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString() : '...'}</div>
+            <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString('es-CL') : '...'}</div>
             <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -241,12 +241,12 @@ export default function DashboardPage() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => `${"$" + (value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(0)}M`}
                   tick={{ fontWeight: 'bold' }}
                 />
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
+                  content={<ChartTooltipContent indicator="line" formatter={(value) => `$${Number(value).toLocaleString('es-CL')}`}/>}
                 />
                 <Line
                   dataKey="revenue"
@@ -275,7 +275,7 @@ export default function DashboardPage() {
               <PieChart>
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
+                  content={<ChartTooltipContent hideLabel formatter={(value) => `$${Number(value).toLocaleString('es-CL')}`} />}
                 />
                 <Pie
                   data={classPerformanceData}
@@ -294,7 +294,7 @@ export default function DashboardPage() {
           <CardFooter className="flex-col gap-2 text-sm pt-4">
               <div className="flex items-center justify-between w-full">
                   <span>Total Ingresos:</span>
-                  <span className="font-bold">${isClient ? totalRevenueAllClasses.toLocaleString() : '...'}</span>
+                  <span className="font-bold">${isClient ? totalRevenueAllClasses.toLocaleString('es-CL') : '...'}</span>
               </div>
           </CardFooter>
         </Card>
@@ -330,3 +330,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

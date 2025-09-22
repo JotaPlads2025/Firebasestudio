@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -51,13 +52,13 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     category: 'Dance',
     schedule: 'Lun, Mie, Vie at 9:00 AM',
     pricePlans: [
-      { name: 'Clase suelta', price: 15 },
-      { name: '4 Clases', price: 50 },
-      { name: '8 Clases', price: 90 },
+      { name: 'Clase suelta', price: 6000 },
+      { name: '4 Clases', price: 22000 },
+      { name: '8 Clases', price: 45000 },
     ],
     status: 'Active',
-    bookings: 120,
-    revenue: 1800,
+    bookings: 60,
+    revenue: 1800000,
     daysOffset: 2,
   },
   {
@@ -66,12 +67,12 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     category: 'Dance',
     schedule: 'Jue, Jue de 6:00 PM',
     pricePlans: [
-      { name: 'Clase suelta', price: 40 },
-      { name: '4 Clases', price: 150 },
+      { name: 'Clase suelta', price: 8000 },
+      { name: '4 Clases', price: 30000 },
     ],
     status: 'Active',
     bookings: 30,
-    revenue: 3200,
+    revenue: 3200000,
     daysOffset: 3,
   },
   {
@@ -80,13 +81,13 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     category: 'Dance',
     schedule: 'Sab at 10:00 AM',
     pricePlans: [
-      { name: 'Clase suelta', price: 20 },
-      { name: '4 Clases', price: 70 },
-      { name: '8 Clases', price: 130 },
+      { name: 'Clase suelta', price: 8000 },
+      { name: '4 Clases', price: 30000 },
+      { name: '8 Clases', price: 50000 },
     ],
     status: 'Active',
     bookings: 25,
-    revenue: 3000,
+    revenue: 3000000,
     daysOffset: 5,
   },
   {
@@ -94,7 +95,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Amateur',
     category: 'Dance',
     schedule: 'Dom at 2:00 PM',
-    pricePlans: [{ name: 'Clase suelta', price: 35 }],
+    pricePlans: [{ name: 'Clase suelta', price: 6000 }],
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
@@ -105,10 +106,10 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Alumnas',
     category: 'Dance',
     schedule: 'Lun at 7:00 PM',
-    pricePlans: [{ name: 'Mensual', price: 100 }],
+    pricePlans: [{ name: 'Mensual', price: 6000 }],
     status: 'Active',
     bookings: 20,
-    revenue: 950,
+    revenue: 950000,
     daysOffset: 8,
   },
   {
@@ -116,10 +117,10 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Coaching Personalizado de Bachata',
     category: 'Coaching',
     schedule: 'A convenir',
-    pricePlans: [{ name: 'Sesión única', price: 50 }],
+    pricePlans: [{ name: 'Sesión única', price: 50000 }],
     status: 'Active',
     bookings: 5,
-    revenue: 250,
+    revenue: 250000,
     daysOffset: 4,
   },
   {
@@ -127,10 +128,10 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bootcamp Intensivo de Verano',
     category: 'Bootcamp',
     schedule: '15-17 de Julio',
-    pricePlans: [{ name: 'Acceso total', price: 150 }],
+    pricePlans: [{ name: 'Acceso total', price: 150000 }],
     status: 'Active',
     bookings: 40,
-    revenue: 3750,
+    revenue: 3750000,
     daysOffset: 10,
   },
 ];
@@ -176,7 +177,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             <TableCell className="hidden md:table-cell">{c.schedule}</TableCell>
             <TableCell className="hidden md:table-cell">
               {c.pricePlans.length === 1 ? (
-                `$${c.pricePlans[0].price.toFixed(2)}`
+                `$${c.pricePlans[0].price.toLocaleString('es-CL')}`
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -190,7 +191,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
                     {c.pricePlans.map((plan) => (
                       <DropdownMenuItem key={plan.name} className="flex justify-between">
                         <span>{plan.name}</span>
-                        <span className="font-semibold">${plan.price.toFixed(2)}</span>
+                        <span className="font-semibold">${plan.price.toLocaleString('es-CL')}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -337,3 +338,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    
