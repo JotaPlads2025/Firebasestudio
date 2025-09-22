@@ -29,7 +29,7 @@ export default function VideoGallery() {
           key={`empty-${index}`}
           className="aspect-video flex flex-col items-center justify-center bg-muted/50 border-2 border-dashed"
         >
-          <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+          <CardContent className="flex flex-col items-center justify-center gap-2 p-6">
             <Video className="h-8 w-8 text-muted-foreground" />
              <Button variant="ghost" size="sm" onClick={handleUpload}>
                 <Upload className="mr-2 h-4 w-4" />
