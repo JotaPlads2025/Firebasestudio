@@ -1,9 +1,14 @@
+export type ClassPricePlan = {
+  name: string;
+  price: number;
+};
+
 export type Class = {
   id: string;
   name: string;
   category: 'Dance' | 'Sports' | 'Health' | 'Coaching' | 'Bootcamp';
   schedule: string;
-  price: number;
+  pricePlans: ClassPricePlan[];
   status: 'Active' | 'Inactive';
   bookings: number;
   revenue: number;

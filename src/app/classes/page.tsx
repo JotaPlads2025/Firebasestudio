@@ -21,6 +21,7 @@ import type { Class } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
   Briefcase,
+  ChevronDown,
   Dumbbell,
   HeartPulse,
   MoreHorizontal,
@@ -34,6 +35,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
 import { useEffect, useState } from 'react';
@@ -45,7 +50,11 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Básico',
     category: 'Dance',
     schedule: 'Lun, Mie, Vie at 9:00 AM',
-    price: 15,
+    pricePlans: [
+      { name: 'Clase suelta', price: 15 },
+      { name: '4 Clases', price: 50 },
+      { name: '8 Clases', price: 90 },
+    ],
     status: 'Active',
     bookings: 120,
     revenue: 1800,
@@ -56,7 +65,10 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Open Lady',
     category: 'Dance',
     schedule: 'Jue, Jue de 6:00 PM',
-    price: 40,
+    pricePlans: [
+      { name: 'Clase suelta', price: 40 },
+      { name: '4 Clases', price: 150 },
+    ],
     status: 'Active',
     bookings: 30,
     revenue: 3200,
@@ -67,7 +79,11 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Intermedio',
     category: 'Dance',
     schedule: 'Sab at 10:00 AM',
-    price: 20,
+    pricePlans: [
+      { name: 'Clase suelta', price: 20 },
+      { name: '4 Clases', price: 70 },
+      { name: '8 Clases', price: 130 },
+    ],
     status: 'Active',
     bookings: 25,
     revenue: 3000,
@@ -78,7 +94,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Amateur',
     category: 'Dance',
     schedule: 'Dom at 2:00 PM',
-    price: 35,
+    pricePlans: [{ name: 'Clase suelta', price: 35 }],
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
@@ -89,7 +105,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bachata Alumnas',
     category: 'Dance',
     schedule: 'Lun at 7:00 PM',
-    price: 10,
+    pricePlans: [{ name: 'Mensual', price: 100 }],
     status: 'Active',
     bookings: 20,
     revenue: 950,
@@ -100,7 +116,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Coaching Personalizado de Bachata',
     category: 'Coaching',
     schedule: 'A convenir',
-    price: 50,
+    pricePlans: [{ name: 'Sesión única', price: 50 }],
     status: 'Active',
     bookings: 5,
     revenue: 250,
@@ -111,7 +127,7 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     name: 'Bootcamp Intensivo de Verano',
     category: 'Bootcamp',
     schedule: '15-17 de Julio',
-    price: 150,
+    pricePlans: [{ name: 'Acceso total', price: 150 }],
     status: 'Active',
     bookings: 40,
     revenue: 3750,
@@ -140,7 +156,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
           <TableHead>Nombre</TableHead>
           <TableHead>Categoria</TableHead>
           <TableHead className="hidden md:table-cell">Schedule</TableHead>
-          <TableHead className="hidden md:table-cell">Price</TableHead>
+          <TableHead className="hidden md:table-cell">Planes</TableHead>
           <TableHead className="hidden sm:table-cell">Status</TableHead>
           <TableHead>
             <span className="sr-only">Actions</span>
@@ -159,7 +175,27 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             </TableCell>
             <TableCell className="hidden md:table-cell">{c.schedule}</TableCell>
             <TableCell className="hidden md:table-cell">
-              ${c.price.toFixed(2)}
+              {c.pricePlans.length === 1 ? (
+                `$${c.pricePlans[0].price.toFixed(2)}`
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      Ver Planes
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Planes de Precios</DropdownMenuLabel>
+                    {c.pricePlans.map((plan) => (
+                      <DropdownMenuItem key={plan.name} className="flex justify-between">
+                        <span>{plan.name}</span>
+                        <span className="font-semibold">${plan.price.toFixed(2)}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <Badge variant={c.status === 'Active' ? 'default' : 'secondary'}>
