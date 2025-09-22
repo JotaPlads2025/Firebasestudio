@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -103,6 +102,11 @@ const chartConfig = {
 
 export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('all');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleDownloadExcel = () => {
     // Placeholder function for Excel download logic
@@ -152,7 +156,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString() : '...'}</div>
             <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -162,7 +166,7 @@ export default function DashboardPage() {
             <BookCopy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalBookings.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString() : '...'}</div>
              <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -172,7 +176,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{totalNewStudents.toLocaleString()}</div>
+            <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString() : '...'}</div>
             <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
           </CardContent>
         </Card>
@@ -290,7 +294,7 @@ export default function DashboardPage() {
           <CardFooter className="flex-col gap-2 text-sm pt-4">
               <div className="flex items-center justify-between w-full">
                   <span>Total Ingresos:</span>
-                  <span className="font-bold">${totalRevenueAllClasses.toLocaleString()}</span>
+                  <span className="font-bold">${isClient ? totalRevenueAllClasses.toLocaleString() : '...'}</span>
               </div>
           </CardFooter>
         </Card>
