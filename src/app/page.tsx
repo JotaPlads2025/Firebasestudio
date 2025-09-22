@@ -50,15 +50,20 @@ import {
 import { Button } from '@/components/ui/button';
 
 const revenueData = [
-  { month: 'Ene', revenue: 4000000, newStudents: 10, activeClasses: 5, bookings: 120 },
-  { month: 'Feb', revenue: 3000000, newStudents: 8, activeClasses: 5, bookings: 110 },
-  { month: 'Mar', revenue: 5000000, newStudents: 15, activeClasses: 6, bookings: 150 },
-  { month: 'Abr', revenue: 4500000, newStudents: 12, activeClasses: 6, bookings: 140 },
-  { month: 'May', revenue: 6000000, newStudents: 18, activeClasses: 7, bookings: 160 },
-  { month: 'Jun', revenue: 5500000, newStudents: 16, activeClasses: 7, bookings: 155 },
-  { month: 'Jul', revenue: 7000000, newStudents: 20, activeClasses: 8, bookings: 180 },
-  { month: 'Ago', revenue: 7500000, newStudents: 22, activeClasses: 8, bookings: 190 },
-  { month: 'Sep', revenue: 8000000, newStudents: 25, activeClasses: 9, bookings: 200 },
+  { month: 'Ene', revenue: 4000000, newStudents: 10, activeClasses: 5, bookings: 120, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Feb', revenue: 3000000, newStudents: 8, activeClasses: 5, bookings: 110, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Mar', revenue: 5000000, newStudents: 15, activeClasses: 6, bookings: 150, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Abr', revenue: 4500000, newStudents: 12, activeClasses: 6, bookings: 140, dayOfWeek: 'all', classType: 'all' },
+  { month: 'May', revenue: 6000000, newStudents: 18, activeClasses: 7, bookings: 160, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Jun', revenue: 5500000, newStudents: 16, activeClasses: 7, bookings: 155, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Jul', revenue: 7000000, newStudents: 20, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Ago', revenue: 7500000, newStudents: 22, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Sep', revenue: 8000000, newStudents: 25, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all' },
+  // Sample data for specific days/types
+  { month: 'Jul', revenue: 1000000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance' },
+  { month: 'Jul', revenue: 1500000, newStudents: 3, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance' },
+  { month: 'Jul', revenue: 2000000, newStudents: 8, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance' },
+  { month: 'Ago', revenue: 1200000, newStudents: 6, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching' },
 ];
 
 const classPerformanceData = [
@@ -100,8 +105,31 @@ const chartConfig = {
   },
 };
 
+const daysOfWeek = [
+    { value: 'all', label: 'Todos los días' },
+    { value: 'Lun', label: 'Lunes' },
+    { value: 'Mar', label: 'Martes' },
+    { value: 'Mie', label: 'Miércoles' },
+    { value: 'Jue', label: 'Jueves' },
+    { value: 'Vie', label: 'Viernes' },
+    { value: 'Sab', label: 'Sábado' },
+    { value: 'Dom', label: 'Domingo' },
+];
+
+const classTypes = [
+    { value: 'all', label: 'Todas las clases' },
+    { value: 'Dance', label: 'Baile' },
+    { value: 'Coaching', label: 'Coaching' },
+    { value: 'Bootcamp', label: 'Bootcamp' },
+    { value: 'Sports', label: 'Deporte' },
+    { value: 'Health', label: 'Salud' },
+];
+
+
 export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedDay, setSelectedDay] = useState('all');
+  const [selectedClassType, setSelectedClassType] = useState('all');
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -113,15 +141,51 @@ export default function DashboardPage() {
     alert('La funcionalidad para descargar el archivo Excel será implementada.');
   };
 
-  const filteredRevenueData = selectedMonth === 'all'
-    ? revenueData
-    : revenueData.filter(d => d.month === selectedMonth);
+  const filteredRevenueData = revenueData.filter(d => {
+    const monthMatch = selectedMonth === 'all' || d.month === selectedMonth;
+    const dayMatch = selectedDay === 'all' || d.dayOfWeek === selectedDay || (selectedDay !== 'all' && d.dayOfWeek === 'all'); // Show totals if a specific day is selected but data is aggregated
+    const classTypeMatch = selectedClassType === 'all' || d.classType === selectedClassType || (selectedClassType !== 'all' && d.classType === 'all');
+    return monthMatch && dayMatch && classTypeMatch;
+  });
 
-  const totalRevenue = filteredRevenueData.reduce((acc, c) => acc + c.revenue, 0);
-  const totalBookings = filteredRevenueData.reduce((acc, c) => acc + c.bookings, 0);
-  const totalNewStudents = filteredRevenueData.reduce((acc, c) => acc + c.newStudents, 0);
-  const averageActiveClasses = filteredRevenueData.length > 0
-    ? Math.round(filteredRevenueData.reduce((acc, c) => acc + c.activeClasses, 0) / filteredRevenueData.length)
+  const getFilteredData = () => {
+    return revenueData.filter(d => {
+        const monthMatch = selectedMonth === 'all' || d.month === selectedMonth;
+        const dayMatch = selectedDay === 'all' || d.dayOfWeek === selectedDay;
+        const classTypeMatch = selectedClassType === 'all' || d.classType === selectedClassType;
+
+        if(selectedMonth !== 'all' && selectedDay !== 'all' && selectedClassType !== 'all') {
+            return d.month === selectedMonth && d.dayOfWeek === selectedDay && d.classType === selectedClassType;
+        }
+        if(selectedMonth !== 'all' && selectedDay !== 'all') {
+            return d.month === selectedMonth && d.dayOfWeek === selectedDay && d.classType === 'all';
+        }
+        if(selectedMonth !== 'all' && selectedClassType !== 'all') {
+            return d.month === selectedMonth && d.classType === selectedClassType && d.dayOfWeek === 'all';
+        }
+        if(selectedDay !== 'all' && selectedClassType !== 'all') {
+             return d.dayOfWeek === selectedDay && d.classType === selectedClassType && d.month === 'all';
+        }
+        if(selectedMonth !== 'all') {
+            return d.month === selectedMonth && d.dayOfWeek === 'all' && d.classType === 'all';
+        }
+        if(selectedDay !== 'all') {
+            return d.dayOfWeek === selectedDay && d.month === 'all' && d.classType === 'all';
+        }
+        if(selectedClassType !== 'all') {
+            return d.classType === selectedClassType && d.month === 'all' && d.dayOfWeek === 'all';
+        }
+
+        return true; // all filters are 'all'
+    })
+  }
+
+  const finalData = getFilteredData();
+  const totalRevenue = finalData.reduce((acc, c) => acc + c.revenue, 0);
+  const totalBookings = finalData.reduce((acc, c) => acc + c.bookings, 0);
+  const totalNewStudents = finalData.reduce((acc, c) => acc + c.newStudents, 0);
+  const averageActiveClasses = finalData.length > 0
+    ? Math.round(finalData.reduce((acc, c) => acc + c.activeClasses, 0) / finalData.length)
     : 0;
   
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
@@ -130,19 +194,40 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Seleccionar mes" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Todos los meses</SelectItem>
-                        {revenueData.map(d => (
-                            <SelectItem key={d.month} value={d.month}>{d.month}</SelectItem>
+                        {/* Get unique months from data */}
+                        {[...new Set(revenueData.map(d => d.month))].map(month => (
+                            <SelectItem key={month} value={month}>{month}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
-                <Button onClick={handleDownloadExcel}>
+                <Select value={selectedDay} onValueChange={setSelectedDay}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Seleccionar día" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {daysOfWeek.map(d => (
+                            <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={selectedClassType} onValueChange={setSelectedClassType}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Tipo de clase" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {classTypes.map(c => (
+                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Button onClick={handleDownloadExcel} className="w-full sm:w-auto">
                     <Download className="mr-2 h-4 w-4" />
                     Descargar Excel
                 </Button>
@@ -157,7 +242,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString('es-CL') : '...'}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
+            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
           </CardContent>
         </Card>
         <Card>
@@ -167,7 +252,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString('es-CL') : '...'}</div>
-             <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
+             <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
           </CardContent>
         </Card>
         <Card>
@@ -177,7 +262,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString('es-CL') : '...'}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Acumulado' : `En ${selectedMonth}`}</p>
+            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
           </CardContent>
         </Card>
         <Card>
@@ -187,7 +272,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{averageActiveClasses}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">{selectedMonth === 'all' ? 'Promedio' : `En ${selectedMonth}`}</p>
+            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
           </CardContent>
         </Card>
         <Card>
@@ -234,7 +319,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <LineChart data={filteredRevenueData}>
+              <LineChart data={finalData}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
                 <YAxis
@@ -330,5 +415,4 @@ export default function DashboardPage() {
     </div>
   );
 }
-
     
