@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { Class } from '@/lib/types';
+import type { Class, ScheduleDay } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
   Briefcase,
@@ -36,21 +36,18 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
 import { useEffect, useState } from 'react';
 
 
-const initialClassesData: Omit<Class, 'date'>[] = [
+const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?: ScheduleDay[], daysOffset?: number }[] = [
   {
     id: 'cls-001',
     name: 'Bachata Básico',
     category: 'Dance',
-    schedule: 'Lun, Mie, Vie at 9:00 AM',
+    schedule: '9:00 AM',
+    scheduleDays: ['Lun', 'Mie', 'Vie'],
     pricePlans: [
       { name: 'Clase suelta', price: 6000 },
       { name: '4 Clases', price: 22000 },
@@ -59,13 +56,13 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     status: 'Active',
     bookings: 60,
     revenue: 1800000,
-    daysOffset: 2,
   },
   {
     id: 'cls-002',
     name: 'Bachata Open Lady',
     category: 'Dance',
-    schedule: 'Jue, Jue de 6:00 PM',
+    schedule: '6:00 PM',
+    scheduleDays: ['Mar', 'Jue'],
     pricePlans: [
       { name: 'Clase suelta', price: 8000 },
       { name: '4 Clases', price: 30000 },
@@ -73,13 +70,13 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     status: 'Active',
     bookings: 30,
     revenue: 3200000,
-    daysOffset: 3,
   },
   {
     id: 'cls-003',
     name: 'Bachata Intermedio',
     category: 'Dance',
-    schedule: 'Sab at 10:00 AM',
+    schedule: '10:00 AM',
+    scheduleDays: ['Sab'],
     pricePlans: [
       { name: 'Clase suelta', price: 8000 },
       { name: '4 Clases', price: 30000 },
@@ -88,29 +85,28 @@ const initialClassesData: Omit<Class, 'date'>[] = [
     status: 'Active',
     bookings: 25,
     revenue: 3000000,
-    daysOffset: 5,
   },
   {
     id: 'cls-004',
     name: 'Bachata Amateur',
     category: 'Dance',
-    schedule: 'Dom at 2:00 PM',
+    schedule: '2:00 PM',
+    scheduleDays: ['Dom'],
     pricePlans: [{ name: 'Clase suelta', price: 6000 }],
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
-    daysOffset: -1, // No date
   },
   {
     id: 'cls-005',
     name: 'Bachata Alumnas',
     category: 'Dance',
-    schedule: 'Lun at 7:00 PM',
+    schedule: '7:00 PM',
+    scheduleDays: ['Lun'],
     pricePlans: [{ name: 'Mensual', price: 6000 }],
     status: 'Active',
     bookings: 20,
     revenue: 950000,
-    daysOffset: 8,
   },
   {
     id: 'coach-001',
@@ -145,10 +141,23 @@ const categoryIcons: Record<string, React.ReactNode> = {
   Bootcamp: <Users className="h-4 w-4" />,
 };
 
+const dayNameToIndex: { [key in ScheduleDay]: number } = {
+  Dom: 0,
+  Lun: 1,
+  Mar: 2,
+  Mie: 3,
+  Jue: 4,
+  Vie: 5,
+  Sab: 6,
+};
+
+
 function ClassesTable({ classes }: { classes: Class[] }) {
   if (classes.length === 0) {
     return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
   }
+
+  const uniqueClasses = classes.filter((c, index, self) => self.findIndex(s => s.id === c.id) === index);
 
   return (
     <Table>
@@ -165,7 +174,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {classes.map((c) => (
+        {uniqueClasses.map((c) => (
           <TableRow key={c.id}>
             <TableCell className="font-medium">{c.name}</TableCell>
             <TableCell>
@@ -174,7 +183,9 @@ function ClassesTable({ classes }: { classes: Class[] }) {
                 <span>{c.category}</span>
               </div>
             </TableCell>
-            <TableCell className="hidden md:table-cell">{c.schedule}</TableCell>
+            <TableCell className="hidden md:table-cell">
+              {c.scheduleDays ? `${c.scheduleDays.join(', ')} a las ${c.schedule}` : c.schedule}
+            </TableCell>
             <TableCell className="hidden md:table-cell">
               {c.pricePlans.length === 1 ? (
                 `$${c.pricePlans[0].price.toLocaleString('es-CL')}`
@@ -234,15 +245,39 @@ export default function ClassesPage() {
 
   useEffect(() => {
     const today = new Date();
-    const processedClasses = initialClassesData.map(item => {
-      if (item.daysOffset !== -1 && item.daysOffset !== undefined) {
+    const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+
+    const processedClasses: Class[] = [];
+
+    initialClassesData.forEach(item => {
+      // Handle recurring classes based on scheduleDays
+      if (item.scheduleDays && item.scheduleDays.length > 0) {
+        item.scheduleDays.forEach(dayName => {
+          const targetDay = dayNameToIndex[dayName];
+          const date = new Date(today);
+          date.setDate(today.getDate() - currentDay + targetDay);
+          date.setHours(0,0,0,0);
+          
+          processedClasses.push({
+            ...item,
+            id: `${item.id}-${dayName}`,
+            scheduleDays: [dayName],
+            date: date,
+          });
+        });
+      } 
+      // Handle non-recurring classes with daysOffset
+      else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
         const classDate = new Date();
         classDate.setHours(0, 0, 0, 0); // Normalize time part
         classDate.setDate(today.getDate() + item.daysOffset);
-        return { ...item, date: classDate };
+        processedClasses.push({ ...item, date: classDate } as Class);
+      } 
+      // Handle classes without a specific date
+      else {
+        processedClasses.push(item as Class);
       }
-      return item;
-    }) as Class[];
+    });
 
     const firstClassWithDate = processedClasses.find(c => c.date);
     if(firstClassWithDate) {
@@ -338,5 +373,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
