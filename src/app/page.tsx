@@ -54,19 +54,19 @@ import { cn } from '@/lib/utils';
 
 const revenueData = [
   { month: 'Ene', revenue: 400000, newStudents: 10, activeClasses: 5, bookings: 120, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Feb', revenue: 300000, newStudents: 8, activeClasses: 5, bookings: 110, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Mar', revenue: 500000, newStudents: 15, activeClasses: 6, bookings: 150, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Abr', revenue: 450000, newStudents: 12, activeClasses: 6, bookings: 140, dayOfWeek: 'all', classType: 'all' },
-  { month: 'May', revenue: 600000, newStudents: 18, activeClasses: 7, bookings: 160, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Jun', revenue: 550000, newStudents: 16, activeClasses: 7, bookings: 155, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Jul', revenue: 700000, newStudents: 20, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Ago', revenue: 750000, newStudents: 22, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Sep', revenue: 800000, newStudents: 25, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Feb', revenue: 420000, newStudents: 12, activeClasses: 5, bookings: 125, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Mar', revenue: 510000, newStudents: 15, activeClasses: 6, bookings: 150, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Abr', revenue: 550000, newStudents: 16, activeClasses: 6, bookings: 155, dayOfWeek: 'all', classType: 'all' },
+  { month: 'May', revenue: 620000, newStudents: 18, activeClasses: 7, bookings: 160, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Jun', revenue: 680000, newStudents: 20, activeClasses: 7, bookings: 170, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Jul', revenue: 750000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Ago', revenue: 820000, newStudents: 25, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Sep', revenue: 900000, newStudents: 28, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all' },
   // Sample data for specific days/types
-  { month: 'Jul', revenue: 820000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance' },
-  { month: 'Jul', revenue: 830000, newStudents: 3, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance' },
-  { month: 'Jul', revenue: 800000, newStudents: 8, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance' },
-  { month: 'Ago', revenue: 850000, newStudents: 6, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching' },
+  { month: 'Jul', revenue: 150000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance' },
+  { month: 'Jul', revenue: 200000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance' },
+  { month: 'Jul', revenue: 250000, newStudents: 9, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance' },
+  { month: 'Ago', revenue: 300000, newStudents: 10, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching' },
 ];
 
 const classPerformanceData = [
@@ -172,14 +172,32 @@ export default function DashboardPage() {
   const getFilteredData = (month: string, day: string, type: string) => {
     return revenueData.filter(d => {
         const monthMatch = month === 'all' || d.month === month;
-        const dayMatch = day === 'all' || d.dayOfWeek === day;
-        const classTypeMatch = type === 'all' || d.classType === type;
         
-        let include = true;
-        if(day !== 'all' && d.dayOfWeek !== 'all' && d.dayOfWeek !== day) include = false;
-        if(type !== 'all' && d.classType !== 'all' && d.classType !== type) include = false;
+        let dayMatch = day === 'all';
+        if (day !== 'all' && d.dayOfWeek !== 'all') {
+          dayMatch = d.dayOfWeek === day;
+        } else if (day !== 'all' && d.dayOfWeek === 'all') {
+          dayMatch = false; // Don't include 'all' day data when a specific day is selected
+        }
+        
+        let classTypeMatch = type === 'all';
+        if (type !== 'all' && d.classType !== 'all') {
+          classTypeMatch = d.classType === type;
+        } else if (type !== 'all' && d.classType === 'all') {
+          classTypeMatch = false; // Don't include 'all' type data when a specific type is selected
+        }
 
-        return monthMatch && dayMatch && classTypeMatch && include;
+        const isOverallData = d.dayOfWeek === 'all' && d.classType === 'all';
+
+        if (month !== 'all' && (day !=='all' || type !== 'all')) {
+            return monthMatch && dayMatch && classTypeMatch;
+        }
+        
+        if (month === 'all' && (day !== 'all' || type !== 'all')) {
+            return dayMatch && classTypeMatch;
+        }
+
+        return monthMatch && isOverallData;
     })
   }
   
@@ -187,9 +205,9 @@ export default function DashboardPage() {
   const totalRevenue = currentData.reduce((acc, c) => acc + c.revenue, 0);
   const totalBookings = currentData.reduce((acc, c) => acc + c.bookings, 0);
   const totalNewStudents = currentData.reduce((acc, c) => acc + c.newStudents, 0);
-  const averageActiveClasses = currentData.length > 0
+  const averageActiveClasses = currentData.length > 0 && selectedMonth ==='all' && selectedDay === 'all' && selectedClassType === 'all'
     ? Math.round(currentData.reduce((acc, c) => acc + c.activeClasses, 0) / currentData.length)
-    : 0;
+    : revenueData.find(d => d.month === selectedMonth)?.activeClasses || 0;
   
   let previousMonthData;
   if(selectedMonth !== 'all') {
@@ -206,7 +224,7 @@ export default function DashboardPage() {
 
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
 
-  const chartData = selectedMonth === 'all' 
+  const chartData = (selectedMonth === 'all' && selectedDay === 'all' && selectedClassType === 'all')
     ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all') 
     : currentData;
 
@@ -221,7 +239,7 @@ export default function DashboardPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Todos los meses</SelectItem>
-                        {[...new Set(revenueData.map(d => d.month))].filter(m => monthOrder.includes(m)).sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)).map(month => (
+                        {[...new Set(revenueData.map(d => d.month))].filter(m => monthOrder.includes(m) && m !== 'all').sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)).map(month => (
                             <SelectItem key={month} value={month}>{month}</SelectItem>
                         ))}
                     </SelectContent>
@@ -290,7 +308,7 @@ export default function DashboardPage() {
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averageActiveClasses}</div>
+            <div className="text-2xl font-bold">{isClient ? averageActiveClasses : '...'}</div>
             <p className="text-xs font-bold text-muted-foreground text-[15px]">Según selección</p>
           </CardContent>
         </Card>
@@ -379,7 +397,7 @@ export default function DashboardPage() {
               <PieChart>
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent formatter={(value, name) => <div><span className="font-medium">{name}</span>: ${Number(value).toLocaleString('es-CL')}</div>} />}
+                  content={<ChartTooltipContent formatter={(value, name) => <div><span className="font-medium">{chartConfig[name as keyof typeof chartConfig]?.label || name}</span>: ${Number(value).toLocaleString('es-CL')}</div>} />}
                 />
                 <Pie
                   data={classPerformanceData}
@@ -419,11 +437,12 @@ export default function DashboardPage() {
                     tickMargin={8}
                     width={110}
                     className="text-xs"
+                    tickFormatter={(value) => chartConfig[value as keyof typeof chartConfig]?.label || value}
                   />
                   <XAxis type="number" hide />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="dot" formatter={(value, name) => <div><span className="font-medium">{name}</span>: {Number(value).toLocaleString('es-CL')} cupos</div>} />}
+                    content={<ChartTooltipContent indicator="dot" formatter={(value, name) => <div><span className="font-medium">{name === 'bookings' ? 'Cupos Agendados' : name}</span>: {Number(value).toLocaleString('es-CL')}</div>} />}
                   />
                   <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
               </RechartsBarChart>
@@ -434,4 +453,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+    
+
     
