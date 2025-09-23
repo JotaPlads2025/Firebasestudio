@@ -34,8 +34,18 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
     return acc;
   }, {} as Record<string, Class[]>);
 
-  const eventDays = Object.keys(classesByDate).map((dateKey) => new Date(dateKey));
-
+  const getDaysForCategory = (categories: string[]) => {
+    const dates = new Set<string>();
+    classes
+      .filter(c => c.date && categories.includes(c.category))
+      .forEach(c => dates.add(c.date!.toISOString().split('T')[0]));
+    return Array.from(dates).map(d => new Date(d));
+  };
+  
+  const regularClassDays = getDaysForCategory(['Dance', 'Sports', 'Health']);
+  const coachingDays = getDaysForCategory(['Coaching']);
+  const bootcampDays = getDaysForCategory(['Bootcamp']);
+  
   const selectedDayClasses = date
     ? classes.filter((cls) => cls.date && isSameDay(cls.date, date))
     : [];
@@ -48,10 +58,14 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
         onSelect={setDate}
         className="rounded-md border"
         modifiers={{
-          events: eventDays,
+          regularClass: regularClassDays,
+          coaching: coachingDays,
+          bootcamp: bootcampDays,
         }}
         modifiersClassNames={{
-          events: 'bg-primary/20 rounded-full',
+          regularClass: 'day-regular-class',
+          coaching: 'day-coaching',
+          bootcamp: 'day-bootcamp',
         }}
         // The key forces a re-render when the startDate changes, ensuring the calendar shows the correct month.
         key={startDate?.toISOString()}
@@ -89,3 +103,4 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
     </div>
   );
 }
+
