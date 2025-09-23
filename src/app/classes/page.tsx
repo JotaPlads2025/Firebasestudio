@@ -246,6 +246,9 @@ export default function ClassesPage() {
   useEffect(() => {
     const today = new Date();
     const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+    const firstDayOfWeek = new Date(today);
+    firstDayOfWeek.setDate(today.getDate() - currentDay);
+
 
     const processedClasses: Class[] = [];
 
@@ -253,9 +256,9 @@ export default function ClassesPage() {
       // Handle recurring classes based on scheduleDays
       if (item.scheduleDays && item.scheduleDays.length > 0) {
         item.scheduleDays.forEach(dayName => {
-          const targetDay = dayNameToIndex[dayName];
-          const date = new Date(today);
-          date.setDate(today.getDate() - currentDay + targetDay);
+          const targetDayIndex = dayNameToIndex[dayName];
+          const date = new Date(firstDayOfWeek);
+          date.setDate(firstDayOfWeek.getDate() + targetDayIndex);
           date.setHours(0,0,0,0);
           
           processedClasses.push({
