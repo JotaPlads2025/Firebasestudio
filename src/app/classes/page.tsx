@@ -123,12 +123,12 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     id: 'bootcamp-001',
     name: 'Bootcamp Intensivo de Verano',
     category: 'Bootcamp',
-    schedule: '15-17 de Julio',
+    schedule: '02-04 de Octubre',
     pricePlans: [{ name: 'Acceso total', price: 150000 }],
     status: 'Active',
     bookings: 40,
     revenue: 3750000,
-    daysOffset: 10,
+    daysOffset: 6,
   },
 ];
 
@@ -248,6 +248,7 @@ export default function ClassesPage() {
     const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
     const firstDayOfWeek = new Date(today);
     firstDayOfWeek.setDate(today.getDate() - currentDay);
+    firstDayOfWeek.setHours(0,0,0,0);
 
 
     const processedClasses: Class[] = [];
@@ -259,7 +260,6 @@ export default function ClassesPage() {
           const targetDayIndex = dayNameToIndex[dayName];
           const date = new Date(firstDayOfWeek);
           date.setDate(firstDayOfWeek.getDate() + targetDayIndex);
-          date.setHours(0,0,0,0);
           
           processedClasses.push({
             ...item,
@@ -376,3 +376,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    
