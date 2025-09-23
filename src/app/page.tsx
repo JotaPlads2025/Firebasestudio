@@ -19,6 +19,8 @@ import {
   MessageCircle,
   Users,
   Video,
+  ArrowDown,
+  ArrowUp,
 } from 'lucide-react';
 import {
   ChartContainer,
@@ -38,7 +40,6 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { Badge } from '@/components/ui/badge';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import {
     Select,
@@ -48,6 +49,8 @@ import {
     SelectValue,
   } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
 
 const revenueData = [
   { month: 'Ene', revenue: 400000, newStudents: 10, activeClasses: 5, bookings: 120, dayOfWeek: 'all', classType: 'all' },
@@ -125,6 +128,31 @@ const classTypes = [
     { value: 'Health', label: 'Salud' },
 ];
 
+const monthOrder = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+const MetricComparison = ({ value, previousValue }: { value: number; previousValue: number | undefined }) => {
+  if (previousValue === undefined || previousValue === 0) {
+    return <p className="text-xs font-bold text-muted-foreground text-[15px]">Según selección</p>;
+  }
+
+  const percentageChange = ((value - previousValue) / previousValue) * 100;
+
+  if (isNaN(percentageChange)) {
+    return <p className="text-xs font-bold text-muted-foreground text-[15px]">Datos insuficientes</p>;
+  }
+  
+  const isPositive = percentageChange >= 0;
+  const colorClass = isPositive ? 'text-[#008000]' : 'text-destructive';
+  const Icon = isPositive ? ArrowUp : ArrowDown;
+
+  return (
+    <p className={cn("text-xs font-bold text-[15px] flex items-center gap-1", colorClass)}>
+       <Icon className="h-3 w-3" />
+      {`${Math.abs(percentageChange).toFixed(1)}% vs mes anterior`}
+    </p>
+  );
+};
+
 
 export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('all');
@@ -140,55 +168,47 @@ export default function DashboardPage() {
     // Placeholder function for Excel download logic
     alert('La funcionalidad para descargar el archivo Excel será implementada.');
   };
-
-  const filteredRevenueData = revenueData.filter(d => {
-    const monthMatch = selectedMonth === 'all' || d.month === selectedMonth;
-    const dayMatch = selectedDay === 'all' || d.dayOfWeek === selectedDay || (selectedDay !== 'all' && d.dayOfWeek === 'all'); // Show totals if a specific day is selected but data is aggregated
-    const classTypeMatch = selectedClassType === 'all' || d.classType === selectedClassType || (selectedClassType !== 'all' && d.classType === 'all');
-    return monthMatch && dayMatch && classTypeMatch;
-  });
-
-  const getFilteredData = () => {
+  
+  const getFilteredData = (month: string, day: string, type: string) => {
     return revenueData.filter(d => {
-        const monthMatch = selectedMonth === 'all' || d.month === selectedMonth;
-        const dayMatch = selectedDay === 'all' || d.dayOfWeek === selectedDay;
-        const classTypeMatch = selectedClassType === 'all' || d.classType === selectedClassType;
+        const monthMatch = month === 'all' || d.month === month;
+        const dayMatch = day === 'all' || d.dayOfWeek === day;
+        const classTypeMatch = type === 'all' || d.classType === type;
+        
+        let include = true;
+        if(day !== 'all' && d.dayOfWeek !== 'all' && d.dayOfWeek !== day) include = false;
+        if(type !== 'all' && d.classType !== 'all' && d.classType !== type) include = false;
 
-        if(selectedMonth !== 'all' && selectedDay !== 'all' && selectedClassType !== 'all') {
-            return d.month === selectedMonth && d.dayOfWeek === selectedDay && d.classType === selectedClassType;
-        }
-        if(selectedMonth !== 'all' && selectedDay !== 'all') {
-            return d.month === selectedMonth && d.dayOfWeek === selectedDay && d.classType === 'all';
-        }
-        if(selectedMonth !== 'all' && selectedClassType !== 'all') {
-            return d.month === selectedMonth && d.classType === selectedClassType && d.dayOfWeek === 'all';
-        }
-        if(selectedDay !== 'all' && selectedClassType !== 'all') {
-             return d.dayOfWeek === selectedDay && d.classType === selectedClassType && d.month === 'all';
-        }
-        if(selectedMonth !== 'all') {
-            return d.month === selectedMonth && d.dayOfWeek === 'all' && d.classType === 'all';
-        }
-        if(selectedDay !== 'all') {
-            return d.dayOfWeek === selectedDay && d.month === 'all' && d.classType === 'all';
-        }
-        if(selectedClassType !== 'all') {
-            return d.classType === selectedClassType && d.month === 'all' && d.dayOfWeek === 'all';
-        }
-
-        return true; // all filters are 'all'
+        return monthMatch && dayMatch && classTypeMatch && include;
     })
   }
-
-  const finalData = getFilteredData();
-  const totalRevenue = finalData.reduce((acc, c) => acc + c.revenue, 0);
-  const totalBookings = finalData.reduce((acc, c) => acc + c.bookings, 0);
-  const totalNewStudents = finalData.reduce((acc, c) => acc + c.newStudents, 0);
-  const averageActiveClasses = finalData.length > 0
-    ? Math.round(finalData.reduce((acc, c) => acc + c.activeClasses, 0) / finalData.length)
+  
+  const currentData = getFilteredData(selectedMonth, selectedDay, selectedClassType);
+  const totalRevenue = currentData.reduce((acc, c) => acc + c.revenue, 0);
+  const totalBookings = currentData.reduce((acc, c) => acc + c.bookings, 0);
+  const totalNewStudents = currentData.reduce((acc, c) => acc + c.newStudents, 0);
+  const averageActiveClasses = currentData.length > 0
+    ? Math.round(currentData.reduce((acc, c) => acc + c.activeClasses, 0) / currentData.length)
     : 0;
   
+  let previousMonthData;
+  if(selectedMonth !== 'all') {
+    const currentMonthIndex = monthOrder.indexOf(selectedMonth);
+    if(currentMonthIndex > 0) {
+        const previousMonth = monthOrder[currentMonthIndex-1];
+        previousMonthData = getFilteredData(previousMonth, selectedDay, selectedClassType);
+    }
+  }
+
+  const prevTotalRevenue = previousMonthData?.reduce((acc, c) => acc + c.revenue, 0);
+  const prevTotalBookings = previousMonthData?.reduce((acc, c) => acc + c.bookings, 0);
+  const prevTotalNewStudents = previousMonthData?.reduce((acc, c) => acc + c.newStudents, 0);
+
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
+
+  const chartData = selectedMonth === 'all' 
+    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all') 
+    : currentData;
 
   return (
     <div className="flex flex-col gap-8">
@@ -201,8 +221,7 @@ export default function DashboardPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Todos los meses</SelectItem>
-                        {/* Get unique months from data */}
-                        {[...new Set(revenueData.map(d => d.month))].map(month => (
+                        {[...new Set(revenueData.map(d => d.month))].filter(m => monthOrder.includes(m)).sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)).map(month => (
                             <SelectItem key={month} value={month}>{month}</SelectItem>
                         ))}
                     </SelectContent>
@@ -242,7 +261,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString('es-CL') : '...'}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
+             {isClient && <MetricComparison value={totalRevenue} previousValue={prevTotalRevenue} />}
           </CardContent>
         </Card>
         <Card>
@@ -252,7 +271,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString('es-CL') : '...'}</div>
-             <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
+             {isClient && <MetricComparison value={totalBookings} previousValue={prevTotalBookings} />}
           </CardContent>
         </Card>
         <Card>
@@ -262,7 +281,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString('es-CL') : '...'}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
+            {isClient && <MetricComparison value={totalNewStudents} previousValue={prevTotalNewStudents} />}
           </CardContent>
         </Card>
         <Card>
@@ -272,7 +291,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{averageActiveClasses}</div>
-            <p className="text-xs font-bold text-[#008000] text-[15px]">Según selección</p>
+            <p className="text-xs font-bold text-muted-foreground text-[15px]">Según selección</p>
           </CardContent>
         </Card>
         <Card>
@@ -319,7 +338,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <LineChart data={finalData}>
+              <LineChart data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
                 <YAxis
@@ -404,7 +423,7 @@ export default function DashboardPage() {
                   <XAxis type="number" hide />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
+                    content={<ChartTooltipContent indicator="dot" formatter={(value, name) => <div><span className="font-medium">{name}</span>: {Number(value).toLocaleString('es-CL')} cupos</div>} />}
                   />
                   <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
               </RechartsBarChart>
