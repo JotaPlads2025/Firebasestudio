@@ -21,7 +21,17 @@ import {
   Video,
   ArrowDown,
   ArrowUp,
+  TrendingUp,
+  UserCheck,
 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   ChartContainer,
   ChartTooltip,
@@ -35,7 +45,6 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-  BarChart as RechartsBarChart,
   PieChart,
   Pie,
   Cell,
@@ -50,37 +59,42 @@ import {
   } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { studentData, type Student } from '@/lib/student-data';
 
 
 const revenueData = [
-  { month: 'Ene', revenue: 400000, newStudents: 10, activeClasses: 5, bookings: 120, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Feb', revenue: 420000, newStudents: 12, activeClasses: 5, bookings: 125, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Mar', revenue: 510000, newStudents: 15, activeClasses: 6, bookings: 150, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Abr', revenue: 550000, newStudents: 16, activeClasses: 6, bookings: 155, dayOfWeek: 'all', classType: 'all' },
-  { month: 'May', revenue: 620000, newStudents: 18, activeClasses: 7, bookings: 160, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Jun', revenue: 680000, newStudents: 20, activeClasses: 7, bookings: 170, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Jul', revenue: 750000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Ago', revenue: 820000, newStudents: 25, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all' },
-  { month: 'Sep', revenue: 900000, newStudents: 28, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all' },
+  { month: 'Ene', revenue: 400000, newStudents: 10, activeClasses: 5, bookings: 120, dayOfWeek: 'all', classType: 'all', retention: 70 },
+  { month: 'Feb', revenue: 420000, newStudents: 12, activeClasses: 5, bookings: 125, dayOfWeek: 'all', classType: 'all', retention: 72 },
+  { month: 'Mar', revenue: 510000, newStudents: 15, activeClasses: 6, bookings: 150, dayOfWeek: 'all', classType: 'all', retention: 75 },
+  { month: 'Abr', revenue: 550000, newStudents: 16, activeClasses: 6, bookings: 155, dayOfWeek: 'all', classType: 'all', retention: 78 },
+  { month: 'May', revenue: 620000, newStudents: 18, activeClasses: 7, bookings: 160, dayOfWeek: 'all', classType: 'all', retention: 80 },
+  { month: 'Jun', revenue: 680000, newStudents: 20, activeClasses: 7, bookings: 170, dayOfWeek: 'all', classType: 'all', retention: 82 },
+  { month: 'Jul', revenue: 750000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all', retention: 85 },
+  { month: 'Ago', revenue: 820000, newStudents: 25, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all', retention: 86 },
+  { month: 'Sep', revenue: 900000, newStudents: 28, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all', retention: 88 },
   // Sample data for specific days/types
-  { month: 'Jul', revenue: 150000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance' },
-  { month: 'Jul', revenue: 200000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance' },
-  { month: 'Jul', revenue: 250000, newStudents: 9, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance' },
-  { month: 'Ago', revenue: 300000, newStudents: 10, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching' },
+  { month: 'Jul', revenue: 150000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance', retention: 80 },
+  { month: 'Jul', revenue: 200000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance', retention: 82 },
+  { month: 'Jul', revenue: 250000, newStudents: 9, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance', retention: 88 },
+  { month: 'Ago', revenue: 300000, newStudents: 10, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching', retention: 90 },
 ];
 
 const classPerformanceData = [
-  { name: 'Bachata Básico', bookings: 120, revenue: 2400000 },
-  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200000 },
-  { name: 'Bachata Amateur', bookings: 150, revenue: 2250000 },
-  { name: 'Bachata Alumna', bookings: 95, revenue: 1425000 },
-  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000000 },
+  { name: 'Bachata Básico', bookings: 120, revenue: 2400000, retention: 75 },
+  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200000, retention: 85 },
+  { name: 'Bachata Amateur', bookings: 150, revenue: 2250000, retention: 80 },
+  { name: 'Bachata Alumna', bookings: 95, revenue: 1425000, retention: 78 },
+  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000000, retention: 90 },
 ];
 
 const chartConfig = {
   revenue: {
     label: 'Ingresos',
     color: 'hsl(var(--chart-1))',
+  },
+  retention: {
+    label: 'Retención',
+    color: 'hsl(var(--chart-2))',
   },
   bookings: {
     label: 'Cupos Agendados',
@@ -129,11 +143,16 @@ const classTypes = [
 ];
 
 const monthOrder = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const monthMap: { [key: string]: number } = { Ene: 0, Feb: 1, Mar: 2, Abr: 3, May: 4, Jun: 5, Jul: 6, Ago: 7, Sep: 8, Oct: 9, Nov: 10, Dic: 11 };
 
-const MetricComparison = ({ value, previousValue }: { value: number; previousValue: number | undefined }) => {
-  if (previousValue === undefined || previousValue === 0) {
+
+const MetricComparison = ({ value, previousValue, unit = '' }: { value: number; previousValue: number | undefined, unit?: string }) => {
+  if (previousValue === undefined) {
     return <p className="text-xs font-bold text-muted-foreground text-[15px]">Según selección</p>;
   }
+   if (previousValue === 0) {
+     return <p className="text-xs font-bold text-[#008000] text-[15px]">Crecimiento infinito</p>;
+   }
 
   const percentageChange = ((value - previousValue) / previousValue) * 100;
 
@@ -151,6 +170,62 @@ const MetricComparison = ({ value, previousValue }: { value: number; previousVal
       {`${Math.abs(percentageChange).toFixed(1)}% vs mes anterior`}
     </p>
   );
+};
+
+
+const calculateRetentionMetrics = (students: Student[], currentMonth: string) => {
+    const currentMonthIndex = monthMap[currentMonth];
+    if (currentMonthIndex === undefined || currentMonthIndex === 0) {
+      return {
+        overallRetention: 0,
+        previousMonthOverallRetention: 0,
+        singleClassRetention: 0,
+        packRetention: 0,
+      };
+    }
+    const previousMonthIndex = currentMonthIndex - 1;
+  
+    const getStudentsInMonth = (monthIndex: number) => {
+      const studentSet = new Set<string>();
+      students.forEach(student => {
+        const hasBooking = student.bookings.some(booking => new Date(booking.date).getMonth() === monthIndex);
+        if (hasBooking) {
+          studentSet.add(student.studentId);
+        }
+      });
+      return studentSet;
+    };
+  
+    const getNewStudentsInMonth = (monthIndex: number) => {
+        const studentSet = new Set<string>();
+        students.forEach(student => {
+            if (new Date(student.joinDate).getMonth() === monthIndex && new Date(student.joinDate).getFullYear() === 2024) {
+                studentSet.add(student.studentId);
+            }
+        });
+        return studentSet;
+    };
+
+    const getRetention = (currentMonthIdx: number, prevMonthIdx: number) => {
+      if (prevMonthIdx < 0) return 0;
+      const prevMonthStudents = getStudentsInMonth(prevMonthIdx);
+      if (prevMonthStudents.size === 0) return 0;
+  
+      const currentMonthStudents = getStudentsInMonth(currentMonthIdx);
+      const newCurrentMonthStudents = getNewStudentsInMonth(currentMonthIdx);
+  
+      const retainedStudents = new Set([...currentMonthStudents].filter(id => !newCurrentMonthStudents.has(id) && prevMonthStudents.has(id)));
+  
+      return (retainedStudents.size / prevMonthStudents.size) * 100;
+    }
+  
+    const overallRetention = getRetention(currentMonthIndex, previousMonthIndex);
+    const previousMonthOverallRetention = getRetention(previousMonthIndex, previousMonthIndex - 1);
+  
+    return {
+      overallRetention,
+      previousMonthOverallRetention,
+    };
 };
 
 
@@ -221,12 +296,25 @@ export default function DashboardPage() {
   const prevTotalRevenue = previousMonthData?.reduce((acc, c) => acc + c.revenue, 0);
   const prevTotalBookings = previousMonthData?.reduce((acc, c) => acc + c.bookings, 0);
   const prevTotalNewStudents = previousMonthData?.reduce((acc, c) => acc + c.newStudents, 0);
+  
+  const retentionMetrics = selectedMonth !== 'all' 
+    ? calculateRetentionMetrics(studentData, selectedMonth)
+    : { overallRetention: 0, previousMonthOverallRetention: 0 };
+    
+  const overallRetention = selectedMonth === 'all'
+    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').reduce((acc, c) => acc + c.retention, 0) / revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').length
+    : retentionMetrics.overallRetention;
+
+  const prevOverallRetention = selectedMonth === 'all' ? undefined : retentionMetrics.previousMonthOverallRetention;
+
 
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
 
   const chartData = (selectedMonth === 'all' && selectedDay === 'all' && selectedClassType === 'all')
     ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all') 
     : currentData;
+    
+  const retentionChartData = revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all');
 
   return (
     <div className="flex flex-col gap-8">
@@ -302,6 +390,16 @@ export default function DashboardPage() {
             {isClient && <MetricComparison value={totalNewStudents} previousValue={prevTotalNewStudents} />}
           </CardContent>
         </Card>
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-bold text-primary text-[25px]">Tasa de Retención</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{isClient ? `${overallRetention.toFixed(1)}%` : '...'}</div>
+            {isClient && <MetricComparison value={overallRetention} previousValue={prevOverallRetention} unit="%" />}
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold text-primary text-[25px]">Clases Activas</CardTitle>
@@ -352,30 +450,58 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="font-headline">Vistas de Ingresos</CardTitle>
+            <CardTitle className="font-headline">Vistas de Ingresos y Retención</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <LineChart data={chartData}>
+              <LineChart data={retentionChartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
                 <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(0)}M`}
-                  tick={{ fontWeight: 'bold' }}
+                    yAxisId="left"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(0)}M`}
+                    tick={{ fontWeight: 'bold' }}
+                    />
+                <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => `${value}%`}
+                    tick={{ fontWeight: 'bold' }}
                 />
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="line" formatter={(value) => `$${Number(value).toLocaleString('es-CL')}`}/>}
+                  content={<ChartTooltipContent 
+                    indicator="line" 
+                    formatter={(value, name) => 
+                        name === 'revenue' 
+                        ? `Ingresos: $${Number(value).toLocaleString('es-CL')}` 
+                        : `Retención: ${Number(value).toFixed(1)}%`
+                    }
+                    />}
                 />
                 <Line
+                  yAxisId="left"
                   dataKey="revenue"
                   type="monotone"
                   stroke="var(--color-revenue)"
                   strokeWidth={2}
                   dot={false}
+                  name="revenue"
+                />
+                 <Line
+                  yAxisId="right"
+                  dataKey="retention"
+                  type="monotone"
+                  stroke="var(--color-retention)"
+                  strokeWidth={2}
+                  dot={false}
+                  name="retention"
                 />
               </LineChart>
             </ChartContainer>
@@ -422,32 +548,32 @@ export default function DashboardPage() {
         </Card>
 
         <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="font-headline">Desempeño de la Clase</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <RechartsBarChart data={classPerformanceData} layout="vertical">
-                  <CartesianGrid horizontal={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={110}
-                    className="text-xs"
-                    tickFormatter={(value) => chartConfig[value as keyof typeof chartConfig]?.label || value}
-                  />
-                  <XAxis type="number" hide />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" formatter={(value, name) => <div><span className="font-medium">{name === 'bookings' ? 'Cupos Agendados' : name}</span>: {Number(value).toLocaleString('es-CL')}</div>} />}
-                  />
-                  <Bar dataKey="bookings" fill="var(--color-bookings)" radius={4} />
-              </RechartsBarChart>
-            </ChartContainer>
-          </CardContent>
+            <CardHeader>
+                <CardTitle className="font-headline">Desempeño de la Clase</CardTitle>
+                <CardDescription>Analiza los cupos, ingresos y retención de cada clase.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Clase</TableHead>
+                            <TableHead className="text-right">Cupos Agendados</TableHead>
+                            <TableHead className="text-right">Ingresos</TableHead>
+                            <TableHead className="text-right">Tasa de Retención</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {classPerformanceData.map((c) => (
+                            <TableRow key={c.name}>
+                                <TableCell className="font-medium">{c.name}</TableCell>
+                                <TableCell className="text-right">{c.bookings.toLocaleString('es-CL')}</TableCell>
+                                <TableCell className="text-right">${c.revenue.toLocaleString('es-CL')}</TableCell>
+                                <TableCell className="text-right font-semibold">{c.retention}%</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
         </Card>
       </div>
     </div>
