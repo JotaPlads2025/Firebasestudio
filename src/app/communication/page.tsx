@@ -1,7 +1,17 @@
 
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageCircle, Users } from 'lucide-react';
+import { ChevronRight, MessageCircle, Users } from 'lucide-react';
+
+const activeClasses = [
+    { id: 'cls-001', name: 'Bachata Básico', members: 60 },
+    { id: 'cls-002', name: 'Bachata Open Lady', members: 30 },
+    { id: 'cls-003', name: 'Bachata Intermedio', members: 25 },
+    { id: 'cls-005', name: 'Bachata Alumnas', members: 20 },
+    { id: 'coach-001', name: 'Coaching Personalizado', members: 5 },
+    { id: 'bootcamp-001', name: 'Bootcamp Intensivo de Verano', members: 40 },
+];
 
 export default function CommunicationPage() {
   return (
@@ -44,12 +54,20 @@ export default function CommunicationPage() {
                 Canales de comunicación grupales para cada una de tus clases. Perfectos para anuncios, preguntas generales y fomentar la comunidad.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg m-6">
-                <Users className="h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 font-semibold">Aún no hay foros</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Los foros para tus clases activas se mostrarán aquí.
-                </p>
+            <CardContent className="grid gap-4">
+                {activeClasses.map((c) => (
+                    <Card key={c.id} className="hover:bg-muted/50 transition-colors">
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <div>
+                                <h3 className="font-semibold">{c.name}</h3>
+                                <p className="text-sm text-muted-foreground">{c.members} miembros</p>
+                            </div>
+                            <Button variant="ghost" size="icon">
+                                <ChevronRight className="h-5 w-5" />
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
             </CardContent>
           </Card>
         </TabsContent>
