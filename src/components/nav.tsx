@@ -11,6 +11,7 @@ import {
 import {
   BookOpenCheck,
   LayoutDashboard,
+  MessageSquare,
   Rocket,
   Settings,
   UserCircle,
@@ -26,6 +27,11 @@ const navItems = [
     href: '/classes',
     icon: BookOpenCheck,
     label: 'Mis Clases',
+  },
+  {
+    href: '/communication',
+    icon: MessageSquare,
+    label: 'Comunicación',
   },
     {
     href: '/profile',
