@@ -1,0 +1,228 @@
+
+"use client";
+
+import { useState, useMemo } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Map, List, Search } from 'lucide-react';
+import { regions, communesByRegion } from '@/lib/locations';
+import { categories, subCategories } from '@/lib/categories';
+import { searchableClasses, type SearchableClass } from '@/lib/search-data';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StarRating } from '@/components/ui/star-rating';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+
+const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
+const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+export default function SearchClassesPage() {
+  const [viewMode, setViewMode] = useState('list');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedCommune, setSelectedCommune] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedDay, setSelectedDay] = useState('');
+
+  const handleRegionChange = (value: string) => {
+    setSelectedRegion(value);
+    setSelectedCommune('');
+  };
+  
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setSelectedSubCategory('');
+  };
+
+  const filteredClasses = useMemo(() => {
+    let classes = searchableClasses.filter(c => {
+      const searchTermMatch = searchTerm === '' || 
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
+      const regionMatch = selectedRegion === '' || c.region === selectedRegion;
+      const communeMatch = selectedCommune === '' || c.commune === selectedCommune;
+      const categoryMatch = selectedCategory === '' || c.category === selectedCategory;
+      const subCategoryMatch = selectedSubCategory === '' || c.subCategory === selectedSubCategory;
+      const levelMatch = selectedLevel === '' || c.level === selectedLevel;
+      const dayMatch = selectedDay === '' || c.dayOfWeek === selectedDay;
+
+      return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch;
+    });
+
+    // Sort classes: available first, then unavailable
+    classes.sort((a, b) => {
+        if (a.availableSlots > 0 && b.availableSlots === 0) return -1;
+        if (a.availableSlots === 0 && b.availableSlots > 0) return 1;
+        return 0;
+    });
+
+    return classes;
+  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay]);
+
+  const ClassCard = ({ cls }: { cls: SearchableClass }) => {
+    const isFull = cls.availableSlots === 0;
+    return (
+        <Card className={cn("overflow-hidden transition-all hover:shadow-md", isFull && "bg-muted/50 opacity-70")}>
+            <div className="relative">
+                <Image 
+                    src={cls.image.imageUrl} 
+                    alt={cls.name}
+                    width={600}
+                    height={400}
+                    className="aspect-[3/2] w-full object-cover"
+                />
+                {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
+            </div>
+            <CardContent className="p-4 space-y-3">
+                 <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
+                    <p className="font-bold text-lg text-primary shrink-0">${cls.price.toLocaleString('es-CL')}</p>
+                 </div>
+                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Avatar className="h-6 w-6">
+                        <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
+                        <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <span>{cls.instructorName}</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    <StarRating rating={cls.rating} />
+                    <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
+                 </div>
+                  <Separator />
+                 <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{cls.level}</span>
+                    <Badge variant={isFull ? 'secondary' : 'default'} className="whitespace-nowrap">
+                        {isFull ? `0 cupos` : `${cls.availableSlots} cupos disponibles`}
+                    </Badge>
+                 </div>
+
+            </CardContent>
+        </Card>
+    )
+  };
+
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-headline text-3xl font-semibold">Buscar Clases</h1>
+        <p className="text-muted-foreground mt-1">Explora, aprende y conéctate con otros instructores.</p>
+      </div>
+
+      <Card>
+        <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="md:col-span-2 lg:col-span-4 relative">
+                    <Input 
+                        placeholder="Buscar por clase o instructor..."
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                    <Label htmlFor="region">Región</Label>
+                    <Select value={selectedRegion} onValueChange={handleRegionChange}>
+                        <SelectTrigger id="region"><SelectValue placeholder="Todas" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todas</SelectItem>
+                            {regions.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="commune">Comuna</Label>
+                    <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={!selectedRegion}>
+                        <SelectTrigger id="commune"><SelectValue placeholder="Todas" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todas</SelectItem>
+                            {selectedRegion && communesByRegion[selectedRegion]?.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div>
+                    <Label htmlFor="category">Categoría</Label>
+                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                        <SelectTrigger id="category"><SelectValue placeholder="Todas" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todas</SelectItem>
+                            {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="subcategory">Estilo</Label>
+                    <Select value={selectedSubCategory} onValueChange={setSelectedSubCategory} disabled={!selectedCategory || !subCategories[selectedCategory]}>
+                        <SelectTrigger id="subcategory"><SelectValue placeholder="Todos" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todos</SelectItem>
+                            {selectedCategory && subCategories[selectedCategory]?.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="level">Nivel</Label>
+                    <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                        <SelectTrigger id="level"><SelectValue placeholder="Todos" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todos</SelectItem>
+                            {levels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div>
+                    <Label htmlFor="day">Día de la semana</Label>
+                    <Select value={selectedDay} onValueChange={setSelectedDay}>
+                        <SelectTrigger id="day"><SelectValue placeholder="Todos" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Todos</SelectItem>
+                            {daysOfWeek.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+      
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{filteredClasses.length} clases encontradas.</p>
+        <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="gap-2">
+                <List className="h-4 w-4" />
+                Lista
+            </Button>
+            <Button variant={viewMode === 'map' ? 'secondary' : 'ghost'} size="sm" onClick={() => setViewMode('map')} className="gap-2">
+                <Map className="h-4 w-4" />
+                Mapa
+            </Button>
+        </div>
+      </div>
+
+      {viewMode === 'list' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredClasses.map(cls => (
+                <ClassCard key={cls.id} cls={cls} />
+            ))}
+        </div>
+      ) : (
+        <Card className="h-[600px] flex items-center justify-center bg-muted">
+            <div className="text-center text-muted-foreground">
+                <Map className="h-16 w-16 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold">Vista de Mapa</h3>
+                <p>Esta funcionalidad estará disponible pronto.</p>
+            </div>
+        </Card>
+      )}
+
+    </div>
+  );
+}

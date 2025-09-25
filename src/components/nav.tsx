@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   Rocket,
+  Search,
   Settings,
   UserCircle,
 } from 'lucide-react';
@@ -27,6 +28,11 @@ const navItems = [
     href: '/classes',
     icon: BookOpenCheck,
     label: 'Mis Clases',
+  },
+  {
+    href: '/search-classes',
+    icon: Search,
+    label: 'Buscar Clases',
   },
   {
     href: '/communication',
