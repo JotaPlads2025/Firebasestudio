@@ -78,7 +78,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="weekly-summary" className="text-base">
-                Analisis Semanal
+                Análisis Semanal
               </Label>
               <p className="text-sm text-muted-foreground">
               Envía un correo semanal con tus métricas clave de rendimiento.

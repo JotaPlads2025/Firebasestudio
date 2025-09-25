@@ -21,7 +21,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Mi Perfíl</h1>
+      <h1 className="font-headline text-3xl font-semibold">Perfil</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1 flex flex-col gap-8">
@@ -48,14 +48,14 @@ export default function ProfilePage() {
             <CardContent>
               <Button variant="outline" className="w-full">
                 <Edit className="mr-2 h-4 w-4" />
-                Editar Perfíl
+                Editar Perfil
               </Button>
             </CardContent>
           </Card>
            <Card>
             <CardHeader>
               <CardTitle className="font-headline text-lg">Redes Sociales</CardTitle>
-              <CardDescription>Conecta con tus alumnos.</CardDescription>
+              <CardDescription>Conecta con tus estudiantes.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center gap-4">
               <Link href="#" aria-label="Instagram">
@@ -94,7 +94,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="font-headline">Sobre Susana </CardTitle>
               <CardDescription>
-                Profesora profesional de Bachata
+                Instructora profesional de Bachata
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
@@ -104,7 +104,7 @@ export default function ProfilePage() {
               <p>
               Su estilo de enseñanza se caracteriza por la cercanía, la claridad en la explicación y el énfasis en la musicalidad y la conexión, haciendo que cada clase sea una experiencia única y motivadora. Ofrece clases en distintos formatos y niveles: básico, intermedio, amateur, open, escuela y un espacio exclusivo para ladies, donde se potencia la confianza, el estilo y la expresión individual.
 
-Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada alumno a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
+Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada estudiante a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
               </p>
             </CardContent>
           </Card>
@@ -112,7 +112,7 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
             <CardHeader>
               <CardTitle className="font-headline">Galería de Videos</CardTitle>
               <CardDescription>
-                Sube hasta 5 videos para mostrar tu talento a potenciales alumnos.
+                Sube hasta 5 videos para mostrar tu talento a potenciales estudiantes.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -123,7 +123,7 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
             <CardHeader>
               <CardTitle className="font-headline">Asistente de IA</CardTitle>
               <CardDescription>
-                Deja a nuestra IA ayudarte a crear un perfíl de usuario llamativo.
+                Deja a nuestra IA ayudarte a crear un perfil de usuario llamativo.
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -34,14 +34,14 @@ export default function CommunicationPage() {
             <CardHeader>
               <CardTitle>Bandeja de Entrada</CardTitle>
               <CardDescription>
-                Conversaciones privadas uno a uno con tus alumnos. Ideal para cancelaciones, consultas personales y feedback.
+                Conversaciones privadas uno a uno con tus estudiantes. Ideal para cancelaciones, consultas personales y feedback.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg m-6">
               <MessageCircle className="h-12 w-12 text-muted-foreground" />
               <p className="mt-4 font-semibold">No hay mensajes aún</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Cuando un alumno te envíe un mensaje directo, aparecerá aquí.
+                Cuando un estudiante te envíe un mensaje directo, aparecerá aquí.
               </p>
             </CardContent>
           </Card>

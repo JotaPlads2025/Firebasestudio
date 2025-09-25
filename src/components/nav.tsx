@@ -42,7 +42,7 @@ const navItems = [
     {
     href: '/profile',
     icon: UserCircle,
-    label: 'Perfíl',
+    label: 'Perfil',
   },
   {
     href: '/pro-plan',
