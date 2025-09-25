@@ -24,21 +24,21 @@ const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sába
 export default function SearchClassesPage() {
   const [viewMode, setViewMode] = useState('list');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedCommune, setSelectedCommune] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubCategory, setSelectedSubCategory] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
-  const [selectedDay, setSelectedDay] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('all');
+  const [selectedCommune, setSelectedCommune] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [selectedDay, setSelectedDay] = useState('all');
 
   const handleRegionChange = (value: string) => {
     setSelectedRegion(value);
-    setSelectedCommune('');
+    setSelectedCommune('all');
   };
   
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    setSelectedSubCategory('');
+    setSelectedSubCategory('all');
   };
 
   const filteredClasses = useMemo(() => {
@@ -46,12 +46,12 @@ export default function SearchClassesPage() {
       const searchTermMatch = searchTerm === '' || 
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
-      const regionMatch = selectedRegion === '' || c.region === selectedRegion;
-      const communeMatch = selectedCommune === '' || c.commune === selectedCommune;
-      const categoryMatch = selectedCategory === '' || c.category === selectedCategory;
-      const subCategoryMatch = selectedSubCategory === '' || c.subCategory === selectedSubCategory;
-      const levelMatch = selectedLevel === '' || c.level === selectedLevel;
-      const dayMatch = selectedDay === '' || c.dayOfWeek === selectedDay;
+      const regionMatch = selectedRegion === 'all' || c.region === selectedRegion;
+      const communeMatch = selectedCommune === 'all' || c.commune === selectedCommune;
+      const categoryMatch = selectedCategory === 'all' || c.category === selectedCategory;
+      const subCategoryMatch = selectedSubCategory === 'all' || c.subCategory === selectedSubCategory;
+      const levelMatch = selectedLevel === 'all' || selectedLevel === 'Todos' || c.level === selectedLevel;
+      const dayMatch = selectedDay === 'all' || c.dayOfWeek === selectedDay;
 
       return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch;
     });
@@ -134,17 +134,17 @@ export default function SearchClassesPage() {
                     <Select value={selectedRegion} onValueChange={handleRegionChange}>
                         <SelectTrigger id="region"><SelectValue placeholder="Todas" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todas</SelectItem>
+                            <SelectItem value="all">Todas</SelectItem>
                             {regions.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
                 <div>
                     <Label htmlFor="commune">Comuna</Label>
-                    <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={!selectedRegion}>
+                    <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={selectedRegion === 'all'}>
                         <SelectTrigger id="commune"><SelectValue placeholder="Todas" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todas</SelectItem>
+                            <SelectItem value="all">Todas</SelectItem>
                             {selectedRegion && communesByRegion[selectedRegion]?.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                         </SelectContent>
                     </Select>
@@ -154,17 +154,17 @@ export default function SearchClassesPage() {
                     <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                         <SelectTrigger id="category"><SelectValue placeholder="Todas" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todas</SelectItem>
+                            <SelectItem value="all">Todas</SelectItem>
                             {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
                 <div>
                     <Label htmlFor="subcategory">Estilo</Label>
-                    <Select value={selectedSubCategory} onValueChange={setSelectedSubCategory} disabled={!selectedCategory || !subCategories[selectedCategory]}>
+                    <Select value={selectedSubCategory} onValueChange={setSelectedSubCategory} disabled={selectedCategory === 'all' || !subCategories[selectedCategory]}>
                         <SelectTrigger id="subcategory"><SelectValue placeholder="Todos" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todos</SelectItem>
+                            <SelectItem value="all">Todos</SelectItem>
                             {selectedCategory && subCategories[selectedCategory]?.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                         </SelectContent>
                     </Select>
@@ -174,7 +174,6 @@ export default function SearchClassesPage() {
                     <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                         <SelectTrigger id="level"><SelectValue placeholder="Todos" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todos</SelectItem>
                             {levels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                         </SelectContent>
                     </Select>
@@ -184,7 +183,7 @@ export default function SearchClassesPage() {
                     <Select value={selectedDay} onValueChange={setSelectedDay}>
                         <SelectTrigger id="day"><SelectValue placeholder="Todos" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Todos</SelectItem>
+                            <SelectItem value="all">Todos</SelectItem>
                             {daysOfWeek.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                         </SelectContent>
                     </Select>
