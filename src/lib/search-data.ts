@@ -1,5 +1,7 @@
 import type { ImagePlaceholder } from './placeholder-images';
 import { PlaceHolderImages } from './placeholder-images';
+import type { ClassPricePlan } from './types';
+
 
 export type SearchableClass = {
   id: string;
@@ -11,6 +13,7 @@ export type SearchableClass = {
   image: ImagePlaceholder;
   availableSlots: number;
   price: number;
+  pricePlans: ClassPricePlan[];
   region: string;
   commune: string;
   category: string;
@@ -36,6 +39,11 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-salsa'),
     availableSlots: 5,
     price: 8000,
+    pricePlans: [
+        { name: 'Clase suelta', price: 8000 },
+        { name: '4 Clases', price: 30000 },
+        { name: '8 Clases', price: 56000 },
+    ],
     region: 'rm',
     commune: 'prov',
     category: 'Baile',
@@ -53,6 +61,10 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-yoga'),
     availableSlots: 10,
     price: 7500,
+    pricePlans: [
+        { name: 'Clase suelta', price: 7500 },
+        { name: '4 Clases', price: 28000 },
+    ],
     region: 'rm',
     commune: 'nunoa',
     category: 'Deporte',
@@ -70,6 +82,10 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-bachata'),
     availableSlots: 0,
     price: 8500,
+    pricePlans: [
+        { name: 'Clase suelta', price: 8500 },
+        { name: '4 Clases', price: 32000 },
+    ],
     region: 'rm',
     commune: 'stgo',
     category: 'Baile',
@@ -87,6 +103,9 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-ceramics'),
     availableSlots: 3,
     price: 15000,
+    pricePlans: [
+        { name: 'Clase única', price: 15000 },
+    ],
     region: 'valpo',
     commune: 'valparaiso',
     category: 'Arte',
@@ -104,6 +123,10 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-kizomba'),
     availableSlots: 8,
     price: 7000,
+    pricePlans: [
+        { name: 'Clase suelta', price: 7000 },
+        { name: '4 Clases', price: 26000 },
+    ],
     region: 'rm',
     commune: 'las-condes',
     category: 'Baile',
@@ -121,6 +144,11 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-fitness'),
     availableSlots: 2,
     price: 10000,
+    pricePlans: [
+        { name: 'Clase suelta', price: 10000 },
+        { name: '8 Clases', price: 70000 },
+        { name: '12 Clases', price: 95000 },
+    ],
     region: 'biobio',
     commune: 'concepcion',
     category: 'Deporte',
@@ -138,6 +166,9 @@ export const searchableClasses: SearchableClass[] = [
     image: findImage('class-art'),
     availableSlots: 0,
     price: 12000,
+    pricePlans: [
+        { name: 'Taller único', price: 12000 },
+    ],
     region: 'rm',
     commune: 'prov',
     category: 'Arte',
