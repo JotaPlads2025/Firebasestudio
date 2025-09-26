@@ -11,13 +11,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Check, Percent, Rocket } from 'lucide-react';
 
-const freeFeatures = [
-  'Métricas básicas',
-  'Hasta 5 clases activas',
-  'Asistente de IA (limitado)',
-  'Soporte estándar',
-];
-
 const commissionFeatures = [
     'Agendamiento de cupos ilimitado',
     'Herramientas de gestión de clases',
@@ -49,38 +42,12 @@ export default function ProPlanPage() {
           Desbloquea tu Potencial con Plads
         </h1>
         <p className="text-muted-foreground mt-4 text-lg">
-          Elige el plan que mejor se adapte a tus necesidades y lleva tu carrera como instructor al siguiente nivel.
+          Elige el plan que mejor se adapte a tus necesidades y lleva tu carrera como instructor al siguiente nivel. Todos nuestros planes de suscripción incluyen un mes de prueba gratuito.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Gratis</CardTitle>
-            <CardDescription>Para empezar y probar la plataforma.</CardDescription>
-            <div className="flex items-baseline gap-2 pt-4">
-              <span className="text-4xl font-bold">$0</span>
-              <span className="text-muted-foreground">/mes</span>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4 flex-1">
-            <ul className="space-y-2">
-              {freeFeatures.map((feature) => (
-                <li key={feature} className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-primary" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Plan Actual
-            </Button>
-          </CardFooter>
-        </Card>
-
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline">Comisión</CardTitle>
@@ -116,6 +83,9 @@ export default function ProPlanPage() {
               <span className="text-4xl font-bold">$14.990</span>
               <span className="text-muted-foreground">/mes</span>
             </div>
+             <p className="text-sm font-semibold text-accent pt-1">
+              ¡Tu primer mes es gratis!
+            </p>
           </CardHeader>
           <CardContent className="space-y-4 flex-1">
             <ul className="space-y-2">
@@ -129,7 +99,7 @@ export default function ProPlanPage() {
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full">
-              Elegir Básico
+              Comienza tu prueba gratuita
             </Button>
           </CardFooter>
         </Card>
@@ -148,6 +118,9 @@ export default function ProPlanPage() {
              <p className="text-sm text-muted-foreground pt-1">
               o $329.890 al año (1 mes gratis)
             </p>
+             <p className="text-sm font-semibold text-accent pt-2">
+              ¡Tu primer mes es gratis!
+            </p>
           </CardHeader>
           <CardContent className="space-y-4 flex-1">
             <ul className="space-y-2">
@@ -162,7 +135,7 @@ export default function ProPlanPage() {
           <CardFooter>
             <Button className="w-full">
               <Rocket className="mr-2 h-4 w-4" />
-              Mejorar a Pro
+              Comienza tu prueba gratuita
             </Button>
           </CardFooter>
         </Card>
@@ -170,5 +143,3 @@ export default function ProPlanPage() {
     </div>
   );
 }
-
-    
