@@ -124,7 +124,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent side="right" align="start" className="w-56">
               <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Perfíl</DropdownMenuItem>
+              <DropdownMenuItem>Perfil</DropdownMenuItem>
               <DropdownMenuItem>Configuraciones</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
