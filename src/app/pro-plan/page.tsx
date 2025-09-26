@@ -19,10 +19,10 @@ const commissionFeatures = [
 ];
 
 const basicFeatures = [
-    'Agendamiento de cupos ilimitado',
-    'Herramientas de gestión de clases',
+    'Todo lo del plan Comisión',
     'Verificación de perfil',
     'Soporte prioritario',
+    'Estadísticas básicas',
 ];
 
 const proFeatures = [
@@ -30,7 +30,6 @@ const proFeatures = [
   'Métricas avanzadas y análisis',
   'Asistente de IA para perfíl',
   'Marketing por correo electrónico',
-  'Acceso a API',
 ];
 
 
@@ -39,10 +38,10 @@ export default function ProPlanPage() {
     <div className="flex flex-col gap-8">
       <div className="text-center max-w-2xl mx-auto">
         <h1 className="font-headline text-4xl font-semibold">
-          Desbloquea tu Potencial con Plads
+          Un Plan Justo para Tu Crecimiento
         </h1>
         <p className="text-muted-foreground mt-4 text-lg">
-          Elige el plan que mejor se adapte a tus necesidades y lleva tu carrera como instructor al siguiente nivel. Todos nuestros planes de suscripción incluyen un mes de prueba gratuito.
+          Nuestros planes se adaptan a ti. Empieza sin costos fijos y, a medida que vendas más, suscríbete para reducir comisiones y maximizar tus ganancias.
         </p>
       </div>
 
@@ -51,13 +50,14 @@ export default function ProPlanPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline">Comisión</CardTitle>
-            <CardDescription>Ideal si no quieres un pago fijo mensual.</CardDescription>
+            <CardDescription>Ideal para empezar sin costos fijos.</CardDescription>
             <div className="flex items-baseline gap-2 pt-4">
-              <span className="text-4xl font-bold">5%</span>
+              <span className="text-4xl font-bold">10%</span>
               <span className="text-muted-foreground">/transacción</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 flex-1">
+            <p className="font-semibold text-sm">Funcionalidades clave:</p>
             <ul className="space-y-2">
               {commissionFeatures.map((feature) => (
                 <li key={feature} className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default function ProPlanPage() {
           <CardFooter>
             <Button variant="outline" className="w-full">
               <Percent className="mr-2 h-4 w-4" />
-              Elegir Comisión
+              Comenzar con Comisión
             </Button>
           </CardFooter>
         </Card>
@@ -78,12 +78,15 @@ export default function ProPlanPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline">Básico</CardTitle>
-            <CardDescription>Para instructores que buscan consolidarse.</CardDescription>
-            <div className="flex items-baseline gap-2 pt-4">
-              <span className="text-4xl font-bold">$14.990</span>
-              <span className="text-muted-foreground">/mes</span>
+            <CardDescription>Reduce tu comisión a la mitad.</CardDescription>
+            <div className="flex flex-col pt-4">
+              <div className='flex items-baseline gap-2'>
+                <span className="text-4xl font-bold">$14.990</span>
+                <span className="text-muted-foreground">/mes</span>
+              </div>
+              <span className="text-lg font-semibold text-primary/80 mt-1">+ 5% de comisión</span>
             </div>
-             <p className="text-sm font-semibold text-accent pt-1">
+             <p className="text-sm font-semibold text-accent pt-2">
               ¡Tu primer mes es gratis!
             </p>
           </CardHeader>
@@ -110,14 +113,14 @@ export default function ProPlanPage() {
               <span>Pro</span>
               <Badge>Recomendado</Badge>
             </CardTitle>
-            <CardDescription>Para instructores que quieren crecer.</CardDescription>
-            <div className="flex items-baseline gap-2 pt-4">
-              <span className="text-4xl font-bold text-primary">$29.990</span>
-              <span className="text-muted-foreground">/mes</span>
+            <CardDescription>La comisión más baja para maximizar tus ganancias.</CardDescription>
+            <div className="flex flex-col pt-4">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold text-primary">$29.990</span>
+                <span className="text-muted-foreground">/mes</span>
+              </div>
+               <span className="text-lg font-semibold text-primary mt-1">+ 2.9% de comisión</span>
             </div>
-             <p className="text-sm text-muted-foreground pt-1">
-              o $329.890 al año (1 mes gratis)
-            </p>
              <p className="text-sm font-semibold text-accent pt-2">
               ¡Tu primer mes es gratis!
             </p>
@@ -129,7 +132,7 @@ export default function ProPlanPage() {
                   <Check className="h-5 w-5 text-primary" />
                   <span className="text-sm">{feature}</span>
                 </li>
-))}
+              ))}
             </ul>
           </CardContent>
           <CardFooter>
