@@ -41,6 +41,8 @@ body {
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 256 50% 20%;
     --sidebar-ring: 138 77% 63%;
+    --brand-purple: 256 47% 36%;
+    --brand-green: 138 77% 63%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -75,6 +77,8 @@ body {
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 256 50% 20%;
     --sidebar-ring: 138 77% 63%;
+    --brand-purple: 256 47% 36%;
+    --brand-green: 138 77% 63%;
   }
 }
 

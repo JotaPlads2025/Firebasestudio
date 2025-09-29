@@ -36,8 +36,6 @@ const PladsProLogo = () => (
       >
         <rect width="24" height="24" rx="6" fill="hsl(var(--brand-purple))" />
         <path
-          fillRule="evenodd"
-          clipRule="evenodd"
           d="M12.5 5C13.3284 5 14 5.67157 14 6.5C14 7.32843 13.3284 8 12.5 8C11.6716 8 11 7.32843 11 6.5C11 5.67157 11.6716 5 12.5 5ZM9.3 19L11 15.65L14 9H9V11H12.5L10.3 15.65L11.5 18L15 11H17L11.5 22L9.3 19Z"
           fill="hsl(var(--brand-green))"
         />
