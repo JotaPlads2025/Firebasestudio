@@ -1,67 +1,94 @@
-
 {
   "placeholderImages": [
     {
       "id": "user-avatar",
       "description": "A portrait of an instructor",
-      "imageUrl": "https://picsum.photos/seed/instructor1/200/200",
+      "imageUrl": "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk1MDY2MzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
       "id": "class-salsa",
       "description": "A couple dancing salsa",
-      "imageUrl": "https://picsum.photos/seed/salsa/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1616139622529-4540e1810590?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb3VwbGUlMjBkYW5jaW5nfGVufDB8fHx8MTc1OTU5NTc2MXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "couple dancing"
     },
     {
       "id": "class-yoga",
       "description": "A person doing yoga",
-      "imageUrl": "https://picsum.photos/seed/yoga/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1651077837628-52b3247550ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b2dhJTIwc3R1ZGlvfGVufDB8fHx8MTc1OTUzNzA0Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "yoga studio"
     },
     {
       "id": "class-ceramics",
       "description": "Hands working on a pottery wheel",
-      "imageUrl": "https://picsum.photos/seed/ceramics/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1590605103416-230704277b05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwb3R0ZXJ5JTIwd2hlZWx8ZW58MHx8fHwxNzU5NTUzMjg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "pottery wheel"
     },
     {
       "id": "class-fitness",
       "description": "People in a functional training class",
-      "imageUrl": "https://picsum.photos/seed/fitness/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1554284126-aa88f22d8b74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxneW0lMjBjbGFzc3xlbnwwfHx8fDE3NTk2MTI1NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "gym class"
     },
     {
       "id": "class-art",
       "description": "Watercolor painting supplies",
-      "imageUrl": "https://picsum.photos/seed/art/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1613206468203-fa00870edf79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3YXRlcmNvbG9yJTIwcGFpbnRpbmd8ZW58MHx8fHwxNzU5NjEyNTQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "watercolor painting"
     },
     {
       "id": "class-kizomba",
       "description": "A couple dancing kizomba",
-      "imageUrl": "https://picsum.photos/seed/kizomba/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1531747056595-07f6cbbe10ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3VwbGUlMjBkYW5jaW5nfGVufDB8fHx8MTc1OTU5NTc2MXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "couple dancing"
     },
     {
       "id": "class-bachata",
       "description": "A couple dancing bachata",
-      "imageUrl": "https://picsum.photos/seed/bachata/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1685519641311-fed1151d4390?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb3VwbGUlMjBkYW5jaW5nfGVufDB8fHx8MTc1OTU5NTc2MXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "couple dancing"
     },
     {
       "id": "class-bootcamp",
       "description": "A group of people training outdoors for a bootcamp",
-      "imageUrl": "https://picsum.photos/seed/bootcamp/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1528822608169-751e14e95492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvdXRkb29yJTIwYm9vdGNhbXB8ZW58MHx8fHwxNzU5NjEyNTQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "outdoor bootcamp"
     },
     {
       "id": "class-coaching",
       "description": "One on one coaching session",
-      "imageUrl": "https://picsum.photos/seed/coaching/600/400",
+      "imageUrl": "https://images.unsplash.com/photo-1745970649913-2edb9dca4f74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb2FjaGluZyUyMHNlc3Npb258ZW58MHx8fHwxNzU5NTE0NzIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "coaching session"
+    },
+    {
+      "id": "class-reggaeton",
+      "description": "People dancing reggaeton",
+      "imageUrl": "https://images.unsplash.com/photo-1610213990008-8b82192f458f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx1cmJhbiUyMGRhbmNlfGVufDB8fHx8MTc1OTYxMjU0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "urban dance"
+    },
+    {
+      "id": "class-dancehall",
+      "description": "A person dancing dancehall style",
+      "imageUrl": "https://images.unsplash.com/photo-1641145927280-0af196517d03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYW5jZWhhbGwlMjBzdHlsZXxlbnwwfHx8fDE3NTk2MTI1NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dancehall style"
+    },
+    {
+      "id": "class-ballet",
+      "description": "A ballet dancer posing",
+      "imageUrl": "https://images.unsplash.com/photo-1558204145-e5ef36132dae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiYWxsZXQlMjBkYW5jZXJ8ZW58MHx8fHwxNzU5NTI0NjYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ballet dancer"
+    },
+    {
+      "id": "class-calistenia",
+      "description": "A person doing calisthenics outdoors",
+      "imageUrl": "https://images.unsplash.com/photo-1758521959503-46334a6dc64a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYWxpc3RoZW5pY3MlMjBwYXJrfGVufDB8fHx8MTc1OTYxMjU0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calisthenics park"
+    },
+    {
+      "id": "class-pilates",
+      "description": "People in a pilates reformer class",
+      "imageUrl": "https://images.unsplash.com/photo-1678985854460-94df3afe13f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGlsYXRlcyUyMHJlZm9ybWVyfGVufDB8fHx8MTc1OTU3MjA4MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pilates reformer"
     }
   ]
 }
-
-    
