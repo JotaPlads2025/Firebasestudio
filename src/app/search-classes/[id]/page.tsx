@@ -20,6 +20,7 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
   }
 
   const isFull = classData.availableSlots === 0;
+  const hasPacks = classData.pricePlans && classData.pricePlans.length > 1;
 
   // For demonstration, we'll filter reviews that might match this class or instructor.
   // In a real app, reviews would be linked directly to the class or instructor.
@@ -115,7 +116,7 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
           </Card>
 
           <Card className="sticky top-24">
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle className="text-2xl font-bold text-primary">
                 ${classData.price.toLocaleString('es-CL')}
                 <span className="text-sm font-normal text-muted-foreground"> /clase</span>
@@ -125,6 +126,20 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
                 <Button size="lg" className="w-full" disabled={isFull}>
                     {isFull ? 'Clase Completa' : 'Agendar Cupo'}
                 </Button>
+                {hasPacks && (
+                    <div className="space-y-2 pt-2">
+                        <h4 className="font-semibold text-sm">O compra un pack:</h4>
+                        <div className="grid gap-2 text-sm">
+                            {classData.pricePlans.filter(p => p.price !== classData.price).map(plan => (
+                                <div key={plan.name} className="flex justify-between items-center p-2 rounded-md bg-muted/50">
+                                    <span>{plan.name}</span>
+                                    <span className="font-bold">${plan.price.toLocaleString('es-CL')}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <Separator className="my-4" />
                 <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />

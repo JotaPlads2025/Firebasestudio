@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Map, List, Search, PlusCircle, ChevronDown } from 'lucide-react';
+import { Map, List, Search, ChevronDown } from 'lucide-react';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
 import { searchableClasses, type SearchableClass } from '@/lib/search-data';
@@ -73,8 +73,8 @@ export default function SearchClassesPage() {
     const hasPacks = cls.pricePlans && cls.pricePlans.length > 1;
 
     return (
-        <Link href={`/search-classes/${cls.id}`} className="block h-full">
-            <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col h-full", isFull && "bg-muted/50 opacity-70")}>
+        <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col h-full", isFull && "bg-muted/50 opacity-70")}>
+            <Link href={`/search-classes/${cls.id}`} className="block">
                 <div className="relative">
                     <Image 
                         src={cls.image.imageUrl} 
@@ -85,41 +85,45 @@ export default function SearchClassesPage() {
                     />
                     {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
                 </div>
-                <CardContent className="p-4 space-y-3 flex flex-col flex-1">
-                     <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
-                          {hasPacks && (
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                                  <ChevronDown className="h-5 w-5" />
-                                  <span className="sr-only">Ver planes</span>
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-60">
-                                <div className="grid gap-4">
-                                  <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">Planes Disponibles</h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      Ahorra comprando un pack de clases.
-                                    </p>
+            </Link>
+            <CardContent className="p-4 space-y-3 flex flex-col flex-1">
+                 <div className="flex items-start justify-between gap-2">
+                    <Link href={`/search-classes/${cls.id}`} className="flex-1">
+                      <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
+                    </Link>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
+                      {hasPacks && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10">
+                              <ChevronDown className="h-5 w-5" />
+                              <span className="sr-only">Ver planes</span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60">
+                            <div className="grid gap-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Planes Disponibles</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Ahorra comprando un pack de clases.
+                                </p>
+                              </div>
+                              <div className="grid gap-2">
+                                {cls.pricePlans.map(plan => (
+                                  <div key={plan.name} className="grid grid-cols-2 items-center gap-4 text-sm">
+                                    <span>{plan.name}</span>
+                                    <span className="font-semibold text-right">${plan.price.toLocaleString('es-CL')}</span>
                                   </div>
-                                  <div className="grid gap-2">
-                                    {cls.pricePlans.map(plan => (
-                                      <div key={plan.name} className="grid grid-cols-2 items-center gap-4 text-sm">
-                                        <span>{plan.name}</span>
-                                        <span className="font-semibold text-right">${plan.price.toLocaleString('es-CL')}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          )}
-                        </div>
-                     </div>
+                                ))}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
+                 </div>
+                 <Link href={`/search-classes/${cls.id}`} className="block">
                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Avatar className="h-6 w-6">
                             <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
@@ -131,17 +135,19 @@ export default function SearchClassesPage() {
                         <StarRating rating={cls.rating} />
                         <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
                      </div>
-                     <div className="flex-1" />
-                     <Separator />
+                 </Link>
+                 <div className="flex-1" />
+                 <Separator />
+                  <Link href={`/search-classes/${cls.id}`} className="block">
                      <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <span>{cls.level}</span>
                         <Badge variant={isFull ? 'secondary' : 'default'} className="whitespace-nowrap">
                             {isFull ? `0 cupos` : `${cls.availableSlots} cupos disponibles`}
                         </Badge>
                      </div>
-                </CardContent>
-            </Card>
-        </Link>
+                  </Link>
+            </CardContent>
+        </Card>
     )
   };
 
