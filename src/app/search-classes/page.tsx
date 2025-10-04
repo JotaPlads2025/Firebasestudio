@@ -188,91 +188,151 @@ export default function SearchClassesPage() {
 
       <Card>
         <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div className="md:col-span-2 xl:col-span-4 relative">
-                    <Input 
-                        placeholder="Buscar por clase o instructor..."
-                        className="pl-10"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                    <Label htmlFor="region">Región</Label>
-                    <Select value={selectedRegion} onValueChange={handleRegionChange}>
-                        <SelectTrigger id="region"><SelectValue placeholder="Todas" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            {regions.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="commune">Comuna</Label>
-                    <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={selectedRegion === 'all'}>
-                        <SelectTrigger id="commune"><SelectValue placeholder="Todas" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            {selectedRegion && communesByRegion[selectedRegion]?.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div>
-                    <Label htmlFor="category">Categoría</Label>
-                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                        <SelectTrigger id="category"><SelectValue placeholder="Todas" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="subcategory">Estilo</Label>
-                    <Select value={selectedSubCategory} onValueChange={setSelectedSubCategory} disabled={selectedCategory === 'all' || !subCategories[selectedCategory]}>
-                        <SelectTrigger id="subcategory"><SelectValue placeholder="Todos" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            {selectedCategory && subCategories[selectedCategory]?.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="level">Nivel</Label>
-                    <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                        <SelectTrigger id="level"><SelectValue placeholder="Todos" /></SelectTrigger>
-                        <SelectContent>
-                            {levels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div>
-                    <Label htmlFor="day">Día de la semana</Label>
-                    <Select value={selectedDay} onValueChange={setSelectedDay}>
-                        <SelectTrigger id="day"><SelectValue placeholder="Todos" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            {daysOfWeek.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="time">Horario</Label>
-                    <Select value={selectedTime} onValueChange={setSelectedTime}>
-                        <SelectTrigger id="time"><SelectValue placeholder="Cualquier horario" /></SelectTrigger>
-                        <SelectContent>
-                            {timeSlots.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className="flex items-end">
-                    <Button variant="ghost" onClick={handleClearFilters} className="w-full">
-                        <XCircle className="mr-2 h-4 w-4" />
-                        Quitar Filtros
-                    </Button>
-                </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="relative md:col-span-2 lg:col-span-3 xl:col-span-4">
+              <Input
+                placeholder="Buscar por clase o instructor..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             </div>
+
+            <div className="grid grid-cols-1 gap-4 md:col-span-2 lg:col-span-3 xl:col-span-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div>
+                <Label htmlFor="region">Región</Label>
+                <Select value={selectedRegion} onValueChange={handleRegionChange}>
+                  <SelectTrigger id="region">
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    {regions.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="commune">Comuna</Label>
+                <Select
+                  value={selectedCommune}
+                  onValueChange={setSelectedCommune}
+                  disabled={selectedRegion === 'all'}
+                >
+                  <SelectTrigger id="commune">
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    {selectedRegion &&
+                      communesByRegion[selectedRegion]?.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="category">Categoría</Label>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={handleCategoryChange}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>
+                        {c.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="subcategory">Estilo</Label>
+                <Select
+                  value={selectedSubCategory}
+                  onValueChange={setSelectedSubCategory}
+                  disabled={
+                    selectedCategory === 'all' || !subCategories[selectedCategory]
+                  }
+                >
+                  <SelectTrigger id="subcategory">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {selectedCategory &&
+                      subCategories[selectedCategory]?.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="level">Nivel</Label>
+                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                  <SelectTrigger id="level">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {levels.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="day">Día de la semana</Label>
+                <Select value={selectedDay} onValueChange={setSelectedDay}>
+                  <SelectTrigger id="day">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {daysOfWeek.map((d) => (
+                      <SelectItem key={d} value={d}>
+                        {d}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="time">Horario</Label>
+                <Select value={selectedTime} onValueChange={setSelectedTime}>
+                  <SelectTrigger id="time">
+                    <SelectValue placeholder="Cualquier horario" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end">
+                <Button variant="ghost" onClick={handleClearFilters} className="w-full">
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Quitar Filtros
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
       
