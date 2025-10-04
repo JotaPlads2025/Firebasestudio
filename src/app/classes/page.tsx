@@ -359,9 +359,7 @@ export default function ClassesPage() {
             <CardTitle>Clases Personalizadas / Coaches</CardTitle>
             <CardDescription>Sesiones uno a uno o para grupos pequeños.</CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-              <ClassesTable classes={coachingClasses} />
-        </CardContent>
+        <ClassesTable classes={coachingClasses} />
       </Card>
       
       <Card>
@@ -369,12 +367,8 @@ export default function ClassesPage() {
             <CardTitle>Bootcamps</CardTitle>
             <CardDescription>Eventos intensivos de corta duración.</CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-              <ClassesTable classes={bootcampClasses} />
-        </CardContent>
+        <ClassesTable classes={bootcampClasses} />
       </Card>
     </div>
   );
 }
-
-    
