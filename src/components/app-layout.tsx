@@ -66,38 +66,38 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Nav />
         </SidebarContent>
         <SidebarFooter className="flex flex-col gap-2">
-            <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
-             <div className="hidden flex-col gap-4 p-2 text-center text-xs text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden">
-                <div className="flex items-center justify-center gap-4">
-                  <a
-                    href="https://www.instagram.com/pladsapp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-sidebar-foreground"
-                    aria-label="Instagram"
-                  >
-                    <Instagram className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://www.tiktok.com/pladsapp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-sidebar-foreground"
-                    aria-label="TikTok"
-                  >
-                    <TikTokIcon className="h-4 w-4" />
-                  </a>
-                </div>
-                <div className="space-y-1">
-                    <p>
-                        <Link href="#" className="text-xs hover:underline">
-                        Terminos y condiciones
-                        </Link>
-                    </p>
-                    <p>hola@plads.cl</p>
-                </div>
+          <SidebarSeparator className="md:group-data-[collapsible=icon]:hidden" />
+          <div className="flex flex-col gap-4 p-2 text-center text-xs text-sidebar-foreground/70 md:group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center justify-center gap-4">
+              <a
+                href="https://www.instagram.com/pladsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sidebar-foreground"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/pladsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sidebar-foreground"
+                aria-label="TikTok"
+              >
+                <TikTokIcon className="h-4 w-4" />
+              </a>
             </div>
-            <SidebarSeparator />
+            <div className="space-y-1">
+              <p>
+                <Link href="#" className="text-xs hover:underline">
+                  Terminos y condiciones
+                </Link>
+              </p>
+              <p>hola@plads.cl</p>
+            </div>
+          </div>
+          <SidebarSeparator />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
