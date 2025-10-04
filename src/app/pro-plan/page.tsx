@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,6 +12,8 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Percent, Rocket } from 'lucide-react';
+import PlanCalculator from '@/components/plan-calculator';
+import { classPerformanceData } from '@/lib/class-data';
 
 const commissionFeatures = [
     'Agendamiento de cupos ilimitado',
@@ -143,6 +147,19 @@ export default function ProPlanPage() {
           </CardFooter>
         </Card>
       </div>
+
+       <Card className="max-w-4xl mx-auto w-full">
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl text-center">Calcula tus Ganancias: ¿Qué plan te conviene más?</CardTitle>
+          <CardDescription className="text-center">
+            Usa la calculadora para simular tus ingresos y ver cuánto podrías ahorrar con cada plan.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PlanCalculator classPerformanceData={classPerformanceData} />
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
