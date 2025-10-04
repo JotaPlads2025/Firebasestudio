@@ -18,3 +18,13 @@ export type Class = {
   date?: Date;
   daysOffset?: number;
 };
+
+export type Review = {
+  id: string;
+  studentName: string;
+  studentAvatarUrl: string;
+  rating: number;
+  comment: string;
+  date: string;
+  className?: string;
+};

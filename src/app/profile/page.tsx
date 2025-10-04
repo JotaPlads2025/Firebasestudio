@@ -15,6 +15,8 @@ import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
+import { reviewsData } from '@/lib/reviews-data';
+import { Separator } from '@/components/ui/separator';
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -106,6 +108,39 @@ export default function ProfilePage() {
 
 Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada estudiante a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
               </p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Reseñas de Estudiantes</CardTitle>
+              <CardDescription>
+                Opiniones de estudiantes que han tomado clases.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                {reviewsData.map((review, index) => (
+                    <div key={review.id}>
+                        <div className="flex items-start gap-4">
+                            <Avatar className="h-10 w-10 border">
+                                <AvatarImage src={review.studentAvatarUrl} alt={review.studentName} />
+                                <AvatarFallback>{review.studentName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-semibold">{review.studentName}</p>
+                                        <p className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    </div>
+                                    <StarRating rating={review.rating} />
+                                </div>
+                                {review.className && <Badge variant="secondary" className="mt-2">{review.className}</Badge>}
+                                <p className="mt-3 text-sm text-muted-foreground">{review.comment}</p>
+                            </div>
+                        </div>
+                        {index < reviewsData.length - 1 && <Separator className="mt-6" />}
+                    </div>
+                ))}
+                 <Button variant="outline" className="w-full mt-4">Ver todas las reseñas</Button>
             </CardContent>
           </Card>
            <Card>
