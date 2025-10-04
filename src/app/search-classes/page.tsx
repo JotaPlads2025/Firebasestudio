@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Map, List, Search, PlusCircle } from 'lucide-react';
+import { Map, List, Search, PlusCircle, ChevronDown } from 'lucide-react';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
 import { searchableClasses, type SearchableClass } from '@/lib/search-data';
@@ -93,8 +93,8 @@ export default function SearchClassesPage() {
                           {hasPacks && (
                             <Popover>
                               <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={(e) => e.preventDefault()}>
-                                  <PlusCircle className="h-5 w-5" />
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                  <ChevronDown className="h-5 w-5" />
                                   <span className="sr-only">Ver planes</span>
                                 </Button>
                               </PopoverTrigger>
