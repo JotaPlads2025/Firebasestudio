@@ -29,7 +29,7 @@ interface RecoveryEmailDialogProps {
 
 export default function RecoveryEmailDialog({
   open,
-  onOpenOpenChange,
+  onOpenChange,
   studentName,
   lastClass,
 }: RecoveryEmailDialogProps) {
@@ -46,7 +46,7 @@ export default function RecoveryEmailDialog({
       generateRecoveryEmail({ studentName, lastClass })
         .then(setEmailContent)
         .catch((error) => {
-          console.error('Error generating email:', error);
+          console.error('Error al generar el correo:', error);
           toast({
             variant: 'destructive',
             title: 'Error al generar el correo',
