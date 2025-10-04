@@ -23,6 +23,7 @@ import {
   ArrowUp,
   TrendingUp,
   UserCheck,
+  Mail,
 } from 'lucide-react';
 import {
   Table,
@@ -60,6 +61,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { studentData, type Student } from '@/lib/student-data';
+import { differenceInDays, parseISO } from 'date-fns';
+import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 
 
 const revenueData = [
@@ -80,11 +83,11 @@ const revenueData = [
 ];
 
 const classPerformanceData = [
-  { name: 'Bachata Básico', bookings: 120, revenue: 2400000, retention: 75 },
-  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200000, retention: 85 },
-  { name: 'Bachata Amateur', bookings: 150, revenue: 2250000, retention: 80 },
-  { name: 'Bachata Alumna', bookings: 95, revenue: 1425000, retention: 78 },
-  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000000, retention: 90 },
+  { name: 'Bachata Básico', bookings: 120, revenue: 2400000, retention: 75, id: 'cls-001' },
+  { name: 'Bachata Open Lady', bookings: 80, revenue: 3200000, retention: 85, id: 'cls-002' },
+  { name: 'Bachata Amateur', bookings: 150, revenue: 2250000, retention: 80, id: 'cls-004' },
+  { name: 'Bachata Alumna', bookings: 95, revenue: 1425000, retention: 78, id: 'cls-005' },
+  { name: 'Bachata Intermedio', bookings: 60, revenue: 3000000, retention: 90, id: 'cls-003' },
 ];
 
 const chartConfig = {
@@ -228,15 +231,54 @@ const calculateRetentionMetrics = (students: Student[], currentMonth: string) =>
     };
 };
 
+type AtRiskStudent = {
+    student: Student;
+    lastBookingDate: Date;
+    lastClassId: string;
+};
+
+const getAtRiskStudents = (students: Student[]): AtRiskStudent[] => {
+    const today = new Date();
+    const atRisk: AtRiskStudent[] = [];
+
+    students.forEach(student => {
+        if (student.bookings.length === 0) {
+            return;
+        }
+
+        const lastBooking = student.bookings.reduce((latest, booking) => {
+            const latestDate = new Date(latest.date);
+            const bookingDate = new Date(booking.date);
+            return bookingDate > latestDate ? booking : latest;
+        });
+
+        const lastBookingDate = parseISO(lastBooking.date);
+        const daysSinceLastBooking = differenceInDays(today, lastBookingDate);
+
+        if (daysSinceLastBooking > 30) {
+            atRisk.push({
+                student,
+                lastBookingDate,
+                lastClassId: lastBooking.classId,
+            });
+        }
+    });
+
+    return atRisk;
+};
+
 
 export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedDay, setSelectedDay] = useState('all');
   const [selectedClassType, setSelectedClassType] = useState('all');
   const [isClient, setIsClient] = useState(false);
+  const [atRiskStudents, setAtRiskStudents] = useState<AtRiskStudent[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<AtRiskStudent | null>(null);
 
   useEffect(() => {
     setIsClient(true);
+    setAtRiskStudents(getAtRiskStudents(studentData));
   }, []);
 
   const handleDownloadExcel = () => {
@@ -575,6 +617,69 @@ export default function DashboardPage() {
                 </Table>
             </CardContent>
         </Card>
+        
+        <Card className="lg:col-span-3">
+            <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                    Oportunidades de Retención
+                </CardTitle>
+                <CardDescription>Estudiantes que no han agendado clases en los últimos 30 días.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isClient && (
+                    <>
+                        {atRiskStudents.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Estudiante</TableHead>
+                                        <TableHead>Última Clase</TableHead>
+                                        <TableHead className="text-right">Última Visita</TableHead>
+                                        <TableHead><span className="sr-only">Acciones</span></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {atRiskStudents.map((item) => {
+                                        const lastClassName = classPerformanceData.find(c => c.id === item.lastClassId)?.name || 'N/A';
+                                        return (
+                                            <TableRow key={item.student.studentId}>
+                                                <TableCell className="font-medium">{item.student.name}</TableCell>
+                                                <TableCell>{lastClassName}</TableCell>
+                                                <TableCell className="text-right">{item.lastBookingDate.toLocaleDateString('es-CL')}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" onClick={() => setSelectedStudent(item)}>
+                                                        <Mail className="mr-2 h-4 w-4"/>
+                                                        Contactar
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">
+                                <UserCheck className="h-12 w-12 text-muted-foreground" />
+                                <p className="mt-4 font-semibold">¡Excelente trabajo!</p>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    No tienes estudiantes en riesgo de abandono. ¡Sigue así!
+                                </p>
+                            </div>
+                        )}
+                    </>
+                )}
+            </CardContent>
+        </Card>
+
+        {selectedStudent && (
+             <RecoveryEmailDialog
+                open={!!selectedStudent}
+                onOpenChange={(isOpen) => !isOpen && setSelectedStudent(null)}
+                studentName={selectedStudent.student.name}
+                lastClass={classPerformanceData.find(c => c.id === selectedStudent.lastClassId)?.name || 'una de tus clases'}
+            />
+        )}
       </div>
     </div>
   );

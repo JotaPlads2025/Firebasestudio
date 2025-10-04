@@ -4,3 +4,4 @@ config();
 
 import '@/ai/flows/generate-instructor-profile.ts';
 import '@/ai/flows/query-instructor-data.ts';
+import '@/ai/flows/generate-recovery-email.ts';
