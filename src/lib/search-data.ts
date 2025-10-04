@@ -1,3 +1,4 @@
+
 import type { ImagePlaceholder } from './placeholder-images';
 import { PlaceHolderImages } from './placeholder-images';
 import type { ClassPricePlan } from './types';
@@ -20,6 +21,7 @@ export type SearchableClass = {
   subCategory: string;
   level: 'Básico' | 'Intermedio' | 'Avanzado' | 'Todos';
   dayOfWeek: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo';
+  schedule: string; // HH:MM format
 };
 
 const findImage = (id: string): ImagePlaceholder => {
@@ -50,6 +52,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Salsa',
     level: 'Intermedio',
     dayOfWeek: 'Martes',
+    schedule: '19:00',
   },
   {
     id: 'search-cls-002',
@@ -71,6 +74,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Yoga',
     level: 'Todos',
     dayOfWeek: 'Miércoles',
+    schedule: '10:00',
   },
   {
     id: 'search-cls-003',
@@ -92,6 +96,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Bachata',
     level: 'Avanzado',
     dayOfWeek: 'Jueves',
+    schedule: '20:00',
   },
   {
     id: 'search-cls-004',
@@ -112,6 +117,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Cerámica',
     level: 'Básico',
     dayOfWeek: 'Sábado',
+    schedule: '11:00',
   },
   {
     id: 'search-cls-005',
@@ -133,6 +139,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Kizomba',
     level: 'Básico',
     dayOfWeek: 'Viernes',
+    schedule: '21:00',
   },
   {
     id: 'search-cls-006',
@@ -155,6 +162,7 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Crossfit',
     level: 'Intermedio',
     dayOfWeek: 'Lunes',
+    schedule: '18:00',
   },
    {
     id: 'search-cls-007',
@@ -175,5 +183,8 @@ export const searchableClasses: SearchableClass[] = [
     subCategory: 'Pintura',
     level: 'Todos',
     dayOfWeek: 'Domingo',
+    schedule: '16:00',
   },
 ];
+
+    

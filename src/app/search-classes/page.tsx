@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Map, List, Search, ChevronDown } from 'lucide-react';
+import { Map, List, Search, ChevronDown, XCircle } from 'lucide-react';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
 import { searchableClasses, type SearchableClass } from '@/lib/search-data';
@@ -22,6 +22,12 @@ import Link from 'next/link';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const timeSlots = [
+    { value: 'all', label: 'Cualquier horario' },
+    { value: 'morning', label: 'Mañana (9am - 12pm)' },
+    { value: 'afternoon', label: 'Tarde (12pm - 7pm)' },
+    { value: 'evening', label: 'Noche (7pm en adelante)' },
+];
 
 export default function SearchClassesPage() {
   const [viewMode, setViewMode] = useState('list');
@@ -32,6 +38,7 @@ export default function SearchClassesPage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedDay, setSelectedDay] = useState('all');
+  const [selectedTime, setSelectedTime] = useState('all');
 
   const handleRegionChange = (value: string) => {
     setSelectedRegion(value);
@@ -41,6 +48,17 @@ export default function SearchClassesPage() {
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
     setSelectedSubCategory('all');
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedRegion('all');
+    setSelectedCommune('all');
+    setSelectedCategory('all');
+    setSelectedSubCategory('all');
+    setSelectedLevel('all');
+    setSelectedDay('all');
+    setSelectedTime('all');
   };
 
   const filteredClasses = useMemo(() => {
@@ -54,8 +72,16 @@ export default function SearchClassesPage() {
       const subCategoryMatch = selectedSubCategory === 'all' || c.subCategory === selectedSubCategory;
       const levelMatch = selectedLevel === 'all' || selectedLevel === 'Todos' || c.level === selectedLevel;
       const dayMatch = selectedDay === 'all' || c.dayOfWeek === selectedDay;
+      
+      const timeMatch = selectedTime === 'all' || (() => {
+        const classHour = parseInt(c.schedule.split(':')[0], 10);
+        if (selectedTime === 'morning') return classHour >= 9 && classHour < 12;
+        if (selectedTime === 'afternoon') return classHour >= 12 && classHour < 19;
+        if (selectedTime === 'evening') return classHour >= 19;
+        return false;
+      })();
 
-      return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch;
+      return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch && timeMatch;
     });
 
     // Sort classes: available first, then unavailable
@@ -66,7 +92,7 @@ export default function SearchClassesPage() {
     });
 
     return classes;
-  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay]);
+  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime]);
 
   const ClassCard = ({ cls }: { cls: SearchableClass }) => {
     const isFull = cls.availableSlots === 0;
@@ -123,20 +149,21 @@ export default function SearchClassesPage() {
                       )}
                     </div>
                  </div>
-                 <Link href={`/search-classes/${cls.id}`} className="block">
-                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Avatar className="h-6 w-6">
-                            <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
-                            <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <span>{cls.instructorName}</span>
-                     </div>
-                     <div className="flex items-center gap-2">
-                        <StarRating rating={cls.rating} />
-                        <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
-                     </div>
-                 </Link>
-                 <div className="flex-1" />
+                  <div className='flex-1'>
+                    <Link href={`/search-classes/${cls.id}`} className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Avatar className="h-6 w-6">
+                              <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
+                              <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <span>{cls.instructorName}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                          <StarRating rating={cls.rating} />
+                          <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
+                      </div>
+                    </Link>
+                  </div>
                  <Separator />
                   <Link href={`/search-classes/${cls.id}`} className="block">
                      <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -161,8 +188,8 @@ export default function SearchClassesPage() {
 
       <Card>
         <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="md:col-span-2 lg:col-span-4 relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="md:col-span-2 xl:col-span-4 relative">
                     <Input 
                         placeholder="Buscar por clase o instructor..."
                         className="pl-10"
@@ -230,6 +257,21 @@ export default function SearchClassesPage() {
                         </SelectContent>
                     </Select>
                 </div>
+                <div>
+                    <Label htmlFor="time">Horario</Label>
+                    <Select value={selectedTime} onValueChange={setSelectedTime}>
+                        <SelectTrigger id="time"><SelectValue placeholder="Cualquier horario" /></SelectTrigger>
+                        <SelectContent>
+                            {timeSlots.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="flex items-end">
+                    <Button variant="ghost" onClick={handleClearFilters} className="w-full">
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Quitar Filtros
+                    </Button>
+                </div>
             </div>
         </CardContent>
       </Card>
@@ -267,3 +309,5 @@ export default function SearchClassesPage() {
     </div>
   );
 }
+
+    
