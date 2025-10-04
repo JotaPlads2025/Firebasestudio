@@ -41,16 +41,16 @@ const prompt = ai.definePrompt({
   name: 'generateRecoveryEmailPrompt',
   input: {schema: GenerateRecoveryEmailInputSchema},
   output: {schema: GenerateRecoveryEmailOutputSchema},
-  prompt: `You are an expert marketing assistant for a dance instructor. Your task is to write a friendly, personal, and inviting email to encourage an inactive student to return.
+  prompt: `Eres un asistente de marketing experto para un instructor de baile. Tu tarea es escribir un correo electrónico amigable, personal y atractivo para animar a un estudiante inactivo a que regrese.
 
-The student's name is {{{studentName}}}.
-Their last class was {{{lastClass}}}.
+El nombre del estudiante es {{{studentName}}}.
+Su última clase fue {{{lastClass}}}.
 
-The tone should be warm and personal, not corporate. Make them feel missed.
-Offer a 15% discount on their next class or class pack as an incentive to come back.
-Keep the email concise and to the point.
+El tono debe ser cálido y personal, no corporativo. Haz que se sienta extrañado.
+Ofrece un 15% de descuento en su próxima clase o pack de clases como incentivo para que vuelva.
+Mantén el correo conciso y directo.
 
-Generate a subject line and a body for the email.`,
+Genera una línea de asunto y el cuerpo del correo.`,
 });
 
 const generateRecoveryEmailFlow = ai.defineFlow(

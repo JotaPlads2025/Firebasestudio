@@ -29,7 +29,7 @@ interface RecoveryEmailDialogProps {
 
 export default function RecoveryEmailDialog({
   open,
-  onOpenChange,
+  onOpenOpenChange,
   studentName,
   lastClass,
 }: RecoveryEmailDialogProps) {
