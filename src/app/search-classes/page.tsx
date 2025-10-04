@@ -18,6 +18,7 @@ import { StarRating } from '@/components/ui/star-rating';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import Link from 'next/link';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -72,74 +73,75 @@ export default function SearchClassesPage() {
     const hasPacks = cls.pricePlans && cls.pricePlans.length > 1;
 
     return (
-        <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col", isFull && "bg-muted/50 opacity-70")}>
-            <div className="relative">
-                <Image 
-                    src={cls.image.imageUrl} 
-                    alt={cls.name}
-                    width={600}
-                    height={400}
-                    className="aspect-[3/2] w-full object-cover"
-                />
-                {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
-            </div>
-            <CardContent className="p-4 space-y-3 flex flex-col flex-1">
-                 <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
-                      {hasPacks && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10">
-                              <PlusCircle className="h-5 w-5" />
-                              <span className="sr-only">Ver planes</span>
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-60">
-                            <div className="grid gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Planes Disponibles</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Ahorra comprando un pack de clases.
-                                </p>
-                              </div>
-                              <div className="grid gap-2">
-                                {cls.pricePlans.map(plan => (
-                                  <div key={plan.name} className="grid grid-cols-2 items-center gap-4 text-sm">
-                                    <span>{plan.name}</span>
-                                    <span className="font-semibold text-right">${plan.price.toLocaleString('es-CL')}</span>
+        <Link href={`/search-classes/${cls.id}`} className="block h-full">
+            <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col h-full", isFull && "bg-muted/50 opacity-70")}>
+                <div className="relative">
+                    <Image 
+                        src={cls.image.imageUrl} 
+                        alt={cls.name}
+                        width={600}
+                        height={400}
+                        className="aspect-[3/2] w-full object-cover"
+                    />
+                    {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
+                </div>
+                <CardContent className="p-4 space-y-3 flex flex-col flex-1">
+                     <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
+                          {hasPacks && (
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" onClick={(e) => e.preventDefault()}>
+                                  <PlusCircle className="h-5 w-5" />
+                                  <span className="sr-only">Ver planes</span>
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-60">
+                                <div className="grid gap-4">
+                                  <div className="space-y-2">
+                                    <h4 className="font-medium leading-none">Planes Disponibles</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      Ahorra comprando un pack de clases.
+                                    </p>
                                   </div>
-                                ))}
-                              </div>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      )}
-                    </div>
-                 </div>
-                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Avatar className="h-6 w-6">
-                        <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
-                        <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <span>{cls.instructorName}</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                    <StarRating rating={cls.rating} />
-                    <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
-                 </div>
-                 <div className="flex-1" />
-                 <Separator />
-                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{cls.level}</span>
-                    <Badge variant={isFull ? 'secondary' : 'default'} className="whitespace-nowrap">
-                        {isFull ? `0 cupos` : `${cls.availableSlots} cupos disponibles`}
-                    </Badge>
-                 </div>
-
-            </CardContent>
-        </Card>
+                                  <div className="grid gap-2">
+                                    {cls.pricePlans.map(plan => (
+                                      <div key={plan.name} className="grid grid-cols-2 items-center gap-4 text-sm">
+                                        <span>{plan.name}</span>
+                                        <span className="font-semibold text-right">${plan.price.toLocaleString('es-CL')}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          )}
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Avatar className="h-6 w-6">
+                            <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
+                            <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <span>{cls.instructorName}</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <StarRating rating={cls.rating} />
+                        <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
+                     </div>
+                     <div className="flex-1" />
+                     <Separator />
+                     <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{cls.level}</span>
+                        <Badge variant={isFull ? 'secondary' : 'default'} className="whitespace-nowrap">
+                            {isFull ? `0 cupos` : `${cls.availableSlots} cupos disponibles`}
+                        </Badge>
+                     </div>
+                </CardContent>
+            </Card>
+        </Link>
     )
   };
 
