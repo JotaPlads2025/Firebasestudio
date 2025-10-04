@@ -96,6 +96,24 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
 
         {/* Sidebar */}
         <div className="md:col-span-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Instructor</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center gap-4">
+                <Avatar className="h-14 w-14">
+                    <AvatarImage src={classData.instructorAvatar.imageUrl} alt={classData.instructorName} />
+                    <AvatarFallback>{classData.instructorName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <h3 className="font-semibold">{classData.instructorName}</h3>
+                    <Link href="/profile" className="text-sm text-primary hover:underline">
+                        Ver perfil
+                    </Link>
+                </div>
+            </CardContent>
+          </Card>
+
           <Card className="sticky top-24">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-primary">
@@ -126,24 +144,6 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
                     </div>
                 </div>
                 {isFull && <p className="text-center text-sm font-semibold text-destructive">No quedan cupos disponibles para esta clase.</p>}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Instructor</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-4">
-                <Avatar className="h-14 w-14">
-                    <AvatarImage src={classData.instructorAvatar.imageUrl} alt={classData.instructorName} />
-                    <AvatarFallback>{classData.instructorName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <h3 className="font-semibold">{classData.instructorName}</h3>
-                    <Link href="/profile" className="text-sm text-primary hover:underline">
-                        Ver perfil
-                    </Link>
-                </div>
             </CardContent>
           </Card>
         </div>
