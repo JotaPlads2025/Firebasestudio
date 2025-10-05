@@ -375,7 +375,7 @@ export default function ClassesPage() {
             <CardDescription>Eventos intensivos de corta duración.</CardDescription>
         </CardHeader>
         <ClassesTable classes={bootcampClasses} />
-      </Card>
+      </Crd>
     </div>
   );
 }
