@@ -241,7 +241,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             </TableCell>
           </TableRow>
         ))}
-      </Body>
+      </TableBody>
     </Table>
   );
 }
