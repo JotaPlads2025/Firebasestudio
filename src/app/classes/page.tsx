@@ -40,6 +40,7 @@ import {
 import ClassCalendar from '@/components/class-calendar';
 import { useEffect, useState } from 'react';
 import { venues } from '@/lib/venues-data';
+import Link from 'next/link';
 
 
 const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?: ScheduleDay[], daysOffset?: number }[] = [
@@ -320,7 +321,9 @@ export default function ClassesPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Crear Clase</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/classes/new">Crear Clase</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>Crear Clase Personalizada</DropdownMenuItem>
             <DropdownMenuItem>Crear Bootcamp</DropdownMenuItem>
           </DropdownMenuContent>
@@ -367,7 +370,9 @@ export default function ClassesPage() {
             <CardTitle>Clases Personalizadas / Coaches</CardTitle>
             <CardDescription>Sesiones uno a uno o para grupos pequeños.</CardDescription>
         </CardHeader>
-        <ClassesTable classes={coachingClasses} />
+        <CardContent className="p-0">
+            <ClassesTable classes={coachingClasses} />
+        </CardContent>
       </Card>
       
       <Card>
@@ -375,7 +380,9 @@ export default function ClassesPage() {
             <CardTitle>Bootcamps</CardTitle>
             <CardDescription>Eventos intensivos de corta duración.</CardDescription>
         </CardHeader>
-        <ClassesTable classes={bootcampClasses} />
+        <CardContent className="p-0">
+            <ClassesTable classes={bootcampClasses} />
+        </CardContent>
       </Card>
     </div>
   );
