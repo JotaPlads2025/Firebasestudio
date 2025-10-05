@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
 import { useEffect, useState } from 'react';
+import { venues } from '@/lib/venues-data';
 
 
 const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?: ScheduleDay[], daysOffset?: number }[] = [
@@ -334,7 +335,7 @@ export default function ClassesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ClassCalendar classes={classes} startDate={calendarStartDate} />
+          <ClassCalendar classes={classes} startDate={calendarStartDate} venues={venues} />
         </CardContent>
       </Card>
 

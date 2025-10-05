@@ -3,17 +3,19 @@
 
 import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import type { Class } from '@/lib/types';
+import type { Class, Venue } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from './ui/badge';
 import { isSameDay } from 'date-fns';
+import { MapPin } from 'lucide-react';
 
 interface ClassCalendarProps {
   classes: Class[];
   startDate?: Date;
+  venues: Venue[];
 }
 
-export default function ClassCalendar({ classes, startDate }: ClassCalendarProps) {
+export default function ClassCalendar({ classes, startDate, venues }: ClassCalendarProps) {
   const [date, setDate] = useState<Date | undefined>(startDate);
   
   useEffect(() => {
@@ -49,6 +51,10 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
   const selectedDayClasses = date
     ? classes.filter((cls) => cls.date && isSameDay(cls.date, date))
     : [];
+    
+  const getVenueName = (venueId: string) => {
+    return venues.find(v => v.id === venueId)?.name || 'Sede no especificada';
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -86,6 +92,10 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
                   <div>
                     <p className="font-semibold">{cls.name}</p>
                     <p className="text-sm text-muted-foreground">{cls.schedule}</p>
+                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <MapPin className="h-3 w-3" />
+                        {getVenueName(cls.venueId)}
+                    </p>
                   </div>
                   <Badge variant="secondary">
                     {cls.bookings} Cupos
@@ -103,4 +113,3 @@ export default function ClassCalendar({ classes, startDate }: ClassCalendarProps
     </div>
   );
 }
-
