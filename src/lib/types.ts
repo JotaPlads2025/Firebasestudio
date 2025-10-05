@@ -5,6 +5,14 @@ export type ClassPricePlan = {
 
 export type ScheduleDay = 'Lun' | 'Mar' | 'Mie' | 'Jue' | 'Vie' | 'Sab' | 'Dom';
 
+export type Venue = {
+  id: string;
+  name: string;
+  address: string;
+  region: string;
+  commune: string;
+};
+
 export type Class = {
   id: string;
   name: string;
@@ -17,6 +25,7 @@ export type Class = {
   revenue: number;
   date?: Date;
   daysOffset?: number;
+  venueId: string;
 };
 
 export type Review = {

@@ -56,6 +56,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     status: 'Active',
     bookings: 60,
     revenue: 1800000,
+    venueId: 'venue-001',
   },
   {
     id: 'cls-002',
@@ -70,6 +71,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     status: 'Active',
     bookings: 30,
     revenue: 3200000,
+    venueId: 'venue-001',
   },
   {
     id: 'cls-003',
@@ -85,6 +87,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     status: 'Active',
     bookings: 25,
     revenue: 3000000,
+    venueId: 'venue-002',
   },
   {
     id: 'cls-004',
@@ -96,6 +99,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     status: 'Inactive',
     bookings: 0,
     revenue: 0,
+    venueId: 'venue-002',
   },
   {
     id: 'cls-005',
@@ -107,6 +111,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     status: 'Active',
     bookings: 20,
     revenue: 950000,
+    venueId: 'venue-003',
   },
   {
     id: 'coach-001',
@@ -118,6 +123,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     bookings: 5,
     revenue: 250000,
     daysOffset: 4,
+    venueId: 'venue-001',
   },
   {
     id: 'bootcamp-001',
@@ -129,6 +135,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     bookings: 40,
     revenue: 3750000,
     daysOffset: 6,
+    venueId: 'venue-002',
   },
 ];
 
@@ -234,7 +241,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
             </TableCell>
           </TableRow>
         ))}
-      </TableBody>
+      </Body>
     </Table>
   );
 }
@@ -266,7 +273,7 @@ export default function ClassesPage() {
             id: `${item.id}-${dayName}`,
             scheduleDays: [dayName],
             date: date,
-          });
+          } as Class);
         });
       } 
       // Handle non-recurring classes with daysOffset

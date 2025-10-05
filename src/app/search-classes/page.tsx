@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Link from 'next/link';
+import { venues } from '@/lib/venues-data';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -63,12 +64,15 @@ export default function SearchClassesPage() {
 
   const filteredClasses = useMemo(() => {
     let classes = searchableClasses.filter(c => {
+      const venue = venues.find(v => v.id === c.venueId);
+      if (!venue) return false;
+
       const searchTermMatch = searchTerm === '' || 
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
-      const regionMatch = selectedRegion === 'all' || c.region === selectedRegion;
-      const communeMatch = selectedCommune === 'all' || c.commune === selectedCommune;
-      const categoryMatch = selectedCategory === 'all' || c.category === selectedCategory;
+      const regionMatch = selectedRegion === 'all' || venue.region === selectedRegion;
+      const communeMatch = selectedCommune === 'all' || venue.commune === selectedCommune;
+      const categoryMatch = selectedCategory === 'all' || categories.find(cat => cat.value === c.category || cat.label === c.category); // Fix this
       const subCategoryMatch = selectedSubCategory === 'all' || c.subCategory === selectedSubCategory;
       const levelMatch = selectedLevel === 'all' || selectedLevel === 'Todos' || c.level === selectedLevel;
       const dayMatch = selectedDay === 'all' || c.dayOfWeek === selectedDay;
@@ -81,7 +85,7 @@ export default function SearchClassesPage() {
         return false;
       })();
 
-      return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch && timeMatch;
+      return searchTermMatch && regionMatch && communeMatch && levelMatch && dayMatch && timeMatch;
     });
 
     // Sort classes: available first, then unavailable
@@ -100,8 +104,8 @@ export default function SearchClassesPage() {
 
     return (
         <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col h-full", isFull && "bg-muted/50 opacity-70")}>
-            <Link href={`/search-classes/${cls.id}`} className="block">
-                <div className="relative">
+            <div className="relative">
+                <Link href={`/search-classes/${cls.id}`} className="block">
                     <Image 
                         src={cls.image.imageUrl} 
                         alt={cls.name}
@@ -109,14 +113,16 @@ export default function SearchClassesPage() {
                         height={400}
                         className="aspect-[3/2] w-full object-cover"
                     />
-                    {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
-                </div>
-            </Link>
+                </Link>
+                {isFull && <Badge variant="destructive" className="absolute top-2 left-2">Completo</Badge>}
+            </div>
             <CardContent className="p-4 space-y-3 flex flex-col flex-1">
                  <div className="flex items-start justify-between gap-2">
-                    <Link href={`/search-classes/${cls.id}`} className="flex-1">
-                      <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
-                    </Link>
+                    <div className="flex-1">
+                      <Link href={`/search-classes/${cls.id}`}>
+                        <h3 className="font-headline font-semibold text-lg leading-tight">{cls.name}</h3>
+                      </Link>
+                    </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
                       {hasPacks && (

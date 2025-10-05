@@ -64,6 +64,7 @@ import { studentData, type Student } from '@/lib/student-data';
 import { differenceInDays, parseISO } from 'date-fns';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
+import { venues } from '@/lib/venues-data';
 
 
 const chartConfig = {
@@ -248,6 +249,7 @@ export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedDay, setSelectedDay] = useState('all');
   const [selectedClassType, setSelectedClassType] = useState('all');
+  const [selectedVenue, setSelectedVenue] = useState('all');
   const [isClient, setIsClient] = useState(false);
   const [atRiskStudents, setAtRiskStudents] = useState<AtRiskStudent[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<AtRiskStudent | null>(null);
@@ -262,39 +264,36 @@ export default function DashboardPage() {
     alert('La funcionalidad para descargar el archivo Excel será implementada.');
   };
   
-  const getFilteredData = (month: string, day: string, type: string) => {
+  const getFilteredData = (month: string, day: string, type: string, venue: string) => {
     return revenueData.filter(d => {
         const monthMatch = month === 'all' || d.month === month;
-        
+        const venueMatch = venue === 'all' || d.venueId === venue;
+
         let dayMatch = day === 'all';
         if (day !== 'all' && d.dayOfWeek !== 'all') {
           dayMatch = d.dayOfWeek === day;
         } else if (day !== 'all' && d.dayOfWeek === 'all') {
-          dayMatch = false; // Don't include 'all' day data when a specific day is selected
+          dayMatch = false;
         }
         
         let classTypeMatch = type === 'all';
         if (type !== 'all' && d.classType !== 'all') {
           classTypeMatch = d.classType === type;
         } else if (type !== 'all' && d.classType === 'all') {
-          classTypeMatch = false; // Don't include 'all' type data when a specific type is selected
+          classTypeMatch = false;
         }
 
-        const isOverallData = d.dayOfWeek === 'all' && d.classType === 'all';
-
-        if (month !== 'all' && (day !=='all' || type !== 'all')) {
-            return monthMatch && dayMatch && classTypeMatch;
-        }
+        const isOverallData = d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all';
         
-        if (month === 'all' && (day !== 'all' || type !== 'all')) {
-            return dayMatch && classTypeMatch;
+        if (month === 'all' && day === 'all' && type === 'all' && venue === 'all') {
+            return isOverallData;
         }
 
-        return monthMatch && isOverallData;
+        return monthMatch && dayMatch && classTypeMatch && venueMatch;
     })
   }
   
-  const currentData = getFilteredData(selectedMonth, selectedDay, selectedClassType);
+  const currentData = getFilteredData(selectedMonth, selectedDay, selectedClassType, selectedVenue);
   const totalRevenue = currentData.reduce((acc, c) => acc + c.revenue, 0);
   const totalBookings = currentData.reduce((acc, c) => acc + c.bookings, 0);
   const totalNewStudents = currentData.reduce((acc, c) => acc + c.newStudents, 0);
@@ -307,7 +306,7 @@ export default function DashboardPage() {
     const currentMonthIndex = monthOrder.indexOf(selectedMonth);
     if(currentMonthIndex > 0) {
         const previousMonth = monthOrder[currentMonthIndex-1];
-        previousMonthData = getFilteredData(previousMonth, selectedDay, selectedClassType);
+        previousMonthData = getFilteredData(previousMonth, selectedDay, selectedClassType, selectedVenue);
     }
   }
 
@@ -320,7 +319,7 @@ export default function DashboardPage() {
     : { overallRetention: 0, previousMonthOverallRetention: 0 };
     
   const overallRetention = selectedMonth === 'all'
-    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').reduce((acc, c) => acc + c.retention, 0) / revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').length
+    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all').reduce((acc, c) => acc + c.retention, 0) / revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').length
     : retentionMetrics.overallRetention;
 
   const prevOverallRetention = selectedMonth === 'all' ? undefined : retentionMetrics.previousMonthOverallRetention;
@@ -328,19 +327,19 @@ export default function DashboardPage() {
 
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
 
-  const chartData = (selectedMonth === 'all' && selectedDay === 'all' && selectedClassType === 'all')
-    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all') 
+  const chartData = (selectedMonth === 'all' && selectedDay === 'all' && selectedClassType === 'all' && selectedVenue === 'all')
+    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all') 
     : currentData;
     
-  const retentionChartData = revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all');
+  const retentionChartData = revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all');
 
   return (
     <div className="flex flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-2">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar mes" />
                     </SelectTrigger>
                     <SelectContent>
@@ -350,8 +349,19 @@ export default function DashboardPage() {
                         ))}
                     </SelectContent>
                 </Select>
+                 <Select value={selectedVenue} onValueChange={setSelectedVenue}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sede" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Todas las Sedes</SelectItem>
+                        {venues.map(v => (
+                            <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Select value={selectedDay} onValueChange={setSelectedDay}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar día" />
                     </SelectTrigger>
                     <SelectContent>
@@ -361,7 +371,7 @@ export default function DashboardPage() {
                     </SelectContent>
                 </Select>
                 <Select value={selectedClassType} onValueChange={setSelectedClassType}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectTrigger className="w-full">
                         <SelectValue placeholder="Tipo de clase" />
                     </SelectTrigger>
                     <SelectContent>
@@ -370,7 +380,7 @@ export default function DashboardPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Button onClick={handleDownloadExcel} className="w-full sm:w-auto">
+                <Button onClick={handleDownloadExcel} className="w-full col-span-2">
                     <Download className="mr-2 h-4 w-4" />
                     Descargar Excel
                 </Button>

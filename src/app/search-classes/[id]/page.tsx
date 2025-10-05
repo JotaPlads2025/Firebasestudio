@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, MapPin, Tag } from 'lucide-react';
+import { venues } from '@/lib/venues-data';
+import { regions } from '@/lib/locations';
 
 export default function ClassDetailPage({ params }: { params: { id: string } }) {
   const classData = searchableClasses.find(c => c.id === params.id);
@@ -18,6 +20,9 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
   if (!classData) {
     notFound();
   }
+
+  const venue = venues.find(v => v.id === classData.venueId);
+  const regionLabel = regions.find(r => r.value === venue?.region)?.label || venue?.region;
 
   const isFull = classData.availableSlots === 0;
   const hasPacks = classData.pricePlans && classData.pricePlans.length > 1;
@@ -141,17 +146,25 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
                 )}
                 <Separator className="my-4" />
                 <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-2">
+                    {venue && (
+                      <>
+                        <div className="flex items-center gap-2 font-semibold">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span>{venue.name}</span>
+                        </div>
+                        <div className="pl-6 text-muted-foreground">
+                          <p>{venue.address}</p>
+                          <p>{venue.commune}, {regionLabel}</p>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex items-center gap-2 pt-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span>{classData.dayOfWeek}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>Horario por confirmar</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{classData.commune}, {classData.region === 'rm' ? 'Región Metropolitana' : classData.region}</span>
+                        <span>{classData.schedule}</span>
                     </div>
                      <div className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-muted-foreground" />
