@@ -47,6 +47,12 @@ export default function SettingsPage() {
   const [venues, setVenues] = useState<Venue[]>(initialVenues);
   const [isAddingVenue, setIsAddingVenue] = useState(false);
 
+  // States for notification settings
+  const [newBookingsEnabled, setNewBookingsEnabled] = useState(true);
+  const [classRemindersEnabled, setClassRemindersEnabled] = useState(true);
+  const [cancellationsEnabled, setCancellationsEnabled] = useState(false);
+  const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
+
   const form = useForm({
     resolver: zodResolver(venueSchema),
     defaultValues: {
@@ -222,11 +228,26 @@ export default function SettingsPage() {
                 Nuevo agendamiento
               </Label>
               <p className="text-sm text-muted-foreground">
-                Envíame una notificación por correo electrónico cuando un nuevo
-                agendamiento es creado.
+                Recibe notificaciones sobre nuevos cupos agendados.
               </p>
             </div>
-            <Switch id="new-bookings-email" defaultChecked />
+            <div className='flex items-center gap-4'>
+                <Select defaultValue="immediate" disabled={!newBookingsEnabled}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="immediate">Inmediatamente</SelectItem>
+                        <SelectItem value="hourly">Resumen cada hora</SelectItem>
+                        <SelectItem value="daily">Resumen diario</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Switch 
+                    id="new-bookings-email" 
+                    checked={newBookingsEnabled}
+                    onCheckedChange={setNewBookingsEnabled}
+                />
+            </div>
           </div>
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
@@ -234,10 +255,27 @@ export default function SettingsPage() {
                 Recordatorios de Clases
               </Label>
               <p className="text-sm text-muted-foreground">
-                Envíame una notificación 24 horas antes.
+                Define cuándo recibir recordatorios de tus próximas clases.
               </p>
             </div>
-            <Switch id="class-reminders-push" defaultChecked />
+            <div className='flex items-center gap-4'>
+                <Select defaultValue="24" disabled={!classRemindersEnabled}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="24">24 horas antes</SelectItem>
+                        <SelectItem value="12">12 horas antes</SelectItem>
+                        <SelectItem value="6">6 horas antes</SelectItem>
+                        <SelectItem value="1">1 hora antes</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Switch 
+                    id="class-reminders-push" 
+                    checked={classRemindersEnabled}
+                    onCheckedChange={setClassRemindersEnabled}
+                />
+            </div>
           </div>
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
@@ -245,10 +283,25 @@ export default function SettingsPage() {
                 Cancelaciones
               </Label>
               <p className="text-sm text-muted-foreground">
-                Notifícame por correo cuando se cancele un cupo agendado.
+                Notifícame cuando se cancele un cupo agendado.
               </p>
             </div>
-            <Switch id="cancellations-email" />
+             <div className='flex items-center gap-4'>
+                <Select defaultValue="immediate" disabled={!cancellationsEnabled}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="immediate">Inmediatamente</SelectItem>
+                        <SelectItem value="hourly">Resumen cada hora</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Switch 
+                    id="cancellations-email"
+                    checked={cancellationsEnabled}
+                    onCheckedChange={setCancellationsEnabled}
+                />
+            </div>
           </div>
           <div className="flex items-center justify-between space-x-4 rounded-lg border p-4">
             <div className="space-y-0.5">
@@ -259,7 +312,11 @@ export default function SettingsPage() {
               Envía un correo semanal con tus métricas clave de rendimiento.
               </p>
             </div>
-            <Switch id="weekly-summary" defaultChecked />
+            <Switch 
+                id="weekly-summary" 
+                checked={weeklySummaryEnabled}
+                onCheckedChange={setWeeklySummaryEnabled}
+            />
           </div>
         </CardContent>
       </Card>
