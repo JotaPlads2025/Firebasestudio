@@ -41,6 +41,8 @@ import ClassCalendar from '@/components/class-calendar';
 import { useEffect, useState } from 'react';
 import { venues } from '@/lib/venues-data';
 import Link from 'next/link';
+import { studentData } from '@/lib/student-data';
+import AttendeesDialog from '@/components/attendees-dialog';
 
 
 const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?: ScheduleDay[], daysOffset?: number }[] = [
@@ -251,6 +253,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [calendarStartDate, setCalendarStartDate] = useState<Date>();
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
 
   useEffect(() => {
     const today = new Date();
@@ -309,6 +312,10 @@ export default function ClassesPage() {
   const activeClasses = regularClasses.filter((c) => c.status === 'Active');
   const inactiveClasses = regularClasses.filter((c) => c.status === 'Inactive');
 
+  const handleClassSelect = (cls: Class) => {
+    setSelectedClass(cls);
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -338,7 +345,12 @@ export default function ClassesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ClassCalendar classes={classes} startDate={calendarStartDate} venues={venues} />
+          <ClassCalendar 
+            classes={classes} 
+            startDate={calendarStartDate} 
+            venues={venues}
+            onClassSelect={handleClassSelect}
+            />
         </CardContent>
       </Card>
 
@@ -384,6 +396,16 @@ export default function ClassesPage() {
             <ClassesTable classes={bootcampClasses} />
         </CardContent>
       </Card>
+      
+      {selectedClass && (
+        <AttendeesDialog
+          open={!!selectedClass}
+          onOpenChange={(isOpen) => !isOpen && setSelectedClass(null)}
+          classData={selectedClass}
+          students={studentData}
+          venues={venues}
+        />
+      )}
     </div>
   );
 }

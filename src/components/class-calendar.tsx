@@ -7,15 +7,17 @@ import type { Class, Venue } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from './ui/badge';
 import { isSameDay } from 'date-fns';
-import { MapPin } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface ClassCalendarProps {
   classes: Class[];
   startDate?: Date;
   venues: Venue[];
+  onClassSelect: (cls: Class) => void;
 }
 
-export default function ClassCalendar({ classes, startDate, venues }: ClassCalendarProps) {
+export default function ClassCalendar({ classes, startDate, venues, onClassSelect }: ClassCalendarProps) {
   const [date, setDate] = useState<Date | undefined>(startDate);
   
   useEffect(() => {
@@ -88,19 +90,31 @@ export default function ClassCalendar({ classes, startDate, venues }: ClassCalen
           <CardContent className="space-y-4">
             {selectedDayClasses.length > 0 ? (
               selectedDayClasses.map((cls) => (
-                <div key={cls.id} className="flex items-center justify-between rounded-lg border p-3">
-                  <div>
-                    <p className="font-semibold">{cls.name}</p>
-                    <p className="text-sm text-muted-foreground">{cls.schedule}</p>
-                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3" />
-                        {getVenueName(cls.venueId)}
-                    </p>
+                <Card 
+                    key={cls.id}
+                    className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => onClassSelect(cls)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{cls.name}</p>
+                      <p className="text-sm text-muted-foreground">{cls.schedule}</p>
+                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {getVenueName(cls.venueId)}
+                      </p>
+                    </div>
+                    <div className='text-right'>
+                        <Badge variant="secondary" className="mb-2">
+                        {cls.bookings} Cupos
+                        </Badge>
+                         <Button variant="ghost" size="sm" className="h-auto p-1 text-xs">
+                            <Users className="h-3 w-3 mr-1"/>
+                            Ver Asistentes
+                        </Button>
+                    </div>
                   </div>
-                  <Badge variant="secondary">
-                    {cls.bookings} Cupos
-                  </Badge>
-                </div>
+                </Card>
               ))
             ) : (
               <p className="text-center text-muted-foreground">
