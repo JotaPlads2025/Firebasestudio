@@ -49,6 +49,18 @@ export default function ProPlanPage() {
         </p>
       </div>
 
+       <Card className="max-w-4xl mx-auto w-full">
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl text-center">Calcula tus Ganancias: ¿Qué plan te conviene más?</CardTitle>
+          <CardDescription className="text-center">
+            Usa la calculadora para simular tus ingresos y ver cuánto podrías ahorrar con cada plan.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PlanCalculator classPerformanceData={classPerformanceData} />
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
         
         <Card className="flex flex-col">
@@ -147,18 +159,6 @@ export default function ProPlanPage() {
           </CardFooter>
         </Card>
       </div>
-
-       <Card className="max-w-4xl mx-auto w-full">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl text-center">Calcula tus Ganancias: ¿Qué plan te conviene más?</CardTitle>
-          <CardDescription className="text-center">
-            Usa la calculadora para simular tus ingresos y ver cuánto podrías ahorrar con cada plan.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PlanCalculator classPerformanceData={classPerformanceData} />
-        </CardContent>
-      </Card>
 
     </div>
   );
