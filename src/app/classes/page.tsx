@@ -45,7 +45,7 @@ import { studentData } from '@/lib/student-data';
 import AttendeesDialog from '@/components/attendees-dialog';
 
 
-const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?: ScheduleDay[], daysOffset?: number }[] = [
+const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
   {
     id: 'cls-001',
     name: 'Bachata Básico',
@@ -122,6 +122,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     name: 'Coaching Personalizado de Bachata',
     category: 'Coaching',
     schedule: 'A convenir',
+    scheduleDays: [],
     pricePlans: [{ name: 'Sesión única', price: 50000 }],
     status: 'Active',
     bookings: 5,
@@ -134,6 +135,7 @@ const initialClassesData: Omit<Class, 'date' | 'scheduleDays'> & { scheduleDays?
     name: 'Bootcamp Intensivo de Verano',
     category: 'Bootcamp',
     schedule: '02-04 de Octubre',
+    scheduleDays: [],
     pricePlans: [{ name: 'Acceso total', price: 150000 }],
     status: 'Active',
     bookings: 40,
@@ -168,7 +170,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
     return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
   }
 
-  const uniqueClasses = classes.filter((c, index, self) => self.findIndex(s => s.id === c.id) === index);
+  const uniqueClasses = classes.filter((c, index, self) => self.findIndex(s => s.id.split('-')[1] === c.id.split('-')[1]) === index);
 
   return (
     <Table>
@@ -195,7 +197,7 @@ function ClassesTable({ classes }: { classes: Class[] }) {
               </div>
             </TableCell>
             <TableCell className="hidden md:table-cell">
-              {c.scheduleDays ? `${c.scheduleDays.join(', ')} a las ${c.schedule}` : c.schedule}
+              {c.scheduleDays && c.scheduleDays.length > 0 ? `${c.scheduleDays.join(', ')} a las ${c.schedule}` : c.schedule}
             </TableCell>
             <TableCell className="hidden md:table-cell">
               {c.pricePlans.length === 1 ? (
@@ -276,7 +278,6 @@ export default function ClassesPage() {
           processedClasses.push({
             ...item,
             id: `${item.id}-${dayName}`,
-            scheduleDays: [dayName],
             date: date,
           } as Class);
         });
