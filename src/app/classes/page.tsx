@@ -170,7 +170,17 @@ function ClassesTable({ classes }: { classes: Class[] }) {
     return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
   }
 
-  const uniqueClasses = classes.filter((c, index, self) => self.findIndex(s => s.id.split('-')[1] === c.id.split('-')[1]) === index);
+  // Use a Map to get unique classes based on the base ID (e.g., 'cls-001')
+  // This avoids showing the same class multiple times for each recurring day
+  const uniqueClassesMap = new Map<string, Class>();
+  classes.forEach(c => {
+    const baseId = c.id.split('-').slice(0, 2).join('-');
+    if (!uniqueClassesMap.has(baseId)) {
+      uniqueClassesMap.set(baseId, c);
+    }
+  });
+  const uniqueClasses = Array.from(uniqueClassesMap.values());
+
 
   return (
     <Table>
@@ -392,7 +402,7 @@ export default function ClassesPage() {
         <CardHeader>
             <CardTitle>Bootcamps</CardTitle>
             <CardDescription>Eventos intensivos de corta duración.</CardDescription>
-        </CardHeader>
+        </MCardHeader>
         <CardContent className="p-0">
             <ClassesTable classes={bootcampClasses} />
         </CardContent>
