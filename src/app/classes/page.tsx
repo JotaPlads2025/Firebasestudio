@@ -98,7 +98,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     name: 'Bachata Amateur',
     category: 'Dance',
     schedule: '2:00 PM',
-    scheduleDays: ['Dom'],
+    scheduleDays: [],
     pricePlans: [{ name: 'Clase suelta', price: 6000 }],
     status: 'Inactive',
     bookings: 0,
@@ -402,7 +402,7 @@ export default function ClassesPage() {
         <CardHeader>
             <CardTitle>Bootcamps</CardTitle>
             <CardDescription>Eventos intensivos de corta duración.</CardDescription>
-        </MCardHeader>
+        </CardHeader>
         <CardContent className="p-0">
             <ClassesTable classes={bootcampClasses} />
         </CardContent>
