@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Map, List, Search, ChevronDown, XCircle } from 'lucide-react';
+import { Map, List, Search, ChevronDown, XCircle, Bell } from 'lucide-react';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
 import { searchableClasses, type SearchableClass } from '@/lib/search-data';
@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Link from 'next/link';
 import { venues } from '@/lib/venues-data';
+import { useToast } from '@/hooks/use-toast';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -99,8 +100,17 @@ export default function SearchClassesPage() {
   }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime]);
 
   const ClassCard = ({ cls }: { cls: SearchableClass }) => {
+    const { toast } = useToast();
     const isFull = cls.availableSlots === 0;
     const hasPacks = cls.pricePlans && cls.pricePlans.length > 1;
+
+    const handleNotifyClick = () => {
+        console.log(`User wants to be notified for class: ${cls.id}`);
+        toast({
+            title: "¡Notificación Activada!",
+            description: `Te avisaremos si se libera un cupo para "${cls.name}".`
+        });
+    }
 
     return (
         <Card className={cn("overflow-hidden transition-all hover:shadow-md flex flex-col h-full", isFull && "bg-muted/50 opacity-70")}>
@@ -171,14 +181,19 @@ export default function SearchClassesPage() {
                     </Link>
                   </div>
                  <Separator />
-                  <Link href={`/search-classes/${cls.id}`} className="block">
-                     <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>{cls.level}</span>
-                        <Badge variant={isFull ? 'secondary' : 'default'} className="whitespace-nowrap">
-                            {isFull ? `0 cupos` : `${cls.availableSlots} cupos disponibles`}
+                 <div className="flex items-center justify-between text-sm text-muted-foreground pt-1">
+                    <span>{cls.level}</span>
+                    {isFull ? (
+                        <Button variant="outline" size="sm" onClick={handleNotifyClick}>
+                            <Bell className="mr-2 h-4 w-4" />
+                            Notificarme
+                        </Button>
+                    ) : (
+                        <Badge variant={'default'} className="whitespace-nowrap">
+                            {`${cls.availableSlots} cupos disponibles`}
                         </Badge>
-                     </div>
-                  </Link>
+                    )}
+                 </div>
             </CardContent>
         </Card>
     )
