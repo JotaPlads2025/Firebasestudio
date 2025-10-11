@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -51,13 +51,6 @@ import {
   Cell,
 } from 'recharts';
 import AiAssistantForm from '@/components/ai-assistant-form';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { studentData, type Student } from '@/lib/student-data';
@@ -65,6 +58,7 @@ import { differenceInDays, parseISO } from 'date-fns';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import { venues } from '@/lib/venues-data';
+import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
 
 
 const chartConfig = {
@@ -102,7 +96,19 @@ const chartConfig = {
   },
 };
 
-const daysOfWeek = [
+const monthOrder = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+const monthOptions: Option[] = [
+    { value: 'all', label: 'Todos los meses' },
+    ...monthOrder.map(m => ({ value: m, label: m }))
+];
+
+const venueOptions: Option[] = [
+    { value: 'all', label: 'Todas las Sedes' },
+    ...venues.map(v => ({ value: v.id, label: v.name }))
+];
+
+const dayOptions: Option[] = [
     { value: 'all', label: 'Todos los días' },
     { value: 'Lun', label: 'Lunes' },
     { value: 'Mar', label: 'Martes' },
@@ -113,7 +119,7 @@ const daysOfWeek = [
     { value: 'Dom', label: 'Domingo' },
 ];
 
-const classTypes = [
+const classTypeOptions: Option[] = [
     { value: 'all', label: 'Todas las clases' },
     { value: 'Dance', label: 'Baile' },
     { value: 'Coaching', label: 'Coaching' },
@@ -122,7 +128,6 @@ const classTypes = [
     { value: 'Health', label: 'Salud' },
 ];
 
-const monthOrder = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const monthMap: { [key: string]: number } = { Ene: 0, Feb: 1, Mar: 2, Abr: 3, May: 4, Jun: 5, Jul: 6, Ago: 7, Sep: 8, Oct: 9, Nov: 10, Dic: 11 };
 
 
@@ -153,14 +158,18 @@ const MetricComparison = ({ value, previousValue, unit = '' }: { value: number; 
 };
 
 
-const calculateRetentionMetrics = (students: Student[], currentMonth: string) => {
+const calculateRetentionMetrics = (students: Student[], currentMonths: string[]) => {
+    if (currentMonths.length !== 1 || currentMonths[0] === 'all') {
+      return { overallRetention: 0, previousMonthOverallRetention: 0 };
+    }
+    
+    const currentMonth = currentMonths[0];
     const currentMonthIndex = monthMap[currentMonth];
+    
     if (currentMonthIndex === undefined || currentMonthIndex === 0) {
       return {
         overallRetention: 0,
         previousMonthOverallRetention: 0,
-        singleClassRetention: 0,
-        packRetention: 0,
       };
     }
     const previousMonthIndex = currentMonthIndex - 1;
@@ -246,10 +255,11 @@ const getAtRiskStudents = (students: Student[]): AtRiskStudent[] => {
 
 
 export default function DashboardPage() {
-  const [selectedMonth, setSelectedMonth] = useState('all');
-  const [selectedDay, setSelectedDay] = useState('all');
-  const [selectedClassType, setSelectedClassType] = useState('all');
-  const [selectedVenue, setSelectedVenue] = useState('all');
+  const [selectedMonths, setSelectedMonths] = useState(['all']);
+  const [selectedVenues, setSelectedVenues] = useState(['all']);
+  const [selectedDays, setSelectedDays] = useState(['all']);
+  const [selectedClassTypes, setSelectedClassTypes] = useState(['all']);
+  
   const [isClient, setIsClient] = useState(false);
   const [atRiskStudents, setAtRiskStudents] = useState<AtRiskStudent[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<AtRiskStudent | null>(null);
@@ -264,49 +274,41 @@ export default function DashboardPage() {
     alert('La funcionalidad para descargar el archivo Excel será implementada.');
   };
   
-  const getFilteredData = (month: string, day: string, type: string, venue: string) => {
+  const getFilteredData = (months: string[], days: string[], types: string[], venues: string[]) => {
     return revenueData.filter(d => {
-        const monthMatch = month === 'all' || d.month === month;
-        const venueMatch = venue === 'all' || d.venueId === venue;
-
-        let dayMatch = day === 'all';
-        if (day !== 'all' && d.dayOfWeek !== 'all') {
-          dayMatch = d.dayOfWeek === day;
-        } else if (day !== 'all' && d.dayOfWeek === 'all') {
-          dayMatch = false;
-        }
-        
-        let classTypeMatch = type === 'all';
-        if (type !== 'all' && d.classType !== 'all') {
-          classTypeMatch = d.classType === type;
-        } else if (type !== 'all' && d.classType === 'all') {
-          classTypeMatch = false;
-        }
+        const monthMatch = months.includes('all') || months.includes(d.month);
+        const dayMatch = days.includes('all') || days.includes(d.dayOfWeek);
+        const typeMatch = types.includes('all') || types.includes(d.classType);
+        const venueMatch = venues.includes('all') || venues.includes(d.venueId);
 
         const isOverallData = d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all';
         
-        if (month === 'all' && day === 'all' && type === 'all' && venue === 'all') {
+        if (months.includes('all') && days.includes('all') && types.includes('all') && venues.includes('all')) {
             return isOverallData;
         }
 
-        return monthMatch && dayMatch && classTypeMatch && venueMatch;
+        return monthMatch && dayMatch && typeMatch && venueMatch;
     })
   }
   
-  const currentData = getFilteredData(selectedMonth, selectedDay, selectedClassType, selectedVenue);
+  const currentData = getFilteredData(selectedMonths, selectedDays, selectedClassTypes, selectedVenues);
   const totalRevenue = currentData.reduce((acc, c) => acc + c.revenue, 0);
   const totalBookings = currentData.reduce((acc, c) => acc + c.bookings, 0);
   const totalNewStudents = currentData.reduce((acc, c) => acc + c.newStudents, 0);
-  const averageActiveClasses = currentData.length > 0 && selectedMonth ==='all' && selectedDay === 'all' && selectedClassType === 'all'
-    ? Math.round(currentData.reduce((acc, c) => acc + c.activeClasses, 0) / currentData.length)
-    : revenueData.find(d => d.month === selectedMonth)?.activeClasses || 0;
   
+  const singleMonthSelected = selectedMonths.length === 1 && selectedMonths[0] !== 'all';
+  const noFiltersSelected = selectedMonths.includes('all') && selectedDays.includes('all') && selectedClassTypes.includes('all') && selectedVenues.includes('all');
+
+  const averageActiveClasses = currentData.length > 0 && noFiltersSelected
+    ? Math.round(currentData.reduce((acc, c) => acc + c.activeClasses, 0) / currentData.length)
+    : (singleMonthSelected ? revenueData.find(d => d.month === selectedMonths[0])?.activeClasses || 0 : currentData.reduce((acc, c) => acc + c.activeClasses, 0));
+
   let previousMonthData;
-  if(selectedMonth !== 'all') {
-    const currentMonthIndex = monthOrder.indexOf(selectedMonth);
+  if(singleMonthSelected) {
+    const currentMonthIndex = monthOrder.indexOf(selectedMonths[0]);
     if(currentMonthIndex > 0) {
         const previousMonth = monthOrder[currentMonthIndex-1];
-        previousMonthData = getFilteredData(previousMonth, selectedDay, selectedClassType, selectedVenue);
+        previousMonthData = getFilteredData([previousMonth], selectedDays, selectedClassTypes, selectedVenues);
     }
   }
 
@@ -314,22 +316,16 @@ export default function DashboardPage() {
   const prevTotalBookings = previousMonthData?.reduce((acc, c) => acc + c.bookings, 0);
   const prevTotalNewStudents = previousMonthData?.reduce((acc, c) => acc + c.newStudents, 0);
   
-  const retentionMetrics = selectedMonth !== 'all' 
-    ? calculateRetentionMetrics(studentData, selectedMonth)
-    : { overallRetention: 0, previousMonthOverallRetention: 0 };
+  const retentionMetrics = calculateRetentionMetrics(studentData, selectedMonths);
     
-  const overallRetention = selectedMonth === 'all'
+  const overallRetention = noFiltersSelected
     ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all').reduce((acc, c) => acc + c.retention, 0) / revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all').length
     : retentionMetrics.overallRetention;
 
-  const prevOverallRetention = selectedMonth === 'all' ? undefined : retentionMetrics.previousMonthOverallRetention;
+  const prevOverallRetention = singleMonthSelected ? retentionMetrics.previousMonthOverallRetention : undefined;
 
 
   const totalRevenueAllClasses = classPerformanceData.reduce((acc, c) => acc + c.revenue, 0);
-
-  const chartData = (selectedMonth === 'all' && selectedDay === 'all' && selectedClassType === 'all' && selectedVenue === 'all')
-    ? revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all') 
-    : currentData;
     
   const retentionChartData = revenueData.filter(d => d.dayOfWeek === 'all' && d.classType === 'all' && d.venueId === 'all');
 
@@ -338,48 +334,30 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="font-headline text-[50px] font-semibold">Dashboard</h1>
             <div className="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-2">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seleccionar mes" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todos los meses</SelectItem>
-                        {[...new Set(revenueData.map(d => d.month))].filter(m => monthOrder.includes(m) && m !== 'all').sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)).map(month => (
-                            <SelectItem key={month} value={month}>{month}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                 <Select value={selectedVenue} onValueChange={setSelectedVenue}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sede" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todas las Sedes</SelectItem>
-                        {venues.map(v => (
-                            <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={selectedDay} onValueChange={setSelectedDay}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seleccionar día" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {daysOfWeek.map(d => (
-                            <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={selectedClassType} onValueChange={setSelectedClassType}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Tipo de clase" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         {classTypes.map(c => (
-                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <MultiSelectFilter
+                    title="Mes"
+                    options={monthOptions}
+                    selectedValues={selectedMonths}
+                    onSelectionChange={setSelectedMonths}
+                />
+                <MultiSelectFilter
+                    title="Sede"
+                    options={venueOptions}
+                    selectedValues={selectedVenues}
+                    onSelectionChange={setSelectedVenues}
+                />
+                 <MultiSelectFilter
+                    title="Día"
+                    options={dayOptions}
+                    selectedValues={selectedDays}
+                    onSelectionChange={setSelectedDays}
+                />
+                <MultiSelectFilter
+                    title="Tipo de Clase"
+                    options={classTypeOptions}
+                    selectedValues={selectedClassTypes}
+                    onSelectionChange={setSelectedClassTypes}
+                />
                 <Button onClick={handleDownloadExcel} className="w-full col-span-2">
                     <Download className="mr-2 h-4 w-4" />
                     Descargar Excel
@@ -395,7 +373,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${isClient ? totalRevenue.toLocaleString('es-CL') : '...'}</div>
-             {isClient && <MetricComparison value={totalRevenue} previousValue={prevTotalRevenue} />}
+             {isClient && singleMonthSelected && <MetricComparison value={totalRevenue} previousValue={prevTotalRevenue} />}
           </CardContent>
         </Card>
         <Card>
@@ -405,7 +383,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isClient ? totalBookings.toLocaleString('es-CL') : '...'}</div>
-             {isClient && <MetricComparison value={totalBookings} previousValue={prevTotalBookings} />}
+             {isClient && singleMonthSelected && <MetricComparison value={totalBookings} previousValue={prevTotalBookings} />}
           </CardContent>
         </Card>
         <Card>
@@ -415,7 +393,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+{isClient ? totalNewStudents.toLocaleString('es-CL') : '...'}</div>
-            {isClient && <MetricComparison value={totalNewStudents} previousValue={prevTotalNewStudents} />}
+            {isClient && singleMonthSelected && <MetricComparison value={totalNewStudents} previousValue={prevTotalNewStudents} />}
           </CardContent>
         </Card>
          <Card>
@@ -425,7 +403,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isClient ? `${overallRetention.toFixed(1)}%` : '...'}</div>
-            {isClient && <MetricComparison value={overallRetention} previousValue={prevOverallRetention} unit="%" />}
+            {isClient && singleMonthSelected && <MetricComparison value={overallRetention} previousValue={prevOverallRetention} unit="%" />}
           </CardContent>
         </Card>
         <Card>
@@ -670,3 +648,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
