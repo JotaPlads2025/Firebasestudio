@@ -16,6 +16,7 @@ import {
   Search,
   Settings,
   UserCircle,
+  Building
 } from 'lucide-react';
 
 const navItems = [
@@ -33,6 +34,11 @@ const navItems = [
     href: '/search-classes',
     icon: Search,
     label: 'Buscar Clases',
+  },
+   {
+    href: '/academy',
+    icon: Building,
+    label: 'Mi Academia',
   },
   {
     href: '/communication',

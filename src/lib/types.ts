@@ -37,3 +37,11 @@ export type Review = {
   date: string;
   className?: string;
 };
+
+export type Academy = {
+    id: string;
+    name: string;
+    description: string;
+    ownerId: string; // Corresponds to the instructor's ID
+    instructorIds: string[];
+};
