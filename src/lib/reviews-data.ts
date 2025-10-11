@@ -7,7 +7,7 @@ export const reviewsData: Review[] = [
     studentAvatarUrl: 'https://picsum.photos/seed/student1/100/100',
     rating: 5,
     comment: '¡La mejor clase de bachata! Susana es una instructora increíble, muy paciente y con una energía que contagia. He aprendido muchísimo en poco tiempo. ¡Totalmente recomendada!',
-    date: '2024-07-15',
+    date: '2024-07-15T12:00:00.000Z',
     className: 'Bachata Básico',
   },
   {
@@ -16,7 +16,7 @@ export const reviewsData: Review[] = [
     studentAvatarUrl: 'https://picsum.photos/seed/student2/100/100',
     rating: 5,
     comment: 'Susana hace que aprender a bailar sea divertido y accesible. Sus clases de intermedio son desafiantes pero muy gratificantes. El ambiente es genial.',
-    date: '2024-07-10',
+    date: '2024-07-10T12:00:00.000Z',
     className: 'Bachata Intermedio',
   },
   {
@@ -25,7 +25,7 @@ export const reviewsData: Review[] = [
     studentAvatarUrl: 'https://picsum.photos/seed/student3/100/100',
     rating: 4,
     comment: 'Me encantó el coaching personalizado. Susana me ayudó a pulir detalles de mi técnica que marcaron una gran diferencia. Es muy observadora y da un feedback muy preciso.',
-    date: '2024-06-28',
+    date: '2024-06-28T12:00:00.000Z',
     className: 'Coaching Personalizado de Bachata',
   },
     {
@@ -34,7 +34,9 @@ export const reviewsData: Review[] = [
     studentAvatarUrl: 'https://picsum.photos/seed/student4/100/100',
     rating: 5,
     comment: 'El bootcamp fue intenso pero valió totalmente la pena. Aprendí coreografías nuevas y conocí a gente increíble. ¡Una experiencia inolvidable!',
-    date: '2024-06-20',
+    date: '2024-06-20T12:00:00.000Z',
     className: 'Bootcamp Intensivo de Verano',
     },
 ];
+
+export type { Review };

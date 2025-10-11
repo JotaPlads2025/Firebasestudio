@@ -19,9 +19,41 @@ import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
-import { reviewsData } from '@/lib/reviews-data';
+import { reviewsData, type Review } from '@/lib/reviews-data';
 import { Separator } from '@/components/ui/separator';
 import type { Academy } from '@/lib/types';
+
+
+const ReviewItem = ({ review }: { review: Review }) => {
+    const [formattedDate, setFormattedDate] = useState('');
+
+    useEffect(() => {
+        // Ensure date formatting happens only on the client
+        setFormattedDate(new Date(review.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' }));
+    }, [review.date]);
+
+    return (
+        <div>
+            <div className="flex items-start gap-4">
+                <Avatar className="h-10 w-10 border">
+                    <AvatarImage src={review.studentAvatarUrl} alt={review.studentName} />
+                    <AvatarFallback>{review.studentName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-semibold">{review.studentName}</p>
+                            <p className="text-xs text-muted-foreground">{formattedDate}</p>
+                        </div>
+                        <StarRating rating={review.rating} />
+                    </div>
+                    {review.className && <Badge variant="secondary" className="mt-2">{review.className}</Badge>}
+                    <p className="mt-3 text-sm text-muted-foreground">{review.comment}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 
 export default function ProfilePage() {
@@ -29,6 +61,7 @@ export default function ProfilePage() {
   const [academy, setAcademy] = useState<Academy | null>(null);
 
   useEffect(() => {
+    // This code runs only on the client
     const storedAcademy = localStorage.getItem('plads-pro-academy');
     if (storedAcademy) {
       setAcademy(JSON.parse(storedAcademy));
@@ -135,26 +168,10 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
             </CardHeader>
             <CardContent className="space-y-6">
                 {reviewsData.map((review, index) => (
-                    <div key={review.id}>
-                        <div className="flex items-start gap-4">
-                            <Avatar className="h-10 w-10 border">
-                                <AvatarImage src={review.studentAvatarUrl} alt={review.studentName} />
-                                <AvatarFallback>{review.studentName.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-semibold">{review.studentName}</p>
-                                        <p className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                    </div>
-                                    <StarRating rating={review.rating} />
-                                </div>
-                                {review.className && <Badge variant="secondary" className="mt-2">{review.className}</Badge>}
-                                <p className="mt-3 text-sm text-muted-foreground">{review.comment}</p>
-                            </div>
-                        </div>
+                    <React.Fragment key={review.id}>
+                        <ReviewItem review={review} />
                         {index < reviewsData.length - 1 && <Separator className="mt-6" />}
-                    </div>
+                    </React.Fragment>
                 ))}
                  <Button variant="outline" className="w-full mt-4">Ver todas las reseñas</Button>
             </CardContent>
