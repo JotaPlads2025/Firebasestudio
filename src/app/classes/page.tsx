@@ -127,7 +127,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     status: 'Active',
     bookings: 5,
     revenue: 250000,
-    daysOffset: 4,
+    daysOffset: 2, // Will appear 2 days from today
     venueId: 'venue-001',
   },
   {
@@ -140,7 +140,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     status: 'Active',
     bookings: 40,
     revenue: 3750000,
-    daysOffset: 6,
+    daysOffset: -1, // Does not appear on calendar
     venueId: 'venue-002',
   },
 ];
@@ -170,13 +170,19 @@ function ClassesTable({ classes }: { classes: Class[] }) {
     return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
   }
 
-  // Use a Map to get unique classes based on the base ID (e.g., 'cls-001')
-  // This avoids showing the same class multiple times for each recurring day
   const uniqueClassesMap = new Map<string, Class>();
   classes.forEach(c => {
+    // For recurring classes, use the base ID to ensure they only appear once
     const baseId = c.id.split('-').slice(0, 2).join('-');
-    if (!uniqueClassesMap.has(baseId)) {
-      uniqueClassesMap.set(baseId, c);
+    if (c.scheduleDays && c.scheduleDays.length > 0) {
+        if (!uniqueClassesMap.has(baseId)) {
+            uniqueClassesMap.set(baseId, c);
+        }
+    } else {
+        // For non-recurring classes, use their unique ID
+        if (!uniqueClassesMap.has(c.id)) {
+            uniqueClassesMap.set(c.id, c);
+        }
     }
   });
   const uniqueClasses = Array.from(uniqueClassesMap.values());
