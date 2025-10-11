@@ -81,12 +81,19 @@ export function MultiSelectFilter({
                 >
                   {getLabel(value)}
                   {value !== 'all' && (
-                     <button
+                     <span
+                        role="button"
+                        tabIndex={0}
                         onClick={(e) => handleClear(value, e)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                handleClear(value, e as any);
+                            }
+                        }}
                         className="rounded-full hover:bg-muted-foreground/20 p-0.5"
                      >
                         <X className="h-3 w-3" />
-                     </button>
+                     </span>
                   )}
                 </Badge>
               ))}
