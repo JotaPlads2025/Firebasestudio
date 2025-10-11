@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -17,9 +21,19 @@ import { TikTokIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
 import { reviewsData } from '@/lib/reviews-data';
 import { Separator } from '@/components/ui/separator';
+import type { Academy } from '@/lib/types';
+
 
 export default function ProfilePage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const [academy, setAcademy] = useState<Academy | null>(null);
+
+  useEffect(() => {
+    const storedAcademy = localStorage.getItem('plads-pro-academy');
+    if (storedAcademy) {
+      setAcademy(JSON.parse(storedAcademy));
+    }
+  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,7 +48,9 @@ export default function ProfilePage() {
                 <AvatarFallback className="text-3xl">SG</AvatarFallback>
               </Avatar>
               <CardTitle className="font-headline text-2xl">Susana González</CardTitle>
-              <CardDescription>SG Ladies</CardDescription>
+              <CardDescription>
+                {academy ? `Director(a) de ${academy.name}` : 'SG Ladies'}
+              </CardDescription>
               <div className="flex items-center gap-2 pt-2">
                 <StarRating rating={4.8} />
                 <span className="text-sm font-semibold text-muted-foreground">(4.8)</span>

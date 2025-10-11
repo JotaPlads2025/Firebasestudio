@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -130,6 +130,18 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
 
 export default function AcademyPage() {
   const [academy, setAcademy] = useState<Academy | null>(null);
+  
+  useEffect(() => {
+    const storedAcademy = localStorage.getItem('plads-pro-academy');
+    if (storedAcademy) {
+      setAcademy(JSON.parse(storedAcademy));
+    }
+  }, []);
+
+  const handleAcademyCreation = (newAcademy: Academy) => {
+    localStorage.setItem('plads-pro-academy', JSON.stringify(newAcademy));
+    setAcademy(newAcademy);
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -141,7 +153,7 @@ export default function AcademyPage() {
       {academy ? (
         <AcademyDashboard academy={academy} />
       ) : (
-        <CreateAcademyForm onAcademyCreated={setAcademy} />
+        <CreateAcademyForm onAcademyCreated={handleAcademyCreation} />
       )}
     </div>
   );
