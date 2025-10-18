@@ -275,6 +275,16 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   );
 }
 
+const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+    const today = new Date();
+    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+    const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
+    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+    const nextDate = new Date(today);
+    nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+    return nextDate;
+};
+
 function processClassesForCalendar(classes: Class[]): Class[] {
     const processedClasses: Class[] = [];
     const today = new Date();
@@ -336,16 +346,6 @@ export default function ClassesPage() {
   useEffect(() => {
     let rawClasses: Class[];
 
-    const calculateNextClassDate = (dayName: ScheduleDay): Date => {
-      const today = new Date();
-      const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-      const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
-      const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-      const nextDate = new Date(today);
-      nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-      return nextDate;
-    };
-
     if (USE_FIREBASE) {
       if (firebaseLoading) {
         setIsLoading(true);
@@ -354,8 +354,9 @@ export default function ClassesPage() {
       // Use Firebase data if available, otherwise fall back to initial data for demo mode
       rawClasses = (firebaseClasses || []).map(c => ({
           ...c,
-          // Process Firebase classes to have date objects
-          date: c.scheduleDays && c.scheduleDays.length > 0 ? calculateNextClassDate(c.scheduleDays[0]) : undefined
+          date: c.scheduleDays && c.scheduleDays.length > 0 
+            ? calculateNextClassDate(c.scheduleDays[0]) 
+            : undefined
       }));
     } else {
       rawClasses = initialClassesData as Class[];
