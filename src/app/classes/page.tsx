@@ -40,16 +40,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { venues } from '@/lib/venues-data';
 import Link from 'next/link';
 import { studentData } from '@/lib/student-data';
 import AttendeesDialog from '@/components/attendees-dialog';
-import { useAuth, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
 
-
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 const initialClassesData: (Omit<Class, 'date' | 'availability'> & { daysOffset?: number, availability: number })[] = [
   {
@@ -178,46 +174,38 @@ const dayNameToIndex: { [key in ScheduleDay]: number } = {
 };
 
 function processClassesForCalendar(classes: Class[]): Class[] {
-    const processedClasses: Class[] = [];
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+  const processedClasses: Class[] = [];
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
 
-    const calculateNextClassDate = (dayName: ScheduleDay): Date => {
-        const today = new Date();
-        const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-        const targetDayIndex = dayNameToIndex[dayName];
-        if (targetDayIndex === undefined) {
-          console.error(`Invalid dayName: ${dayName}`);
-          return today; 
-        }
-        const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-        const nextDate = new Date();
-        nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-        nextDate.setUTCHours(0, 0, 0, 0); 
-        return nextDate;
-    };
-    
-    classes.forEach(item => {
-        if (item.scheduleDays && item.scheduleDays.length > 0) {
-            item.scheduleDays.forEach(dayName => {
-                const date = calculateNextClassDate(dayName as ScheduleDay);
-                processedClasses.push({
-                    ...item,
-                    id: `${item.id}-${dayName}`,
-                    date: date,
-                });
-            });
-        } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
-            const classDate = new Date(today);
-            classDate.setUTCDate(classDate.getUTCDate() + item.daysOffset);
-            processedClasses.push({ ...item, date: classDate });
-        } else if (USE_FIREBASE && !item.scheduleDays) {
-           // Handle non-recurring classes from Firestore if they exist
-           // This part needs a clear logic on how to place them in the calendar
-           // For now, we will assume they don't appear in the calendar if no scheduleDays or daysOffset
-        }
-    });
-    return processedClasses;
+  const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+    const today = new Date();
+    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+    const targetDayIndex = dayNameToIndex[dayName];
+    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+    const nextDate = new Date();
+    nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+    nextDate.setUTCHours(0, 0, 0, 0);
+    return nextDate;
+  };
+  
+  classes.forEach(item => {
+    if (item.scheduleDays && item.scheduleDays.length > 0) {
+      item.scheduleDays.forEach(dayName => {
+        const date = calculateNextClassDate(dayName as ScheduleDay);
+        processedClasses.push({
+          ...item,
+          id: `${item.id}-${dayName}`,
+          date: date,
+        });
+      });
+    } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
+      const classDate = new Date(today);
+      classDate.setUTCDate(classDate.getUTCDate() + item.daysOffset);
+      processedClasses.push({ ...item, date: classDate });
+    }
+  });
+  return processedClasses;
 }
 
 function ClassesTable({ classes }: { classes: Class[] }) {
@@ -226,16 +214,11 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   }
 
   // To show recurring classes only once in the list view
-  const uniqueClassesMap = new Map<string, Class>();
-  classes.forEach(c => {
-    // If using firebase data, the id is already unique
-    const uniqueId = USE_FIREBASE ? c.id : c.id.split('-').slice(0, 2).join('-');
-    if (!uniqueClassesMap.has(uniqueId)) {
-        uniqueClassesMap.set(uniqueId, c);
-    }
-  });
-  const uniqueClasses = Array.from(uniqueClassesMap.values());
-
+  const uniqueClasses = classes.filter(
+    (c, index, self) =>
+      index ===
+      self.findIndex((t) => t.id.split('-').slice(0, 2).join('-') === c.id.split('-').slice(0, 2).join('-'))
+  );
 
   return (
     <Table>
@@ -323,62 +306,33 @@ export default function ClassesPage() {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- Firebase Data ---
-  const auth = USE_FIREBASE ? useAuth() : null;
-  const firestore = USE_FIREBASE ? useFirestore() : null;
-  const classesCollectionRef = useMemoFirebase(() => {
-    if (!firestore || !auth?.currentUser) return null;
-    return collection(firestore, `instructors/${auth.currentUser.uid}/classes`);
-  }, [firestore, auth?.currentUser]);
-  const { data: firebaseClasses, isLoading: firebaseLoading } = useCollection<Class>(classesCollectionRef);
-  // --- End Firebase Data ---
 
   useEffect(() => {
-    let rawClasses: Class[];
+    const rawClasses = initialClassesData as Class[];
+    const processed = processClassesForCalendar(rawClasses);
+    setClasses(processed);
 
-    if (USE_FIREBASE) {
-      if (firebaseLoading) {
-        setIsLoading(true);
-        return;
-      }
-      rawClasses = firebaseClasses || [];
-      // This was the missing piece: process the firebase data.
-      if (rawClasses.length > 0) {
-        const processed = processClassesForCalendar(rawClasses);
-        setClasses(processed);
+    if (processed.length > 0) {
+      const firstDate = processed.reduce((earliest, current) => {
+        if (!current.date) return earliest;
+        return earliest && earliest < current.date ? earliest : current.date;
+      }, processed[0]?.date);
+
+      if (firstDate) {
+        const startOfWeek = new Date(firstDate);
+        const dayIndex = startOfWeek.getUTCDay();
+        const diff = dayIndex === 0 ? -6 : 1 - dayIndex;
+        startOfWeek.setUTCDate(startOfWeek.getUTCDate() + diff);
+        setCalendarStartDate(startOfWeek);
       } else {
-        setClasses([]);
-      }
-
-    } else {
-      rawClasses = initialClassesData as Class[];
-      const processed = processClassesForCalendar(rawClasses);
-      setClasses(processed);
-    }
-    
-    const activeProcessedClasses = USE_FIREBASE ? (firebaseClasses || []) : initialClassesData;
-
-    if (activeProcessedClasses.length > 0) {
-        const firstDate = classes.reduce((earliest, current) => {
-            if (!current.date) return earliest;
-            return earliest && earliest < current.date ? earliest : current.date;
-        }, classes[0]?.date);
-
-        if (firstDate) {
-            const startOfWeek = new Date(firstDate);
-            const dayIndex = startOfWeek.getUTCDay();
-            const diff = dayIndex === 0 ? -6 : 1 - dayIndex;
-            startOfWeek.setUTCDate(startOfWeek.getUTCDate() + diff);
-            setCalendarStartDate(startOfWeek);
-        } else {
-            setCalendarStartDate(new Date());
-        }
-    } else {
         setCalendarStartDate(new Date());
+      }
+    } else {
+      setCalendarStartDate(new Date());
     }
 
     setIsLoading(false);
-  }, [firebaseClasses, firebaseLoading]);
+  }, []);
   
   if (isLoading) {
     return (
@@ -472,7 +426,7 @@ export default function ClassesPage() {
             <CardHeader>
                 <CardTitle>Clases Personalizadas / Coaching</CardTitle>
                 <CardDescription>Sesiones uno a uno o para grupos pequeños con horarios flexibles.</CardDescription>
-            </Header>
+            </CardHeader>
             <CardContent className="p-0">
                 <ClassesTable classes={coachingClasses} />
             </CardContent>
@@ -483,7 +437,7 @@ export default function ClassesPage() {
             <CardHeader>
                 <CardTitle>Bootcamps y Eventos Especiales</CardTitle>
                 <CardDescription>Eventos intensivos o de corta duración sin un horario recurrente.</CardDescription>
-            </Header>
+            </CardHeader>
             <CardContent className="p-0">
                 <ClassesTable classes={bootcampClasses} />
             </CardContent>
