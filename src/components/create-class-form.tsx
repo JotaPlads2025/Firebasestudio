@@ -11,10 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { categories, subCategories } from '@/lib/categories';
 import { venues } from '@/lib/venues-data';
-import { PlusCircle, Trash2, Clock, CalendarDays } from 'lucide-react';
+import { PlusCircle, Trash2, Clock, CalendarDays, Loader2 } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useAuth, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+
+
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 const scheduleSchema = z.object({
   day: z.string().min(1, 'Debes seleccionar un día.'),
@@ -40,6 +46,9 @@ const classFormSchema = z.object({
   schedules: z.array(scheduleSchema).min(1, 'Debes agregar al menos un horario.'),
   pricePlans: z.array(pricePlanSchema).min(1, 'Debes agregar al menos un plan de precios.'),
   isRecurring: z.boolean(),
+  status: z.enum(['Active', 'Inactive']),
+  bookings: z.number().default(0),
+  revenue: z.number().default(0),
 });
 
 type ClassFormValues = z.infer<typeof classFormSchema>;
@@ -50,7 +59,11 @@ const levels = ['Básico', 'Intermedio', 'Avanzado', 'Todos los niveles'];
 
 export default function CreateClassForm() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const auth = USE_FIREBASE ? useAuth() : null;
+  const firestore = USE_FIREBASE ? useFirestore() : null;
 
   const form = useForm<ClassFormValues>({
     resolver: zodResolver(classFormSchema),
@@ -61,8 +74,11 @@ export default function CreateClassForm() {
       level: '',
       venueId: '',
       schedules: [{ day: '', startTime: '', endTime: '' }],
-      pricePlans: [{ name: '', price: 0 }],
+      pricePlans: [{ name: 'Clase suelta', price: 8000 }],
       isRecurring: true,
+      status: 'Active',
+      bookings: 0,
+      revenue: 0,
     },
   });
 
@@ -78,17 +94,60 @@ export default function CreateClassForm() {
 
   const selectedCategory = form.watch('category');
 
-  function onSubmit(data: ClassFormValues) {
+  async function onSubmit(data: ClassFormValues) {
     setIsSubmitting(true);
-    console.log(data);
-    toast({
-        title: "Clase Creada (Simulación)",
-        description: "Los datos de la clase han sido registrados en la consola.",
-    });
-    setTimeout(() => {
+    
+    if (USE_FIREBASE) {
+      if (!auth?.currentUser || !firestore) {
+        toast({
+            variant: 'destructive',
+            title: 'Error de autenticación',
+            description: 'Debes iniciar sesión para crear una clase.',
+        });
         setIsSubmitting(false);
-        // router.push('/classes'); // In a real app
-    }, 1000);
+        return;
+      }
+
+      const instructorId = auth.currentUser.uid;
+      const classesCollectionRef = collection(firestore, `instructors/${instructorId}/classes`);
+      
+      const newClassData = {
+        ...data,
+        instructorId: instructorId,
+        schedule: data.schedules.map(s => `${s.day} ${s.startTime}`).join(', '), // Simplified schedule string
+        scheduleDays: data.schedules.map(s => s.day)
+      };
+
+      try {
+        await addDocumentNonBlocking(classesCollectionRef, newClassData);
+        toast({
+            title: "¡Clase Creada!",
+            description: `La clase "${data.name}" ha sido guardada en la base de datos.`,
+        });
+        router.push('/classes');
+      } catch (error) {
+        // Error is handled by the global error emitter in addDocumentNonBlocking
+        console.error("Error creating class:", error); // console.error for visibility during dev
+        toast({
+            variant: 'destructive',
+            title: 'Error al crear la clase',
+            description: 'Hubo un problema al guardar la clase.',
+        });
+        setIsSubmitting(false);
+      }
+
+    } else {
+        // --- MODO DEMO ---
+        console.log(data);
+        toast({
+            title: "Clase Creada (Simulación)",
+            description: "Los datos de la clase han sido registrados en la consola.",
+        });
+        setTimeout(() => {
+            setIsSubmitting(false);
+            router.push('/classes');
+        }, 1000);
+    }
   }
 
   return (
@@ -342,9 +401,16 @@ export default function CreateClassForm() {
         </div>
 
         <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creando...' : 'Crear Clase'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creando...
+              </>
+             ) : 'Crear Clase'}
         </Button>
       </form>
     </Form>
   );
 }
+
+    
