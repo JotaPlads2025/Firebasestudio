@@ -304,6 +304,7 @@ function processClassesForCalendar(classes: Class[]): Class[] {
             classDate.setDate(classDate.getDate() + item.daysOffset);
             processedClasses.push({ ...item, date: classDate });
         } else {
+             // Handle classes from Firestore that might not have date/daysOffset
             processedClasses.push(item);
         }
     });
@@ -330,11 +331,11 @@ export default function ClassesPage() {
   useEffect(() => {
     let rawClasses: Class[];
     if (USE_FIREBASE) {
-      // Wait for firebase to finish loading
       if (firebaseLoading) {
         setIsLoading(true);
         return;
       }
+      // Use Firebase data if available, otherwise fall back to initial data for demo mode
       rawClasses = firebaseClasses || [];
     } else {
       rawClasses = initialClassesData as Class[];
@@ -347,7 +348,10 @@ export default function ClassesPage() {
     const firstRecurringClass = processed.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
     if(firstRecurringClass) {
         const firstDayOfWeekForClass = new Date(firstRecurringClass.date);
-        firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay] + dayNameToIndex['Lun']); // Start week on monday
+        const dayIndex = dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay];
+        if (dayIndex !== undefined) {
+          firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayIndex + dayNameToIndex['Lun']); // Start week on monday
+        }
         setCalendarStartDate(firstDayOfWeekForClass);
     } else {
         // Fallback if no recurring classes
@@ -357,7 +361,7 @@ export default function ClassesPage() {
         }
     }
     setIsLoading(false);
-  }, [firebaseClasses, firebaseLoading]);
+  }, [firebaseClasses, firebaseLoading, USE_FIREBASE]);
   
   if (isLoading) {
     return (
