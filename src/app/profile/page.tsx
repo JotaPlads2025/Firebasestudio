@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import {
   Card,
   CardContent,
@@ -168,10 +168,10 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
             </CardHeader>
             <CardContent className="space-y-6">
                 {reviewsData.map((review, index) => (
-                    <>
+                    <Fragment key={review.id}>
                         <ReviewItem review={review} />
                         {index < reviewsData.length - 1 && <Separator className="mt-6" />}
-                    </>
+                    </Fragment>
                 ))}
                  <Button variant="outline" className="w-full mt-4">Ver todas las reseñas</Button>
             </CardContent>
@@ -202,3 +202,4 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
       </div>
     </div>
   );
+}
