@@ -1,5 +1,7 @@
 
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { searchableClasses } from '@/lib/search-data';
@@ -10,11 +12,12 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, Tag } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Tag } from 'lucide-react';
 import { venues } from '@/lib/venues-data';
 import { regions } from '@/lib/locations';
 
 export default function ClassDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const classData = searchableClasses.find(c => c.id === params.id);
 
   if (!classData) {
@@ -32,7 +35,11 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
   const classReviews = reviewsData.slice(0, 3); 
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+        <Button variant="outline" onClick={() => router.back()} className="self-start">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a la búsqueda
+        </Button>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="md:col-span-2 space-y-8">
