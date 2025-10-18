@@ -278,18 +278,22 @@ function ClassesTable({ classes }: { classes: Class[] }) {
 function processClassesForCalendar(classes: Class[]): Class[] {
     const processedClasses: Class[] = [];
     const today = new Date();
-    const currentDay = today.getDay();
-    const firstDayOfWeek = new Date(today);
-    firstDayOfWeek.setDate(today.getDate() - currentDay);
-    firstDayOfWeek.setHours(0,0,0,0);
-
+    // Inconsistent timezone between server and client can cause issues with getDay()
+    // Using UTC methods for consistency
+    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+    
+    // Normalize our dayNameToIndex to match getUTCDay() if needed, but our index is already fine.
+    // dayNameToIndex: { Dom: 0, Lun: 1, ... }
+    
     classes.forEach(item => {
         if (item.scheduleDays && item.scheduleDays.length > 0) {
             item.scheduleDays.forEach(dayName => {
                 const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
                 if (targetDayIndex !== undefined) {
-                    const date = new Date(firstDayOfWeek);
-                    date.setDate(firstDayOfWeek.getDate() + targetDayIndex);
+                    const date = new Date(today);
+                    // Calculate the difference in days to get to the target day of the current week
+                    const dayDifference = targetDayIndex - currentDayOfWeek;
+                    date.setUTCDate(today.getUTCDate() + dayDifference);
                     
                     processedClasses.push({
                         ...item,
@@ -303,8 +307,9 @@ function processClassesForCalendar(classes: Class[]): Class[] {
             classDate.setHours(0, 0, 0, 0); 
             classDate.setDate(classDate.getDate() + item.daysOffset);
             processedClasses.push({ ...item, date: classDate });
-        } else {
-             // Handle classes from Firestore that might not have date/daysOffset
+        } else if (USE_FIREBASE) {
+             // Handle classes from Firestore that might not have date/daysOffset but have scheduleDays
+             // This is the fallback if the above logic has issues
             processedClasses.push(item);
         }
     });
@@ -361,7 +366,7 @@ export default function ClassesPage() {
         }
     }
     setIsLoading(false);
-  }, [firebaseClasses, firebaseLoading, USE_FIREBASE]);
+  }, [firebaseClasses, firebaseLoading]);
   
   if (isLoading) {
     return (
@@ -455,7 +460,7 @@ export default function ClassesPage() {
             <CardHeader>
                 <CardTitle>Clases Personalizadas / Coaching</CardTitle>
                 <CardDescription>Sesiones uno a uno o para grupos pequeños con horarios flexibles.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent className="p-0">
                 <ClassesTable classes={coachingClasses} />
             </CardContent>
@@ -466,7 +471,7 @@ export default function ClassesPage() {
             <CardHeader>
                 <CardTitle>Bootcamps y Eventos Especiales</CardTitle>
                 <CardDescription>Eventos intensivos o de corta duración sin un horario recurrente.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent className="p-0">
                 <ClassesTable classes={bootcampClasses} />
             </CardContent>
@@ -486,5 +491,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
