@@ -10,9 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Building, Users, PartyPopper } from 'lucide-react';
+import { Building, Users, PartyPopper, Loader2 } from 'lucide-react';
 import type { Academy } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useFirebase, useUser } from '@/firebase';
+import { collection, doc, setDoc, getDocs, query, where } from 'firebase/firestore';
+import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 
 const academySchema = z.object({
   name: z.string().min(3, { message: 'El nombre debe tener al menos 3 caracteres.' }),
@@ -28,7 +31,7 @@ const AcademyDashboard = ({ academy }: { academy: Academy }) => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline">
                         <PartyPopper className="h-6 w-6 text-primary" />
-                        ¡Felicitaciones, tu academia está activa!
+                        ¡Felicitaciones, tu academia "{academy.name}" está activa!
                     </CardTitle>
                     <CardDescription>
                         Ahora puedes empezar a invitar a tus instructores y a gestionar tu academia.
@@ -60,24 +63,45 @@ const AcademyDashboard = ({ academy }: { academy: Academy }) => {
 
 const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: Academy) => void }) => {
   const { toast } = useToast();
+  const { firestore, auth } = useFirebase();
+  const { user } = useUser();
+
   const form = useForm<AcademyFormValues>({
     resolver: zodResolver(academySchema),
     defaultValues: { name: '', description: '' },
   });
 
-  const onSubmit = (data: AcademyFormValues) => {
-    // Simulate API call and academy creation
-    const newAcademy: Academy = {
-      id: `acad-${Date.now()}`,
-      ownerId: 'user-susana-gonzalez', // Hardcoded for simulation
-      instructorIds: [],
-      ...data,
-    };
-    onAcademyCreated(newAcademy);
-    toast({
-        title: '¡Academia Creada!',
-        description: `Tu academia "${data.name}" ha sido creada exitosamente.`,
-    });
+  const onSubmit = async (data: AcademyFormValues) => {
+    if (!user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Debes iniciar sesión para crear una academia.' });
+        return;
+    }
+    
+    try {
+        const academyId = `acad-${Date.now()}`;
+        const newAcademy: Academy = {
+          id: academyId,
+          ownerId: user.uid,
+          instructorIds: [user.uid],
+          ...data,
+        };
+        
+        await setDoc(doc(firestore, 'academies', academyId), newAcademy);
+        
+        onAcademyCreated(newAcademy);
+
+        toast({
+            title: '¡Academia Creada!',
+            description: `Tu academia "${data.name}" ha sido creada exitosamente.`,
+        });
+    } catch (error) {
+        console.error("Error creating academy: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error al crear la academia',
+            description: 'Hubo un problema al guardar los datos. Inténtalo de nuevo.',
+        });
+    }
   };
 
   return (
@@ -120,7 +144,10 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
                 </FormItem>
               )}
             />
-            <Button type="submit">Crear Academia</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Crear Academia
+            </Button>
           </form>
         </Form>
       </CardContent>
@@ -130,17 +157,50 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
 
 export default function AcademyPage() {
   const [academy, setAcademy] = useState<Academy | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { auth, firestore } = useFirebase();
+  const { user, isUserLoading } = useUser();
   
   useEffect(() => {
-    const storedAcademy = localStorage.getItem('plads-pro-academy');
-    if (storedAcademy) {
-      setAcademy(JSON.parse(storedAcademy));
+    // If no user is logged in after loading, sign in anonymously for demo purposes
+    if (!isUserLoading && !user) {
+      initiateAnonymousSignIn(auth);
     }
-  }, []);
+  }, [isUserLoading, user, auth]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchAcademy = async () => {
+        setIsLoading(true);
+        const q = query(collection(firestore, "academies"), where("ownerId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            // Assuming one user owns one academy for now
+            const academyDoc = querySnapshot.docs[0];
+            setAcademy({ id: academyDoc.id, ...academyDoc.data() } as Academy);
+        } else {
+            setAcademy(null);
+        }
+        setIsLoading(false);
+      };
+
+      fetchAcademy();
+    } else if (!isUserLoading) {
+        setIsLoading(false); // No user, so stop loading
+    }
+  }, [user, isUserLoading, firestore]);
 
   const handleAcademyCreation = (newAcademy: Academy) => {
-    localStorage.setItem('plads-pro-academy', JSON.stringify(newAcademy));
     setAcademy(newAcademy);
+  }
+  
+  if (isLoading || isUserLoading) {
+    return (
+        <div className="flex justify-center items-center h-48">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+    );
   }
 
   return (
