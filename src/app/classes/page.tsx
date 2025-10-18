@@ -30,6 +30,7 @@ import {
   PlusCircle,
   Users,
   Calendar,
+  Loader2,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -39,14 +40,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ClassCalendar from '@/components/class-calendar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { venues } from '@/lib/venues-data';
 import Link from 'next/link';
 import { studentData } from '@/lib/student-data';
 import AttendeesDialog from '@/components/attendees-dialog';
+import { useAuth, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 
-const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+
+const initialClassesData: (Omit<Class, 'date' | 'availability'> & { daysOffset?: number, availability: number })[] = [
   {
     id: 'cls-001',
     name: 'Bachata Básico',
@@ -60,6 +65,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     ],
     status: 'Active',
     bookings: 60,
+    availability: 20,
     revenue: 1800000,
     venueId: 'venue-001',
   },
@@ -75,6 +81,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     ],
     status: 'Active',
     bookings: 30,
+    availability: 20,
     revenue: 3200000,
     venueId: 'venue-001',
   },
@@ -91,6 +98,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     ],
     status: 'Active',
     bookings: 25,
+    availability: 20,
     revenue: 3000000,
     venueId: 'venue-002',
   },
@@ -103,6 +111,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     pricePlans: [{ name: 'Clase suelta', price: 6000 }],
     status: 'Inactive',
     bookings: 0,
+    availability: 20,
     revenue: 0,
     venueId: 'venue-002',
   },
@@ -115,6 +124,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     pricePlans: [{ name: 'Mensual', price: 6000 }],
     status: 'Active',
     bookings: 20,
+    availability: 20,
     revenue: 950000,
     venueId: 'venue-003',
   },
@@ -127,6 +137,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     pricePlans: [{ name: 'Sesión única', price: 50000 }],
     status: 'Active',
     bookings: 5,
+    availability: 1,
     revenue: 250000,
     daysOffset: 2, // Will appear 2 days from today
     venueId: 'venue-001',
@@ -140,6 +151,7 @@ const initialClassesData: (Omit<Class, 'date'> & { daysOffset?: number })[] = [
     pricePlans: [{ name: 'Acceso total', price: 150000 }],
     status: 'Active',
     bookings: 40,
+    availability: 50,
     revenue: 3750000,
     daysOffset: -1, // Does not appear on calendar
     venueId: 'venue-002',
@@ -174,15 +186,10 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   // To show recurring classes only once in the list view
   const uniqueClassesMap = new Map<string, Class>();
   classes.forEach(c => {
-    if (c.scheduleDays && c.scheduleDays.length > 0) {
-      const baseId = c.id.split('-').slice(0, 2).join('-');
-      if (!uniqueClassesMap.has(baseId)) {
-        uniqueClassesMap.set(baseId, c);
-      }
-    } else {
-      if (!uniqueClassesMap.has(c.id)) {
-        uniqueClassesMap.set(c.id, c);
-      }
+    // If using firebase data, the id is already unique
+    const uniqueId = USE_FIREBASE ? c.id : c.id.split('-').slice(0, 2).join('-');
+    if (!uniqueClassesMap.has(uniqueId)) {
+        uniqueClassesMap.set(uniqueId, c);
     }
   });
   const uniqueClasses = Array.from(uniqueClassesMap.values());
@@ -268,63 +275,96 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   );
 }
 
-export default function ClassesPage() {
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [calendarStartDate, setCalendarStartDate] = useState<Date>();
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-
-  useEffect(() => {
+function processClassesForCalendar(classes: Class[]): Class[] {
+    const processedClasses: Class[] = [];
     const today = new Date();
-    const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+    const currentDay = today.getDay();
     const firstDayOfWeek = new Date(today);
     firstDayOfWeek.setDate(today.getDate() - currentDay);
     firstDayOfWeek.setHours(0,0,0,0);
 
-    const processedClasses: Class[] = [];
-
-    initialClassesData.forEach(item => {
-      if (item.scheduleDays && item.scheduleDays.length > 0) {
-        item.scheduleDays.forEach(dayName => {
-          const targetDayIndex = dayNameToIndex[dayName];
-          const date = new Date(firstDayOfWeek);
-          date.setDate(firstDayOfWeek.getDate() + targetDayIndex);
-          
-          processedClasses.push({
-            ...item,
-            id: `${item.id}-${dayName}`,
-            date: date,
-          } as Class);
-        });
-      } 
-      else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
-        const classDate = new Date();
-        classDate.setHours(0, 0, 0, 0); 
-        classDate.setDate(classDate.getDate() + item.daysOffset);
-        processedClasses.push({ ...item, date: classDate } as Class);
-      } 
-      else {
-        processedClasses.push(item as Class);
-      }
+    classes.forEach(item => {
+        if (item.scheduleDays && item.scheduleDays.length > 0) {
+            item.scheduleDays.forEach(dayName => {
+                const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
+                if (targetDayIndex !== undefined) {
+                    const date = new Date(firstDayOfWeek);
+                    date.setDate(firstDayOfWeek.getDate() + targetDayIndex);
+                    
+                    processedClasses.push({
+                        ...item,
+                        id: `${item.id}-${dayName}`,
+                        date: date,
+                    });
+                }
+            });
+        } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
+            const classDate = new Date();
+            classDate.setHours(0, 0, 0, 0); 
+            classDate.setDate(classDate.getDate() + item.daysOffset);
+            processedClasses.push({ ...item, date: classDate });
+        } else {
+            processedClasses.push(item);
+        }
     });
+    return processedClasses;
+}
 
+export default function ClassesPage() {
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [calendarStartDate, setCalendarStartDate] = useState<Date>();
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // --- Firebase Data ---
+  const auth = USE_FIREBASE ? useAuth() : null;
+  const firestore = USE_FIREBASE ? useFirestore() : null;
+  const classesCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !auth?.currentUser) return null;
+    return collection(firestore, `instructors/${auth.currentUser.uid}/classes`);
+  }, [firestore, auth?.currentUser]);
+  const { data: firebaseClasses, isLoading: firebaseLoading } = useCollection<Class>(classesCollectionRef);
+  // --- End Firebase Data ---
+
+
+  useEffect(() => {
+    let rawClasses: Class[];
+    if (USE_FIREBASE) {
+      // Wait for firebase to finish loading
+      if (firebaseLoading) {
+        setIsLoading(true);
+        return;
+      }
+      rawClasses = firebaseClasses || [];
+    } else {
+      rawClasses = initialClassesData as Class[];
+    }
+    
+    const processed = processClassesForCalendar(rawClasses);
+    setClasses(processed);
+    
     // Set calendar start date based on the first recurring class of the week
-    const firstRecurringClass = processedClasses.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
+    const firstRecurringClass = processed.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
     if(firstRecurringClass) {
         const firstDayOfWeekForClass = new Date(firstRecurringClass.date);
         firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay] + dayNameToIndex['Lun']); // Start week on monday
         setCalendarStartDate(firstDayOfWeekForClass);
     } else {
         // Fallback if no recurring classes
-        const firstClassWithDate = processedClasses.find(c => c.date);
+        const firstClassWithDate = processed.find(c => c.date);
         if (firstClassWithDate) {
             setCalendarStartDate(firstClassWithDate.date);
         }
     }
-    setClasses(processedClasses);
-  }, []);
+    setIsLoading(false);
+  }, [firebaseClasses, firebaseLoading]);
   
-  if (classes.length === 0) {
-    return <div>Cargando clases...</div>;
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-48">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+    );
   }
 
   const regularClasses = classes.filter((c) => c.category === 'Dance' || c.category === 'Sports' || c.category === 'Health');
@@ -442,3 +482,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    

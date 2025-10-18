@@ -1,3 +1,4 @@
+
 export type ClassPricePlan = {
   name: string;
   price: number;
@@ -24,9 +25,11 @@ export type Class = {
   bookings: number;
   revenue: number;
   availability: number;
+  // --- Optional fields for calendar processing ---
   date?: Date;
-  daysOffset?: number;
-  venueId: string;
+  daysOffset?: number; // Only for demo data
+  // --- Fields from Firestore ---
+  instructorId?: string; 
 };
 
 export type Review = {
@@ -46,3 +49,5 @@ export type Academy = {
     ownerId: string; // Corresponds to the instructor's ID
     instructorIds: string[];
 };
+
+    
