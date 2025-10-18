@@ -13,6 +13,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Building, Users, PartyPopper, Loader2 } from 'lucide-react';
 import type { Academy } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth, useFirestore } from '@/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 const academySchema = z.object({
   name: z.string().min(3, { message: 'El nombre debe tener al menos 3 caracteres.' }),
@@ -20,9 +24,6 @@ const academySchema = z.object({
 });
 
 type AcademyFormValues = z.infer<typeof academySchema>;
-
-// This is a mock user ID for demonstration purposes
-const MOCK_USER_ID = 'user-susana-gonzalez';
 
 const AcademyDashboard = ({ academy }: { academy: Academy }) => {
     return (
@@ -63,16 +64,53 @@ const AcademyDashboard = ({ academy }: { academy: Academy }) => {
 
 const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: Academy) => void }) => {
   const { toast } = useToast();
+  const auth = USE_FIREBASE ? useAuth() : null;
+  const firestore = USE_FIREBASE ? useFirestore() : null;
+  
   const form = useForm<AcademyFormValues>({
     resolver: zodResolver(academySchema),
     defaultValues: { name: '', description: '' },
   });
 
   const onSubmit = async (data: AcademyFormValues) => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (USE_FIREBASE) {
+      if (!auth?.currentUser || !firestore) {
+        toast({
+            variant: 'destructive',
+            title: 'Error de autenticación',
+            description: 'Debes iniciar sesión para crear una academia.',
+        });
+        return;
+      }
 
-    try {
+      const academyId = `acad-${auth.currentUser.uid}`;
+      const academyRef = doc(firestore, 'academies', academyId);
+      const newAcademy: Academy = {
+        id: academyId,
+        ownerId: auth.currentUser.uid,
+        instructorIds: [auth.currentUser.uid],
+        ...data,
+      };
+
+      try {
+        await setDoc(academyRef, newAcademy);
+        onAcademyCreated(newAcademy);
+        toast({
+            title: '¡Academia Creada!',
+            description: `Tu academia "${data.name}" ha sido creada exitosamente.`,
+        });
+      } catch (error) {
+        console.error("Error creating academy in Firestore: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error al crear la academia',
+            description: 'Hubo un problema al guardar los datos en la base de datos.',
+        });
+      }
+    } else {
+        // --- MODO DEMO (localStorage) ---
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const MOCK_USER_ID = 'user-susana-gonzalez';
         const academyId = `acad-${Date.now()}`;
         const newAcademy: Academy = {
           id: academyId,
@@ -81,21 +119,11 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
           ...data,
         };
         
-        // Save to localStorage for demo persistence
         localStorage.setItem('plads-pro-academy', JSON.stringify(newAcademy));
-        
         onAcademyCreated(newAcademy);
-
         toast({
-            title: '¡Academia Creada!',
+            title: '¡Academia Creada! (Modo Demo)',
             description: `Tu academia "${data.name}" ha sido creada exitosamente.`,
-        });
-    } catch (error) {
-        console.error("Error creating academy: ", error);
-        toast({
-            variant: 'destructive',
-            title: 'Error al crear la academia',
-            description: 'Hubo un problema al guardar los datos. Inténtalo de nuevo.',
         });
     }
   };
@@ -154,15 +182,41 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
 export default function AcademyPage() {
   const [academy, setAcademy] = useState<Academy | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const auth = USE_FIREBASE ? useAuth() : null;
+  const firestore = USE_FIREBASE ? useFirestore() : null;
 
   useEffect(() => {
-    // This code runs only on the client
-    const storedAcademy = localStorage.getItem('plads-pro-academy');
-    if (storedAcademy) {
-      setAcademy(JSON.parse(storedAcademy));
-    }
-    setIsLoading(false);
-  }, []);
+    const fetchAcademy = async () => {
+        if (USE_FIREBASE) {
+            if (!auth?.currentUser || !firestore) {
+              // Wait for auth to be ready
+              if (auth === null) return;
+              setIsLoading(false);
+              return;
+            }
+            
+            const academyId = `acad-${auth.currentUser.uid}`;
+            const academyRef = doc(firestore, 'academies', academyId);
+            const docSnap = await getDoc(academyRef);
+
+            if (docSnap.exists()) {
+                setAcademy(docSnap.data() as Academy);
+            }
+            setIsLoading(false);
+        } else {
+            // --- MODO DEMO (localStorage) ---
+            const storedAcademy = localStorage.getItem('plads-pro-academy');
+            if (storedAcademy) {
+                setAcademy(JSON.parse(storedAcademy));
+            }
+            setIsLoading(false);
+        }
+    };
+    
+    fetchAcademy();
+
+  }, [auth, firestore]);
 
   const handleAcademyCreation = (newAcademy: Academy) => {
     setAcademy(newAcademy);
@@ -174,6 +228,22 @@ export default function AcademyPage() {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
     );
+  }
+
+  // In Firebase mode, if the user is not logged in, show nothing or a login prompt
+  if (USE_FIREBASE && !auth?.currentUser) {
+      return (
+          <Card className="max-w-2xl mx-auto text-center">
+              <CardHeader>
+                  <CardTitle>Inicia Sesión</CardTitle>
+                  <CardDescription>Para gestionar tu academia, primero debes iniciar sesión.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {/* Aquí podrías poner un botón de Login en el futuro */}
+                  <p>Funcionalidad de inicio de sesión por implementar.</p>
+              </CardContent>
+          </Card>
+      )
   }
 
   return (
