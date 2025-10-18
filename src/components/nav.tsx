@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -33,21 +34,11 @@ const navItems = [
     href: '/',
     icon: LayoutDashboard,
     label: 'Dashboard',
-    subItems: [
-        { href: '/', icon: LayoutDashboard, label: 'Principal' },
-        { href: '/#performance', icon: BarChart, label: 'Desempeño' },
-        { href: '/#retention', icon: Target, label: 'Retención' },
-    ]
   },
   {
     href: '/classes',
     icon: BookOpenCheck,
     label: 'Mis Clases',
-    subItems: [
-        { href: '/classes#regular', icon: Calendar, label: 'Regulares' },
-        { href: '/classes#coaching', icon: Briefcase, label: 'Coaching' },
-        { href: '/classes#bootcamps', icon: Dumbbell, label: 'Bootcamps' },
-    ]
   },
   {
     href: '/search-classes',
@@ -100,35 +91,6 @@ export default function Nav() {
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          {item.subItems ? (
-             <>
-                <SidebarMenuButton
-                    onClick={() => toggleSubMenu(item.label)}
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={item.label}
-                    data-state={openSubMenus[item.label] ? 'open' : 'closed'}
-                >
-                    <item.icon />
-                    <span>{item.label}</span>
-                </SidebarMenuButton>
-                {openSubMenus[item.label] && (
-                    <SidebarMenuSub>
-                        {item.subItems.map(subItem => (
-                            <SidebarMenuItem key={subItem.href}>
-                                <Link href={subItem.href} onClick={() => handleLinkClick(true)}>
-                                    <SidebarMenuSubButton
-                                        isActive={pathname === subItem.href.split('#')[0]}
-                                    >
-                                        <subItem.icon/>
-                                        <span>{subItem.label}</span>
-                                    </SidebarMenuSubButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarMenuSub>
-                )}
-            </>
-          ) : (
             <Link href={item.href} onClick={() => handleLinkClick()}>
                 <SidebarMenuButton
                 isActive={pathname === item.href}
@@ -138,7 +100,6 @@ export default function Nav() {
                 <span>{item.label}</span>
                 </SidebarMenuButton>
             </Link>
-          )}
         </SidebarMenuItem>
       ))}
     </SidebarMenu>

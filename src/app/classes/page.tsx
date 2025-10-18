@@ -29,7 +29,7 @@ import {
   Palette,
   PlusCircle,
   Users,
-  Bell
+  Calendar,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -376,48 +376,59 @@ export default function ClassesPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Mis Clases Regulares</CardTitle>
-            <CardDescription>Clases grupales que impartes con un horario fijo.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Tabs defaultValue="active">
-            <div className="border-b p-4">
-              <TabsList>
-                <TabsTrigger value="active">Activas</TabsTrigger>
-                <TabsTrigger value="inactive">Inactivas</TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent value="active" className="m-0">
-              <ClassesTable classes={activeClasses} />
-            </TabsContent>
-            <TabsContent value="inactive" className="m-0">
-              <ClassesTable classes={inactiveClasses} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <CardTitle>Clases Personalizadas / Coaching</CardTitle>
-            <CardDescription>Sesiones uno a uno o para grupos pequeños con horarios flexibles.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-            <ClassesTable classes={coachingClasses} />
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle>Bootcamps y Eventos Especiales</CardTitle>
-            <CardDescription>Eventos intensivos o de corta duración sin un horario recurrente.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-            <ClassesTable classes={bootcampClasses} />
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="regular">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="regular"><Calendar className="mr-2 h-4 w-4" />Clases Regulares</TabsTrigger>
+          <TabsTrigger value="coaching"><Briefcase className="mr-2 h-4 w-4" />Coaching</TabsTrigger>
+          <TabsTrigger value="bootcamps"><Dumbbell className="mr-2 h-4 w-4" />Bootcamps y Eventos</TabsTrigger>
+        </TabsList>
+        <TabsContent value="regular" className="mt-4">
+          <Card>
+            <CardHeader>
+                <CardTitle>Mis Clases Regulares</CardTitle>
+                <CardDescription>Clases grupales que impartes con un horario fijo.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Tabs defaultValue="active">
+                <div className="border-b p-4">
+                  <TabsList>
+                    <TabsTrigger value="active">Activas</TabsTrigger>
+                    <TabsTrigger value="inactive">Inactivas</TabsTrigger>
+                  </TabsList>
+                </div>
+                <TabsContent value="active" className="m-0">
+                  <ClassesTable classes={activeClasses} />
+                </TabsContent>
+                <TabsContent value="inactive" className="m-0">
+                  <ClassesTable classes={inactiveClasses} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="coaching" className="mt-4">
+          <Card>
+            <CardHeader>
+                <CardTitle>Clases Personalizadas / Coaching</CardTitle>
+                <CardDescription>Sesiones uno a uno o para grupos pequeños con horarios flexibles.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+                <ClassesTable classes={coachingClasses} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="bootcamps" className="mt-4">
+          <Card>
+            <CardHeader>
+                <CardTitle>Bootcamps y Eventos Especiales</CardTitle>
+                <CardDescription>Eventos intensivos o de corta duración sin un horario recurrente.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+                <ClassesTable classes={bootcampClasses} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
       
       {selectedClass && (
         <AttendeesDialog
@@ -431,5 +442,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
