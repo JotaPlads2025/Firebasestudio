@@ -177,6 +177,22 @@ const dayNameToIndex: { [key in ScheduleDay]: number } = {
   Sab: 6,
 };
 
+const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+    const today = new Date();
+    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+    const targetDayIndex = dayNameToIndex[dayName];
+    // Ensure targetDayIndex is valid before proceeding
+    if (targetDayIndex === undefined) {
+      console.error(`Invalid dayName: ${dayName}`);
+      return today; // Return today's date as a fallback
+    }
+    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+    const nextDate = new Date();
+    nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+    nextDate.setUTCHours(0, 0, 0, 0); // Normalize time to the beginning of the day in UTC
+    return nextDate;
+};
+
 
 function ClassesTable({ classes }: { classes: Class[] }) {
   if (classes.length === 0) {
@@ -275,52 +291,29 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   );
 }
 
-const calculateNextClassDate = (dayName: ScheduleDay): Date => {
-    const today = new Date();
-    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-    const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
-    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-    const nextDate = new Date(today);
-    nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-    return nextDate;
-};
-
 function processClassesForCalendar(classes: Class[]): Class[] {
     const processedClasses: Class[] = [];
     const today = new Date();
-    // Inconsistent timezone between server and client can cause issues with getDay()
-    // Using UTC methods for consistency
-    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-    
-    // Normalize our dayNameToIndex to match getUTCDay() if needed, but our index is already fine.
-    // dayNameToIndex: { Dom: 0, Lun: 1, ... }
+    today.setUTCHours(0, 0, 0, 0);
     
     classes.forEach(item => {
         if (item.scheduleDays && item.scheduleDays.length > 0) {
             item.scheduleDays.forEach(dayName => {
-                const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
-                if (targetDayIndex !== undefined) {
-                    const date = new Date(today);
-                    // Calculate the difference in days to get to the target day of the current week
-                    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-                    date.setUTCDate(today.getUTCDate() + dayDifference);
-                    
-                    processedClasses.push({
-                        ...item,
-                        id: `${item.id}-${dayName}`,
-                        date: date,
-                    });
-                }
+                const date = calculateNextClassDate(dayName as ScheduleDay);
+                processedClasses.push({
+                    ...item,
+                    id: `${item.id}-${dayName}`,
+                    date: date,
+                });
             });
         } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
-            const classDate = new Date();
-            classDate.setHours(0, 0, 0, 0); 
-            classDate.setDate(classDate.getDate() + item.daysOffset);
+            const classDate = new Date(today);
+            classDate.setUTCDate(classDate.getUTCDate() + item.daysOffset);
             processedClasses.push({ ...item, date: classDate });
-        } else if (USE_FIREBASE && item.scheduleDays) {
-             // Handle classes from Firestore that might not have date/daysOffset but have scheduleDays
-             // This is the fallback if the above logic has issues
-            processedClasses.push(item);
+        } else if (USE_FIREBASE && !item.scheduleDays) {
+           // Handle non-recurring classes from Firestore if they exist
+           // This part needs a clear logic on how to place them in the calendar
+           // For now, we will assume they don't appear in the calendar if no scheduleDays or daysOffset
         }
     });
     return processedClasses;
@@ -342,7 +335,6 @@ export default function ClassesPage() {
   const { data: firebaseClasses, isLoading: firebaseLoading } = useCollection<Class>(classesCollectionRef);
   // --- End Firebase Data ---
 
-
   useEffect(() => {
     let rawClasses: Class[];
 
@@ -351,13 +343,7 @@ export default function ClassesPage() {
         setIsLoading(true);
         return;
       }
-      // Use Firebase data if available, otherwise fall back to initial data for demo mode
-      rawClasses = (firebaseClasses || []).map(c => ({
-          ...c,
-          date: c.scheduleDays && c.scheduleDays.length > 0 
-            ? calculateNextClassDate(c.scheduleDays[0]) 
-            : undefined
-      }));
+      rawClasses = firebaseClasses || [];
     } else {
       rawClasses = initialClassesData as Class[];
     }
@@ -365,23 +351,26 @@ export default function ClassesPage() {
     const processed = processClassesForCalendar(rawClasses);
     setClasses(processed);
     
-    // Set calendar start date based on the first recurring class of the week
-    const firstRecurringClass = processed.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
-    if(firstRecurringClass && firstRecurringClass.date) {
-        const firstDayOfWeekForClass = new Date(firstRecurringClass.date);
-        const dayIndex = dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay];
-        if (dayIndex !== undefined) {
-          // Adjust to start of the week (Monday)
-          firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayIndex + 1);
+    if (processed.length > 0) {
+        const firstDate = processed.reduce((earliest, current) => {
+            if (!current.date) return earliest;
+            return earliest && earliest < current.date ? earliest : current.date;
+        }, processed[0].date);
+
+        if (firstDate) {
+            const startOfWeek = new Date(firstDate);
+            // Adjust to start of the week (Monday)
+            const dayIndex = startOfWeek.getUTCDay();
+            const diff = dayIndex === 0 ? -6 : 1 - dayIndex; // if Sunday, go back 6 days, else go back to Monday
+            startOfWeek.setUTCDate(startOfWeek.getUTCDate() + diff);
+            setCalendarStartDate(startOfWeek);
+        } else {
+            setCalendarStartDate(new Date());
         }
-        setCalendarStartDate(firstDayOfWeekForClass);
     } else {
-        // Fallback if no recurring classes
-        const firstClassWithDate = processed.find(c => c.date);
-        if (firstClassWithDate) {
-            setCalendarStartDate(firstClassWithDate.date);
-        }
+        setCalendarStartDate(new Date());
     }
+
     setIsLoading(false);
   }, [firebaseClasses, firebaseLoading]);
   
