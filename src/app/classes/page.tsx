@@ -307,7 +307,7 @@ function processClassesForCalendar(classes: Class[]): Class[] {
             classDate.setHours(0, 0, 0, 0); 
             classDate.setDate(classDate.getDate() + item.daysOffset);
             processedClasses.push({ ...item, date: classDate });
-        } else if (USE_FIREBASE) {
+        } else if (USE_FIREBASE && item.scheduleDays) {
              // Handle classes from Firestore that might not have date/daysOffset but have scheduleDays
              // This is the fallback if the above logic has issues
             processedClasses.push(item);
@@ -337,13 +337,13 @@ export default function ClassesPage() {
     let rawClasses: Class[];
 
     const calculateNextClassDate = (dayName: ScheduleDay): Date => {
-        const today = new Date();
-        const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-        const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
-        const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-        const nextDate = new Date(today);
-        nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-        return nextDate;
+      const today = new Date();
+      const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+      const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
+      const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+      const nextDate = new Date(today);
+      nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+      return nextDate;
     };
 
     if (USE_FIREBASE) {
@@ -366,11 +366,12 @@ export default function ClassesPage() {
     
     // Set calendar start date based on the first recurring class of the week
     const firstRecurringClass = processed.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
-    if(firstRecurringClass) {
+    if(firstRecurringClass && firstRecurringClass.date) {
         const firstDayOfWeekForClass = new Date(firstRecurringClass.date);
         const dayIndex = dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay];
         if (dayIndex !== undefined) {
-          firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayIndex + dayNameToIndex['Lun']); // Start week on monday
+          // Adjust to start of the week (Monday)
+          firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayIndex + 1);
         }
         setCalendarStartDate(firstDayOfWeekForClass);
     } else {
@@ -506,5 +507,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
