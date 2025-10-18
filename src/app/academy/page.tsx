@@ -13,9 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Building, Users, PartyPopper, Loader2 } from 'lucide-react';
 import type { Academy } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { useFirebase, useUser } from '@/firebase';
-import { collection, doc, setDoc, getDocs, query, where } from 'firebase/firestore';
-import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 
 const academySchema = z.object({
   name: z.string().min(3, { message: 'El nombre debe tener al menos 3 caracteres.' }),
@@ -23,6 +20,9 @@ const academySchema = z.object({
 });
 
 type AcademyFormValues = z.infer<typeof academySchema>;
+
+// This is a mock user ID for demonstration purposes
+const MOCK_USER_ID = 'user-susana-gonzalez';
 
 const AcademyDashboard = ({ academy }: { academy: Academy }) => {
     return (
@@ -63,30 +63,26 @@ const AcademyDashboard = ({ academy }: { academy: Academy }) => {
 
 const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: Academy) => void }) => {
   const { toast } = useToast();
-  const { firestore, auth } = useFirebase();
-  const { user } = useUser();
-
   const form = useForm<AcademyFormValues>({
     resolver: zodResolver(academySchema),
     defaultValues: { name: '', description: '' },
   });
 
   const onSubmit = async (data: AcademyFormValues) => {
-    if (!user) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Debes iniciar sesión para crear una academia.' });
-        return;
-    }
-    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     try {
         const academyId = `acad-${Date.now()}`;
         const newAcademy: Academy = {
           id: academyId,
-          ownerId: user.uid,
-          instructorIds: [user.uid],
+          ownerId: MOCK_USER_ID,
+          instructorIds: [MOCK_USER_ID],
           ...data,
         };
         
-        await setDoc(doc(firestore, 'academies', academyId), newAcademy);
+        // Save to localStorage for demo persistence
+        localStorage.setItem('plads-pro-academy', JSON.stringify(newAcademy));
         
         onAcademyCreated(newAcademy);
 
@@ -158,44 +154,21 @@ const CreateAcademyForm = ({ onAcademyCreated }: { onAcademyCreated: (academy: A
 export default function AcademyPage() {
   const [academy, setAcademy] = useState<Academy | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { auth, firestore } = useFirebase();
-  const { user, isUserLoading } = useUser();
-  
-  useEffect(() => {
-    // If no user is logged in after loading, sign in anonymously for demo purposes
-    if (!isUserLoading && !user) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [isUserLoading, user, auth]);
 
   useEffect(() => {
-    if (user) {
-      const fetchAcademy = async () => {
-        setIsLoading(true);
-        const q = query(collection(firestore, "academies"), where("ownerId", "==", user.uid));
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-            // Assuming one user owns one academy for now
-            const academyDoc = querySnapshot.docs[0];
-            setAcademy({ id: academyDoc.id, ...academyDoc.data() } as Academy);
-        } else {
-            setAcademy(null);
-        }
-        setIsLoading(false);
-      };
-
-      fetchAcademy();
-    } else if (!isUserLoading) {
-        setIsLoading(false); // No user, so stop loading
+    // This code runs only on the client
+    const storedAcademy = localStorage.getItem('plads-pro-academy');
+    if (storedAcademy) {
+      setAcademy(JSON.parse(storedAcademy));
     }
-  }, [user, isUserLoading, firestore]);
+    setIsLoading(false);
+  }, []);
 
   const handleAcademyCreation = (newAcademy: Academy) => {
     setAcademy(newAcademy);
   }
   
-  if (isLoading || isUserLoading) {
+  if (isLoading) {
     return (
         <div className="flex justify-center items-center h-48">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
