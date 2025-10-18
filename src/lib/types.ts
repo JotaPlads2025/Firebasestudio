@@ -23,6 +23,7 @@ export type Class = {
   status: 'Active' | 'Inactive';
   bookings: number;
   revenue: number;
+  availability: number;
   date?: Date;
   daysOffset?: number;
   venueId: string;

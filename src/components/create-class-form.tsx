@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { categories, subCategories } from '@/lib/categories';
 import { venues } from '@/lib/venues-data';
-import { PlusCircle, Trash2, Clock, CalendarDays, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Clock, CalendarDays, Loader2, Users } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -43,6 +43,10 @@ const classFormSchema = z.object({
   subCategory: z.string().optional(),
   level: z.string().min(1, 'Debes seleccionar un nivel.'),
   venueId: z.string().min(1, 'Debes seleccionar una sede.'),
+  availability: z.preprocess(
+    (a) => parseInt(z.string().parse(a), 10),
+    z.number().positive('La capacidad debe ser al menos 1.')
+  ),
   schedules: z.array(scheduleSchema).min(1, 'Debes agregar al menos un horario.'),
   pricePlans: z.array(pricePlanSchema).min(1, 'Debes agregar al menos un plan de precios.'),
   isRecurring: z.boolean(),
@@ -73,6 +77,7 @@ export default function CreateClassForm() {
       category: '',
       level: '',
       venueId: '',
+      availability: 20,
       schedules: [{ day: '', startTime: '', endTime: '' }],
       pricePlans: [{ name: 'Clase suelta', price: 8000 }],
       isRecurring: true,
@@ -273,6 +278,27 @@ export default function CreateClassForm() {
             )}
             />
         </div>
+        
+        <FormField
+            control={form.control}
+            name="availability"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Capacidad (Cupos)
+                    </FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="20" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Define el número máximo de estudiantes. Para clases ilimitadas (ej. al aire libre), usa un número alto como 999.
+                    </FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+
 
         <div>
             <FormLabel className="flex items-center gap-2 mb-4">
@@ -412,5 +438,3 @@ export default function CreateClassForm() {
     </Form>
   );
 }
-
-    
