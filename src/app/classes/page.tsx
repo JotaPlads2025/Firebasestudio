@@ -177,22 +177,48 @@ const dayNameToIndex: { [key in ScheduleDay]: number } = {
   Sab: 6,
 };
 
-const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+function processClassesForCalendar(classes: Class[]): Class[] {
+    const processedClasses: Class[] = [];
     const today = new Date();
-    const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
-    const targetDayIndex = dayNameToIndex[dayName];
-    // Ensure targetDayIndex is valid before proceeding
-    if (targetDayIndex === undefined) {
-      console.error(`Invalid dayName: ${dayName}`);
-      return today; // Return today's date as a fallback
-    }
-    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-    const nextDate = new Date();
-    nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-    nextDate.setUTCHours(0, 0, 0, 0); // Normalize time to the beginning of the day in UTC
-    return nextDate;
-};
+    today.setUTCHours(0, 0, 0, 0);
 
+    const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+        const today = new Date();
+        const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+        const targetDayIndex = dayNameToIndex[dayName];
+        if (targetDayIndex === undefined) {
+          console.error(`Invalid dayName: ${dayName}`);
+          return today; 
+        }
+        const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+        const nextDate = new Date();
+        nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+        nextDate.setUTCHours(0, 0, 0, 0); 
+        return nextDate;
+    };
+    
+    classes.forEach(item => {
+        if (item.scheduleDays && item.scheduleDays.length > 0) {
+            item.scheduleDays.forEach(dayName => {
+                const date = calculateNextClassDate(dayName as ScheduleDay);
+                processedClasses.push({
+                    ...item,
+                    id: `${item.id}-${dayName}`,
+                    date: date,
+                });
+            });
+        } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
+            const classDate = new Date(today);
+            classDate.setUTCDate(classDate.getUTCDate() + item.daysOffset);
+            processedClasses.push({ ...item, date: classDate });
+        } else if (USE_FIREBASE && !item.scheduleDays) {
+           // Handle non-recurring classes from Firestore if they exist
+           // This part needs a clear logic on how to place them in the calendar
+           // For now, we will assume they don't appear in the calendar if no scheduleDays or daysOffset
+        }
+    });
+    return processedClasses;
+}
 
 function ClassesTable({ classes }: { classes: Class[] }) {
   if (classes.length === 0) {
@@ -291,34 +317,6 @@ function ClassesTable({ classes }: { classes: Class[] }) {
   );
 }
 
-function processClassesForCalendar(classes: Class[]): Class[] {
-    const processedClasses: Class[] = [];
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    
-    classes.forEach(item => {
-        if (item.scheduleDays && item.scheduleDays.length > 0) {
-            item.scheduleDays.forEach(dayName => {
-                const date = calculateNextClassDate(dayName as ScheduleDay);
-                processedClasses.push({
-                    ...item,
-                    id: `${item.id}-${dayName}`,
-                    date: date,
-                });
-            });
-        } else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
-            const classDate = new Date(today);
-            classDate.setUTCDate(classDate.getUTCDate() + item.daysOffset);
-            processedClasses.push({ ...item, date: classDate });
-        } else if (USE_FIREBASE && !item.scheduleDays) {
-           // Handle non-recurring classes from Firestore if they exist
-           // This part needs a clear logic on how to place them in the calendar
-           // For now, we will assume they don't appear in the calendar if no scheduleDays or daysOffset
-        }
-    });
-    return processedClasses;
-}
-
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [calendarStartDate, setCalendarStartDate] = useState<Date>();
@@ -344,24 +342,32 @@ export default function ClassesPage() {
         return;
       }
       rawClasses = firebaseClasses || [];
+      // This was the missing piece: process the firebase data.
+      if (rawClasses.length > 0) {
+        const processed = processClassesForCalendar(rawClasses);
+        setClasses(processed);
+      } else {
+        setClasses([]);
+      }
+
     } else {
       rawClasses = initialClassesData as Class[];
+      const processed = processClassesForCalendar(rawClasses);
+      setClasses(processed);
     }
     
-    const processed = processClassesForCalendar(rawClasses);
-    setClasses(processed);
-    
-    if (processed.length > 0) {
-        const firstDate = processed.reduce((earliest, current) => {
+    const activeProcessedClasses = USE_FIREBASE ? (firebaseClasses || []) : initialClassesData;
+
+    if (activeProcessedClasses.length > 0) {
+        const firstDate = classes.reduce((earliest, current) => {
             if (!current.date) return earliest;
             return earliest && earliest < current.date ? earliest : current.date;
-        }, processed[0].date);
+        }, classes[0]?.date);
 
         if (firstDate) {
             const startOfWeek = new Date(firstDate);
-            // Adjust to start of the week (Monday)
             const dayIndex = startOfWeek.getUTCDay();
-            const diff = dayIndex === 0 ? -6 : 1 - dayIndex; // if Sunday, go back 6 days, else go back to Monday
+            const diff = dayIndex === 0 ? -6 : 1 - dayIndex;
             startOfWeek.setUTCDate(startOfWeek.getUTCDate() + diff);
             setCalendarStartDate(startOfWeek);
         } else {
