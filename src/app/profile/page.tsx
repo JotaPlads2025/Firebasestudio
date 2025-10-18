@@ -159,6 +159,17 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
               </p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Galería de Videos</CardTitle>
+              <CardDescription>
+                Sube hasta 5 videos para mostrar tu talento a potenciales estudiantes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <VideoGallery />
+            </CardContent>
+          </Card>
            <Card>
             <CardHeader>
               <CardTitle className="font-headline">Reseñas de Estudiantes</CardTitle>
@@ -174,17 +185,6 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
                     </Fragment>
                 ))}
                  <Button variant="outline" className="w-full mt-4">Ver todas las reseñas</Button>
-            </CardContent>
-          </Card>
-           <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Galería de Videos</CardTitle>
-              <CardDescription>
-                Sube hasta 5 videos para mostrar tu talento a potenciales estudiantes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <VideoGallery />
             </CardContent>
           </Card>
           <Card>
