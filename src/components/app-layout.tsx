@@ -10,7 +10,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, LifeBuoy } from 'lucide-react';
+import { Bell, Instagram, Search, MessageSquare } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -166,7 +166,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
               size="icon"
             >
-              <LifeBuoy className="h-7 w-7" />
+              <MessageSquare className="h-7 w-7" />
               <span className="sr-only">Soporte</span>
             </Button>
           </TooltipTrigger>
