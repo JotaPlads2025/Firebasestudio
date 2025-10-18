@@ -292,7 +292,7 @@ function processClassesForCalendar(classes: Class[]): Class[] {
                 if (targetDayIndex !== undefined) {
                     const date = new Date(today);
                     // Calculate the difference in days to get to the target day of the current week
-                    const dayDifference = targetDayIndex - currentDayOfWeek;
+                    const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
                     date.setUTCDate(today.getUTCDate() + dayDifference);
                     
                     processedClasses.push({
@@ -335,13 +335,28 @@ export default function ClassesPage() {
 
   useEffect(() => {
     let rawClasses: Class[];
+
+    const calculateNextClassDate = (dayName: ScheduleDay): Date => {
+      const today = new Date();
+      const currentDayOfWeek = today.getUTCDay();
+      const targetDayIndex = dayNameToIndex[dayName];
+      const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+      const nextDate = new Date(today);
+      nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+      return nextDate;
+    };
+
     if (USE_FIREBASE) {
       if (firebaseLoading) {
         setIsLoading(true);
         return;
       }
       // Use Firebase data if available, otherwise fall back to initial data for demo mode
-      rawClasses = firebaseClasses || [];
+      rawClasses = (firebaseClasses || []).map(c => ({
+          ...c,
+          // Process Firebase classes to have date objects
+          date: c.scheduleDays && c.scheduleDays.length > 0 ? calculateNextClassDate(c.scheduleDays[0]) : undefined
+      }));
     } else {
       rawClasses = initialClassesData as Class[];
     }
