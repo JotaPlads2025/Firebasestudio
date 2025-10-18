@@ -337,13 +337,13 @@ export default function ClassesPage() {
     let rawClasses: Class[];
 
     const calculateNextClassDate = (dayName: ScheduleDay): Date => {
-      const today = new Date();
-      const currentDayOfWeek = today.getUTCDay();
-      const targetDayIndex = dayNameToIndex[dayName];
-      const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
-      const nextDate = new Date(today);
-      nextDate.setUTCDate(today.getUTCDate() + dayDifference);
-      return nextDate;
+        const today = new Date();
+        const currentDayOfWeek = today.getUTCDay(); // 0 (Sun) - 6 (Sat)
+        const targetDayIndex = dayNameToIndex[dayName as ScheduleDay];
+        const dayDifference = (targetDayIndex - currentDayOfWeek + 7) % 7;
+        const nextDate = new Date(today);
+        nextDate.setUTCDate(today.getUTCDate() + dayDifference);
+        return nextDate;
     };
 
     if (USE_FIREBASE) {
