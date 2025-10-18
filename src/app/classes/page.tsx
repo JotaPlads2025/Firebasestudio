@@ -29,6 +29,7 @@ import {
   Palette,
   PlusCircle,
   Users,
+  Bell
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -170,19 +171,18 @@ function ClassesTable({ classes }: { classes: Class[] }) {
     return <p className="p-4 text-center text-muted-foreground">No hay clases para mostrar en esta categoría.</p>;
   }
 
+  // To show recurring classes only once in the list view
   const uniqueClassesMap = new Map<string, Class>();
   classes.forEach(c => {
-    // For recurring classes, use the base ID to ensure they only appear once
-    const baseId = c.id.split('-').slice(0, 2).join('-');
     if (c.scheduleDays && c.scheduleDays.length > 0) {
-        if (!uniqueClassesMap.has(baseId)) {
-            uniqueClassesMap.set(baseId, c);
-        }
+      const baseId = c.id.split('-').slice(0, 2).join('-');
+      if (!uniqueClassesMap.has(baseId)) {
+        uniqueClassesMap.set(baseId, c);
+      }
     } else {
-        // For non-recurring classes, use their unique ID
-        if (!uniqueClassesMap.has(c.id)) {
-            uniqueClassesMap.set(c.id, c);
-        }
+      if (!uniqueClassesMap.has(c.id)) {
+        uniqueClassesMap.set(c.id, c);
+      }
     }
   });
   const uniqueClasses = Array.from(uniqueClassesMap.values());
@@ -280,11 +280,9 @@ export default function ClassesPage() {
     firstDayOfWeek.setDate(today.getDate() - currentDay);
     firstDayOfWeek.setHours(0,0,0,0);
 
-
     const processedClasses: Class[] = [];
 
     initialClassesData.forEach(item => {
-      // Handle recurring classes based on scheduleDays
       if (item.scheduleDays && item.scheduleDays.length > 0) {
         item.scheduleDays.forEach(dayName => {
           const targetDayIndex = dayNameToIndex[dayName];
@@ -298,22 +296,29 @@ export default function ClassesPage() {
           } as Class);
         });
       } 
-      // Handle non-recurring classes with daysOffset
       else if (item.daysOffset !== undefined && item.daysOffset !== -1) {
         const classDate = new Date();
-        classDate.setHours(0, 0, 0, 0); // Normalize time part
-        classDate.setDate(today.getDate() + item.daysOffset);
+        classDate.setHours(0, 0, 0, 0); 
+        classDate.setDate(classDate.getDate() + item.daysOffset);
         processedClasses.push({ ...item, date: classDate } as Class);
       } 
-      // Handle classes without a specific date
       else {
         processedClasses.push(item as Class);
       }
     });
 
-    const firstClassWithDate = processedClasses.find(c => c.date);
-    if(firstClassWithDate) {
-      setCalendarStartDate(firstClassWithDate.date);
+    // Set calendar start date based on the first recurring class of the week
+    const firstRecurringClass = processedClasses.find(c => c.date && c.scheduleDays && c.scheduleDays.length > 0);
+    if(firstRecurringClass) {
+        const firstDayOfWeekForClass = new Date(firstRecurringClass.date);
+        firstDayOfWeekForClass.setDate(firstDayOfWeekForClass.getDate() - dayNameToIndex[firstRecurringClass.scheduleDays![0] as ScheduleDay] + dayNameToIndex['Lun']); // Start week on monday
+        setCalendarStartDate(firstDayOfWeekForClass);
+    } else {
+        // Fallback if no recurring classes
+        const firstClassWithDate = processedClasses.find(c => c.date);
+        if (firstClassWithDate) {
+            setCalendarStartDate(firstClassWithDate.date);
+        }
     }
     setClasses(processedClasses);
   }, []);
@@ -373,15 +378,15 @@ export default function ClassesPage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>Mis Clases</CardTitle>
-            <CardDescription>Clases grupales regulares que impartes.</CardDescription>
+            <CardTitle>Mis Clases Regulares</CardTitle>
+            <CardDescription>Clases grupales que impartes con un horario fijo.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Tabs defaultValue="active">
             <div className="border-b p-4">
               <TabsList>
-                <TabsTrigger value="active">Activa</TabsTrigger>
-                <TabsTrigger value="inactive">Inactiva</TabsTrigger>
+                <TabsTrigger value="active">Activas</TabsTrigger>
+                <TabsTrigger value="inactive">Inactivas</TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="active" className="m-0">
@@ -396,8 +401,8 @@ export default function ClassesPage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>Clases Personalizadas / Coaches</CardTitle>
-            <CardDescription>Sesiones uno a uno o para grupos pequeños.</CardDescription>
+            <CardTitle>Clases Personalizadas / Coaching</CardTitle>
+            <CardDescription>Sesiones uno a uno o para grupos pequeños con horarios flexibles.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
             <ClassesTable classes={coachingClasses} />
@@ -406,8 +411,8 @@ export default function ClassesPage() {
       
       <Card>
         <CardHeader>
-            <CardTitle>Bootcamps</CardTitle>
-            <CardDescription>Eventos intensivos de corta duración.</CardDescription>
+            <CardTitle>Bootcamps y Eventos Especiales</CardTitle>
+            <CardDescription>Eventos intensivos o de corta duración sin un horario recurrente.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
             <ClassesTable classes={bootcampClasses} />
@@ -426,3 +431,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    

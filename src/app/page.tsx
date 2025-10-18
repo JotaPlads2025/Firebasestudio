@@ -452,108 +452,108 @@ export default function DashboardPage() {
           <AiAssistantForm />
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="font-headline">Vistas de Ingresos y Retención</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <LineChart data={retentionChartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
-                <YAxis
-                    yAxisId="left"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(0)}M`}
-                    tick={{ fontWeight: 'bold' }}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card className="lg:col-span-1">
+            <CardHeader>
+                <CardTitle className="font-headline">Vistas de Ingresos y Retención</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                <LineChart data={retentionChartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontWeight: 'bold' }} />
+                    <YAxis
+                        yAxisId="left"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(0)}M`}
+                        tick={{ fontWeight: 'bold' }}
+                        />
+                    <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) => `${value}%`}
+                        tick={{ fontWeight: 'bold' }}
                     />
-                <YAxis
+                    <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent 
+                        indicator="line" 
+                        formatter={(value, name) => 
+                            name === 'revenue' 
+                            ? `Ingresos: $${Number(value).toLocaleString('es-CL')}` 
+                            : `Retención: ${Number(value).toFixed(1)}%`
+                        }
+                        />}
+                    />
+                    <Line
+                    yAxisId="left"
+                    dataKey="revenue"
+                    type="monotone"
+                    stroke="var(--color-revenue)"
+                    strokeWidth={2}
+                    dot={false}
+                    name="revenue"
+                    />
+                    <Line
                     yAxisId="right"
-                    orientation="right"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => `${value}%`}
-                    tick={{ fontWeight: 'bold' }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent 
-                    indicator="line" 
-                    formatter={(value, name) => 
-                        name === 'revenue' 
-                        ? `Ingresos: $${Number(value).toLocaleString('es-CL')}` 
-                        : `Retención: ${Number(value).toFixed(1)}%`
-                    }
-                    />}
-                />
-                <Line
-                  yAxisId="left"
-                  dataKey="revenue"
-                  type="monotone"
-                  stroke="var(--color-revenue)"
-                  strokeWidth={2}
-                  dot={false}
-                  name="revenue"
-                />
-                 <Line
-                  yAxisId="right"
-                  dataKey="retention"
-                  type="monotone"
-                  stroke="var(--color-retention)"
-                  strokeWidth={2}
-                  dot={false}
-                  name="retention"
-                />
-              </LineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Ingresos por Clase</CardTitle>
-            <CardDescription>
-                Distribución de ingresos en las clases activas.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 pb-0">
-            <ChartContainer
-              config={chartConfig}
-              className="mx-auto aspect-square max-h-[250px]"
-            >
-              <PieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent formatter={(value, name) => <div><span className="font-medium">{chartConfig[name as keyof typeof chartConfig]?.label || name}</span>: ${Number(value).toLocaleString('es-CL')}</div>} />}
-                />
-                <Pie
-                  data={classPerformanceData}
-                  dataKey="revenue"
-                  nameKey="name"
-                  innerRadius={60}
-                  strokeWidth={5}
+                    dataKey="retention"
+                    type="monotone"
+                    stroke="var(--color-retention)"
+                    strokeWidth={2}
+                    dot={false}
+                    name="retention"
+                    />
+                </LineChart>
+                </ChartContainer>
+            </CardContent>
+            </Card>
+            
+            <Card  className="lg:col-span-1">
+            <CardHeader>
+                <CardTitle className="font-headline">Ingresos por Clase</CardTitle>
+                <CardDescription>
+                    Distribución de ingresos en las clases activas.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 pb-0">
+                <ChartContainer
+                config={chartConfig}
+                className="mx-auto aspect-square max-h-[250px]"
                 >
-                  {classPerformanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig]?.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ChartContainer>
-          </CardContent>
-          <CardFooter className="flex-col gap-2 text-sm pt-4">
-              <div className="flex items-center justify-between w-full">
-                  <span>Total Ingresos:</span>
-                  <span className="font-bold">${isClient ? totalRevenueAllClasses.toLocaleString('es-CL') : '...'}</span>
-              </div>
-          </CardFooter>
-        </Card>
+                <PieChart>
+                    <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent formatter={(value, name) => <div><span className="font-medium">{chartConfig[name as keyof typeof chartConfig]?.label || name}</span>: ${Number(value).toLocaleString('es-CL')}</div>} />}
+                    />
+                    <Pie
+                    data={classPerformanceData}
+                    dataKey="revenue"
+                    nameKey="name"
+                    innerRadius={60}
+                    strokeWidth={5}
+                    >
+                    {classPerformanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig]?.color} />
+                    ))}
+                    </Pie>
+                </PieChart>
+                </ChartContainer>
+            </CardContent>
+            <CardFooter className="flex-col gap-2 text-sm pt-4">
+                <div className="flex items-center justify-between w-full">
+                    <span>Total Ingresos:</span>
+                    <span className="font-bold">${isClient ? totalRevenueAllClasses.toLocaleString('es-CL') : '...'}</span>
+                </div>
+            </CardFooter>
+            </Card>
+        </div>
 
-        <Card className="lg:col-span-3">
+      <Card>
             <CardHeader>
                 <CardTitle className="font-headline">Desempeño de la Clase</CardTitle>
                 <CardDescription>Analiza los cupos, ingresos y retención de cada clase.</CardDescription>
@@ -582,7 +582,7 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
         
-        <Card className="lg:col-span-3">
+        <Card>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                     <TrendingUp className="h-6 w-6 text-primary" />
@@ -644,7 +644,6 @@ export default function DashboardPage() {
                 lastClass={classPerformanceData.find(c => c.id === selectedStudent.lastClassId)?.name || 'una de tus clases'}
             />
         )}
-      </div>
     </div>
   );
 }
