@@ -1,3 +1,9 @@
+
+'use client';
+
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 import {
   SidebarProvider,
   Sidebar,
@@ -6,11 +12,12 @@ import {
   SidebarFooter,
   SidebarInset,
   SidebarSeparator,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, MessageSquare } from 'lucide-react';
+import { Bell, Instagram, Search, MessageSquare, LogOut, Loader2, LifeBuoy } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +25,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Input } from './ui/input';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { SidebarTrigger } from './ui/sidebar';
-import { TikTokIcon } from './ui/icons';
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { TikTokIcon } from '@/components/ui/icons';
 import Link from 'next/link';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useAuth } from '@/firebase';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -49,8 +55,89 @@ const PladsProLogo = () => (
   </div>
 );
 
+
+const UserMenu = () => {
+    const { user } = useUser();
+    const auth = useAuth();
+    
+    if (!user) return null;
+
+    const handleLogout = () => {
+        auth?.signOut();
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
+              >
+                <Avatar className="h-8 w-8">
+                  {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                  <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="group-data-[collapsible=icon]:hidden">
+                  <p className="font-medium text-sidebar-foreground">
+                    {user.displayName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {user.email}
+                  </p>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start" className="w-56">
+              <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <Link href="/profile"><DropdownMenuItem>Perfil</DropdownMenuItem></Link>
+              <Link href="/settings"><DropdownMenuItem>Configuraciones</DropdownMenuItem></Link>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Cerrar sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+    )
+}
+
+const HeaderUser = () => {
+    const { user } = useUser();
+
+    if (!user) return null;
+
+    return (
+        <div className="hidden items-center gap-2 md:flex">
+              <Avatar className="h-8 w-8">
+                {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline">{user.displayName}</span>
+        </div>
+    )
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isUserLoading) {
+      return; 
+    }
+    if (!user) {
+      router.replace('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+      return (
+          <div className="flex h-screen w-screen items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+      );
+  }
 
   return (
     <SidebarProvider>
@@ -99,37 +186,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <SidebarSeparator />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
-              >
-                <Avatar className="h-8 w-8">
-                  {userAvatar && (
-                    <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />
-                  )}
-                  <AvatarFallback>SG</AvatarFallback>
-                </Avatar>
-                <div className="group-data-[collapsible=icon]:hidden">
-                  <p className="font-medium text-sidebar-foreground">
-                    Susana González
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    susana.gonzalez@example.com
-                  </p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start" className="w-56">
-              <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Perfil</DropdownMenuItem>
-              <DropdownMenuItem>Configuraciones</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserMenu />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -148,32 +205,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            <div className="hidden items-center gap-2 md:flex">
-              <Avatar className="h-8 w-8">
-                {userAvatar && (
-                  <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />
-                )}
-                <AvatarFallback>SG</AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:inline">Susana González</span>
-            </div>
+            <HeaderUser />
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
-              size="icon"
-            >
-              <MessageSquare className="h-7 w-7" />
-              <span className="sr-only">Soporte</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>Soporte</p>
-          </TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
+                size="icon"
+                >
+                <MessageSquare className="h-7 w-7" />
+                <span className="sr-only">Soporte</span>
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+                <p>Soporte</p>
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
       </SidebarInset>
     </SidebarProvider>
   );

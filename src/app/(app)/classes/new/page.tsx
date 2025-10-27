@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import CreateClassForm from "@/components/create-class-form";
