@@ -55,17 +55,20 @@ const PladsProLogo = () => (
 );
 
 const HeaderUserMenu = () => {
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     const auth = useAuth();
 
     const handleLogout = () => {
         if (auth) {
             auth.signOut();
         }
+    };
+
+    if (isUserLoading) {
+        return <Loader2 className="h-5 w-5 animate-spin" />;
     }
 
     if (!user) {
-        // You can return a skeleton or null while the user is loading
         return null;
     }
 
@@ -106,8 +109,9 @@ const HeaderUserMenu = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-    )
-}
+    );
+};
+
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
