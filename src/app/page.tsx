@@ -22,7 +22,7 @@ import {
   Bar,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase } from 'lucide-react';
+import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download } from 'lucide-react';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
@@ -147,10 +147,18 @@ export default function Dashboard() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Filtros</CardTitle>
-                 <CardDescription>
-                    Selecciona uno o más filtros para visualizar tus datos.
-                </CardDescription>
+                <div className='flex justify-between items-center'>
+                    <div>
+                        <CardTitle>Filtros</CardTitle>
+                        <CardDescription>
+                            Selecciona uno o más filtros para visualizar tus datos.
+                        </CardDescription>
+                    </div>
+                     <Button>
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar Excel
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <MultiSelectFilter
@@ -179,7 +187,7 @@ export default function Dashboard() {
         {kpiData.map((kpi) => (
           <Card key={kpi.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-bold">{kpi.title}</CardTitle>
+              <CardTitle className="text-base font-bold text-primary">{kpi.title}</CardTitle>
               <kpi.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -323,4 +331,5 @@ export default function Dashboard() {
 
     </div>
   );
-}
+
+    
