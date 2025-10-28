@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import type { Metadata } from 'next';
 import { usePathname, useRouter } from 'next/navigation';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -244,6 +243,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
 
 export default function RootLayout({
   children,
