@@ -40,6 +40,19 @@ const dayNameToIndex: Record<string, number> = {
   Lun: 1, Mar: 2, Mie: 3, Jue: 4, Vie: 5, Sab: 6, Dom: 0,
 };
 
+const getDayAbbreviation = (day: string) => {
+    switch (day) {
+        case 'Lunes': return 'Lun';
+        case 'Martes': return 'Mar';
+        case 'Miércoles': return 'Mie';
+        case 'Jueves': return 'Jue';
+        case 'Viernes': return 'Vie';
+        case 'Sábado': return 'Sab';
+        case 'Domingo': return 'Dom';
+        default: return day.slice(0, 3);
+    }
+}
+
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
     if (!classes) return [];
@@ -50,7 +63,7 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
   
     interval.forEach(day => {
       classes.forEach(cls => {
-        const scheduleDays = cls.schedules?.map(s => s.day.slice(0, 3)); // Use cls.schedules
+        const scheduleDays = cls.schedules?.map(s => getDayAbbreviation(s.day));
         const dayOfWeek = day.getDay(); // Sunday is 0, Monday is 1, etc.
   
         if (cls.status === 'Active' && scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
@@ -309,5 +322,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
