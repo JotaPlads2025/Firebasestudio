@@ -12,11 +12,13 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   PlusCircle,
-  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   List,
   Calendar,
+  Briefcase,
+  Dumbbell,
+  BookOpenCheck,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -28,7 +30,10 @@ import { studentData } from '@/lib/student-data';
 import { venues as initialVenues } from '@/lib/venues-data';
 import AttendeesDialog from '@/components/attendees-dialog';
 import { useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collection, doc, updateDoc } from 'firebase/firestore';
+import { Switch } from '@/components/ui/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
 
 
 const dayNameToIndex: Record<string, number> = {
@@ -48,12 +53,11 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
       const scheduleDays = cls.scheduleDays?.map(d => d.slice(0, 3));
       const dayOfWeek = day.getDay(); // Sunday is 0
 
-      if (scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
+      if (cls.status === 'Active' && scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
         events.push({
           ...cls,
           id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
           date: day,
-          // Bookings and revenue would be fetched for this specific instance in a real app
         });
       }
     });
@@ -70,6 +74,7 @@ export default function ClassesPage() {
   
   const auth = useAuth();
   const firestore = useFirestore();
+  const { toast } = useToast();
 
   const classesRef = useMemoFirebase(() => {
     if (!auth?.currentUser || !firestore) return null;
@@ -77,10 +82,37 @@ export default function ClassesPage() {
   }, [auth?.currentUser, firestore]);
   
   const { data: classesData, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
-  
+  const [localClasses, setLocalClasses] = useState(classesData);
+
+  useEffect(() => {
+    setLocalClasses(classesData);
+  }, [classesData]);
+
   const calendarEvents = useMemo(() => {
-    return generateCalendarEvents(classesData || [], currentMonth);
-  }, [classesData, currentMonth]);
+    return generateCalendarEvents(localClasses || [], currentMonth);
+  }, [localClasses, currentMonth]);
+
+  const { regularClasses, coachingClasses, bootcampClasses } = useMemo(() => {
+    const regular: Class[] = [];
+    const coaching: Class[] = [];
+    const bootcamp: Class[] = [];
+
+    (localClasses || []).forEach(cls => {
+        switch (cls.category) {
+            case 'Coaching':
+                coaching.push(cls);
+                break;
+            case 'Bootcamp':
+                bootcamp.push(cls);
+                break;
+            default: // Dance, Sports, Health
+                regular.push(cls);
+                break;
+        }
+    });
+
+    return { regularClasses: regular, coachingClasses: coaching, bootcampClasses: bootcamp };
+  }, [localClasses]);
 
 
   const handleClassSelect = (cls: Class) => {
@@ -93,6 +125,34 @@ export default function ClassesPage() {
     setSelectedClass(null);
   }
 
+  const handleStatusChange = async (classId: string, newStatus: boolean) => {
+    if (!firestore || !auth?.currentUser) return;
+
+    const status = newStatus ? 'Active' : 'Inactive';
+    const classRef = doc(firestore, 'instructors', auth.currentUser.uid, 'classes', classId);
+
+    try {
+        await updateDoc(classRef, { status });
+
+        // Optimistically update local state
+        setLocalClasses(prev => 
+            prev!.map(cls => cls.id === classId ? { ...cls, status } : cls)
+        );
+
+        toast({
+            title: "¡Estado actualizado!",
+            description: `La clase ha sido marcada como ${status.toLowerCase()}.`
+        });
+    } catch (error) {
+        console.error("Error updating class status:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al actualizar",
+            description: "No se pudo cambiar el estado de la clase."
+        });
+    }
+  };
+
   const goToPreviousMonth = () => {
     setCurrentMonth(add(currentMonth, { months: -1 }));
   };
@@ -104,6 +164,41 @@ export default function ClassesPage() {
   const goToToday = () => {
     setCurrentMonth(new Date());
   };
+
+
+ const renderClassTable = (classes: Class[]) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Clase</TableHead>
+          <TableHead className="text-center">Cupos</TableHead>
+          <TableHead className="text-right">Estado (Activo/Inactivo)</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {classes.length > 0 ? (
+          classes.map((cls) => (
+            <TableRow key={cls.id}>
+              <TableCell className="font-medium">{cls.name}</TableCell>
+              <TableCell className="text-center">{cls.availability}</TableCell>
+              <TableCell className="text-right">
+                <Switch
+                  checked={cls.status === 'Active'}
+                  onCheckedChange={(checked) => handleStatusChange(cls.id, checked)}
+                />
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={3} className="text-center h-24">
+              No tienes clases en esta categoría.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
 
 
   return (
@@ -164,6 +259,43 @@ export default function ClassesPage() {
           )}
         </CardContent>
       </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Gestión de Clases</CardTitle>
+          <CardDescription>
+            Activa o desactiva tus clases, coachings y bootcamps desde aquí.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="regular">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="regular">
+                <BookOpenCheck className="mr-2 h-4 w-4" />
+                Clases Regulares
+              </TabsTrigger>
+              <TabsTrigger value="coaching">
+                <Dumbbell className="mr-2 h-4 w-4" />
+                Coaching
+              </TabsTrigger>
+              <TabsTrigger value="bootcamp">
+                <Briefcase className="mr-2 h-4 w-4" />
+                Bootcamps
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="regular" className="mt-4">
+              {renderClassTable(regularClasses)}
+            </TabsContent>
+            <TabsContent value="coaching" className="mt-4">
+              {renderClassTable(coachingClasses)}
+            </TabsContent>
+            <TabsContent value="bootcamp" className="mt-4">
+              {renderClassTable(bootcampClasses)}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
 
       {selectedClass && (
         <AttendeesDialog
@@ -177,3 +309,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    
