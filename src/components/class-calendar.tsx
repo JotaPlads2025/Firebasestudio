@@ -7,6 +7,7 @@ import type { Class, Venue } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from './ui/badge';
 import { isSameDay } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { MapPin, Users } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -65,6 +66,7 @@ export default function ClassCalendar({ classes, startDate, venues, onClassSelec
         selected={date}
         onSelect={setDate}
         className="rounded-md border"
+        locale={es}
         modifiers={{
           regularClass: regularClassDays,
           coaching: coachingDays,

@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
-import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import ClassCalendar from '@/components/class-calendar';
 import type { Class, Venue } from '@/lib/types';
@@ -36,22 +36,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 
 
-const dayNameToIndex: Record<string, number> = {
-  Lun: 1, Mar: 2, Mie: 3, Jue: 4, Vie: 5, Sab: 6, Dom: 0,
+const dayNameToIndex: { [key: string]: number } = {
+  Domingo: 0,
+  Lunes: 1,
+  Martes: 2,
+  Miércoles: 3,
+  Jueves: 4,
+  Viernes: 5,
+  Sábado: 6,
 };
 
-const getDayAbbreviation = (day: string) => {
-    switch (day) {
-        case 'Lunes': return 'Lun';
-        case 'Martes': return 'Mar';
-        case 'Miércoles': return 'Mie';
-        case 'Jueves': return 'Jue';
-        case 'Viernes': return 'Vie';
-        case 'Sábado': return 'Sab';
-        case 'Domingo': return 'Dom';
-        default: return day.slice(0, 3);
-    }
-}
 
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
@@ -59,19 +53,24 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
     const events: Class[] = [];
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
-    const interval = eachDayOfInterval({ start: startOfWeek(monthStart), end: endOfWeek(monthEnd) });
+    const interval = eachDayOfInterval({ start: startOfWeek(monthStart, { locale: es }), end: endOfWeek(monthEnd, { locale: es }) });
   
     interval.forEach(day => {
+      const dayOfWeek = getDay(day); // Sunday is 0, Monday is 1...
+      
       classes.forEach(cls => {
-        const scheduleDays = cls.schedules?.map(s => getDayAbbreviation(s.day));
-        const dayOfWeek = day.getDay(); // Sunday is 0, Monday is 1, etc.
-  
-        if (cls.status === 'Active' && scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
-          events.push({
-            ...cls,
-            id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
-            date: day,
-          });
+        if (cls.status === 'Active' && cls.schedules) {
+            cls.schedules.forEach(schedule => {
+                if (dayNameToIndex[schedule.day] === dayOfWeek) {
+                     events.push({
+                        ...cls,
+                        id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
+                        date: day,
+                        // Use the specific schedule time for this event
+                        schedule: `${schedule.startTime} - ${schedule.endTime}`,
+                    });
+                }
+            });
         }
       });
     });
