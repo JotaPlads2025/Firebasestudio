@@ -17,7 +17,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, LogOut, Loader2, MessageSquare, UserCircle, Settings } from 'lucide-react';
+import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { TikTokIcon } from '@/components/ui/icons';
 import Link from 'next/link';
 
 const PladsProLogo = () => (
@@ -54,69 +53,12 @@ const PladsProLogo = () => (
   </div>
 );
 
-const HeaderUserMenu = () => {
-    const { user, isUserLoading } = useUser();
-    const auth = useAuth();
-
-    const handleLogout = () => {
-        if (auth) {
-            auth.signOut();
-        }
-    };
-
-    if (isUserLoading) {
-        return <Loader2 className="h-5 w-5 animate-spin" />;
-    }
-
-    if (!user) {
-        return null;
-    }
-
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                  </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    <span>Perfil</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Configuraciones</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Cerrar sesión</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-    );
-};
-
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  const auth = useAuth();
 
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
@@ -133,6 +75,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       router.replace('/');
     }
   }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
+  
+  const handleLogout = () => {
+    if (auth) {
+        auth.signOut();
+    }
+  };
 
   if (pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/')) {
     return <>{children}</>;
@@ -160,45 +108,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-        <SidebarFooter className="flex flex-col gap-2">
+        <SidebarFooter>
           <SidebarSeparator className="md:group-data-[collapsible=icon]:hidden" />
-          <div className="flex flex-col gap-4 p-2 text-center text-xs text-sidebar-foreground/70 md:group-data-[collapsible=icon]:hidden">
-            <div className="flex items-center justify-center gap-4">
-              <a
-                href="https://www.instagram.com/pladsapp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-sidebar-foreground"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a
-                href="https://www.tiktok.com/pladsapp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-sidebar-foreground"
-                aria-label="TikTok"
-              >
-                <TikTokIcon className="h-4 w-4" />
-              </a>
-            </div>
-            <div className="space-y-1">
-              <p>
-                <Link href="#" className="text-xs hover:underline">
-                  Terminos y condiciones
-                </Link>
-              </p>
-              <p>hola@plads.cl</p>
-            </div>
-          </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 " />
             <Input
               type="search"
               placeholder="Escribe un comando o busca... (ej: 'crear clase')"
@@ -210,7 +127,45 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            <HeaderUserMenu />
+            {isUserLoading && <Loader2 className="h-5 w-5 animate-spin" />}
+            {!isUserLoading && user && (
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                        </Avatar>
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href="/profile">
+                            <UserCircle className="mr-2 h-4 w-4" />
+                            <span>Perfil</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href="/settings">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Configuraciones</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Cerrar sesión</span>
+                    </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
