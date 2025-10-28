@@ -1,4 +1,4 @@
-// This file's content has been moved to /src/app/(app)/classes/page.tsx to resolve a routing conflict.
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
