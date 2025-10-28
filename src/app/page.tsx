@@ -32,10 +32,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Mail, TrendingUp, Users, DollarSign, Target, Activity } from 'lucide-react';
+import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase } from 'lucide-react';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
+import { cn } from '@/lib/utils';
 
 const inactiveStudents = [
     { name: 'Benjamín Soto', lastClass: 'Bachata Básico', lastSeen: 'hace 2 meses' },
@@ -62,7 +63,7 @@ export default function Dashboard() {
     {
       title: 'Tasa de Retención',
       value: '86%',
-      change: '+2.1%',
+      change: '-1.5%',
       icon: Target,
     },
      {
@@ -70,6 +71,18 @@ export default function Dashboard() {
       value: '8',
       change: '+1',
       icon: Activity,
+    },
+    {
+      title: 'Coaching Activos',
+      value: '4',
+      change: '+2',
+      icon: Dumbbell,
+    },
+    {
+      title: 'Bootcamps Activos',
+      value: '1',
+      change: '0',
+      icon: Briefcase,
     },
   ];
 
@@ -88,16 +101,21 @@ export default function Dashboard() {
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {kpiData.map((kpi) => (
           <Card key={kpi.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-primary">{kpi.title}</CardTitle>
               <kpi.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">{kpi.change} desde el mes pasado</p>
+              <p className={cn(
+                  "text-xs",
+                  kpi.change.startsWith('+') ? 'text-green-600' : kpi.change.startsWith('-') ? 'text-destructive' : 'text-muted-foreground'
+              )}>
+                {kpi.change !== '0' && `${kpi.change} desde el mes pasado`}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -106,18 +124,41 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
         <Card className="lg:col-span-3">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <CardTitle>Rendimiento General</CardTitle>
-                 <Select defaultValue="revenue">
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Métrica" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="revenue">Ingresos</SelectItem>
-                        <SelectItem value="students">Alumnos</SelectItem>
-                        <SelectItem value="retention">Retención</SelectItem>
-                    </SelectContent>
-                </Select>
+                 <div className="flex flex-wrap items-center gap-2">
+                    <Select defaultValue="all">
+                        <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Mes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Este Mes</SelectItem>
+                            <SelectItem value="last">Mes Pasado</SelectItem>
+                            <SelectItem value="last3">Últimos 3 Meses</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select defaultValue="all">
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Día" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos los días</SelectItem>
+                            <SelectItem value="lunes">Lunes</SelectItem>
+                            <SelectItem value="martes">Martes</SelectItem>
+                        </SelectContent>
+                    </Select>
+                     <Select defaultValue="all">
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Clases" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todas las clases</SelectItem>
+                            <SelectItem value="regular">Clases Regulares</SelectItem>
+                            <SelectItem value="coaching">Coaching</SelectItem>
+                            <SelectItem value="bootcamp">Bootcamps</SelectItem>
+                        </SelectContent>
+                    </Select>
+                 </div>
             </div>
             <CardDescription>
               Una vista general de tus ingresos y crecimiento de alumnos.
@@ -155,8 +196,6 @@ export default function Dashboard() {
                   activeDot={{ r: 8 }}
                   name="Ingresos"
                 />
-                {/* This line can be toggled based on selection */}
-                {/* <Line type="monotone" dataKey="newStudents" name="Nuevos Alumnos" stroke="hsl(var(--chart-2))" /> */}
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
