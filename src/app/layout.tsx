@@ -21,7 +21,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, MessageSquare, LogOut, Loader2, LifeBuoy } from 'lucide-react';
+import { Bell, Instagram, Search, LogOut, Loader2, MessageSquare } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,14 +34,6 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { TikTokIcon } from '@/components/ui/icons';
 import Link from 'next/link';
-
-// Metadata can still be defined, but Next.js will use what's exported from the nearest layout.
-// Since this is the root layout, this metadata will apply globally.
-// export const metadata: Metadata = {
-//   title: 'Plads Pro',
-//   description: 'Instructor dashboard for Plads',
-// };
-
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -66,12 +58,9 @@ const PladsProLogo = () => (
   </div>
 );
 
-
 const UserMenu = () => {
     const { user } = useUser();
     const auth = useAuth();
-    
-    if (!auth) return null;
 
     const handleLogout = () => {
         auth?.signOut();
@@ -131,14 +120,12 @@ const HeaderUser = () => {
     )
 }
 
-
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, isUserLoading } = useUser() || {}; // Provide a fallback
+  const { user, isUserLoading } = useUser() || {};
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // If auth is not used, don't run auth logic
     const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
     if (!USE_FIREBASE) return;
     
@@ -258,7 +245,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -267,6 +253,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Plads Pro</title>
+        <meta name="description" content="Instructor dashboard for Plads" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

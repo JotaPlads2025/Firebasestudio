@@ -1,2 +1,2 @@
-// This file's content has been moved to /src/app/profile/page.tsx to resolve a Next.js routing conflict.
-// This file is now intentionally left empty and can be safely ignored or deleted.
+// This file is intentionally left blank to resolve a routing conflict.
+// The content has been moved to /src/app/profile/page.tsx.
