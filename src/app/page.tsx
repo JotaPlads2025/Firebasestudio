@@ -319,6 +319,18 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Asistente de IA</CardTitle>
+          <CardDescription>
+            Haz preguntas en lenguaje natural sobre tus datos de rendimiento.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AiAssistantForm />
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
          <Card>
           <CardHeader>
@@ -453,18 +465,6 @@ export default function Dashboard() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Asistente de IA</CardTitle>
-          <CardDescription>
-            Haz preguntas en lenguaje natural sobre tus datos de rendimiento.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AiAssistantForm />
         </CardContent>
       </Card>
 
