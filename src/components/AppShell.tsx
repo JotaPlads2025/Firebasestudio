@@ -1,17 +1,15 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser, useAuth } from '@/firebase/provider';
+import { useAuth } from '@/firebase/provider';
 import {
   SidebarProvider,
   Sidebar,
   SidebarHeader,
   SidebarContent,
-  SidebarFooter,
   SidebarInset,
-  SidebarSeparator,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Nav from '@/components/nav';
@@ -29,6 +27,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
+import { type User, onAuthStateChanged } from 'firebase/auth';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -55,7 +54,8 @@ const PladsProLogo = () => (
 
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, isUserLoading } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const auth = useAuth();
@@ -63,9 +63,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
   useEffect(() => {
-    if (!USE_FIREBASE) return;
-    
-    if (isUserLoading) {
+    if (!USE_FIREBASE) {
+      setIsUserLoading(false);
+      return;
+    }
+    if (!auth) {
+        // Firebase auth instance isn't available yet.
+        // The provider will update and this effect will re-run.
+        return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        setUser(firebaseUser);
+        setIsUserLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth, USE_FIREBASE]);
+
+  useEffect(() => {
+    if (!USE_FIREBASE || isUserLoading) {
       return; 
     }
     if (!user && pathname !== '/login') {
@@ -108,9 +125,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-        <SidebarFooter>
-          <SidebarSeparator className="md:group-data-[collapsible=icon]:hidden" />
-        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
