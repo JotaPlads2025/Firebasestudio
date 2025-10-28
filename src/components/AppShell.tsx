@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase/provider';
+import { useAuth, useUser } from '@/firebase/provider';
 import {
   SidebarProvider,
   Sidebar,
@@ -27,7 +27,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
-import { type User, onAuthStateChanged } from 'firebase/auth';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -54,34 +53,14 @@ const PladsProLogo = () => (
 
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isUserLoading, setIsUserLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const auth = useAuth();
+  const { user, isUserLoading } = useUser();
 
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
-  useEffect(() => {
-    if (!USE_FIREBASE) {
-      setIsUserLoading(false);
-      return;
-    }
-    if (!auth) {
-        // Firebase auth instance isn't available yet.
-        // The provider will update and this effect will re-run.
-        return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        setUser(firebaseUser);
-        setIsUserLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [auth, USE_FIREBASE]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (!USE_FIREBASE || isUserLoading) {
       return; 
     }
@@ -141,8 +120,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {isUserLoading && <Loader2 className="h-5 w-5 animate-spin" />}
-            {!isUserLoading && user && (
+            {isUserLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : user ? (
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -179,7 +159,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            )}
+            ) : null}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
