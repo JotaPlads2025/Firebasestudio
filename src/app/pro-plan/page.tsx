@@ -90,10 +90,10 @@ export default function ProPlanPage() {
         {plans.map((plan) => (
           <Card key={plan.name} className={`flex flex-col ${plan.name === 'Pro' ? 'border-primary ring-2 ring-primary' : ''}`}>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">{plan.name}</CardTitle>
+              <CardTitle className="font-headline text-2xl font-bold text-primary">{plan.name}</CardTitle>
               <p className="text-3xl font-bold">
                 {plan.price}
-                <span className="text-sm font-normal text-muted-foreground"> {plan.period}</span>
+                <span className="text-sm font-normal text-accent"> {plan.period}</span>
                 </p>
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
