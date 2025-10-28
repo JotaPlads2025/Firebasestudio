@@ -64,7 +64,10 @@ const HeaderUserMenu = () => {
         }
     }
 
-    if (!user) return null;
+    if (!user) {
+        // You can return a skeleton or null while the user is loading
+        return null;
+    }
 
     return (
         <DropdownMenu>
@@ -127,7 +130,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
 
-  if (pathname === '/login') {
+  if (pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/')) {
     return <>{children}</>;
   }
   
