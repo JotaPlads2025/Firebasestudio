@@ -317,36 +317,38 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <ChartContainer config={chartConfig} className="min-h-[300px]">
-          <Card>
+        <Card>
             <CardHeader>
               <CardTitle>% Ingreso por Clase</CardTitle>
               <CardDescription>Distribución porcentual de los ingresos por cada clase.</CardDescription>
             </CardHeader>
             <CardContent>
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                  <Pie
-                    data={classPerformanceData}
-                    dataKey="revenue"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    strokeWidth={5}
-                  >
-                    {classPerformanceData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={chartConfig[entry.name as keyof typeof chartConfig]?.color}
-                      />
-                    ))}
-                  </Pie>
-                  <ChartLegend content={<ChartLegendContent />} />
-                </PieChart>
+              <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                    <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                    <Pie
+                        data={classPerformanceData}
+                        dataKey="revenue"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        strokeWidth={5}
+                    >
+                        {classPerformanceData.map((entry) => (
+                        <Cell
+                            key={`cell-${entry.name}`}
+                            fill={chartConfig[entry.name as keyof typeof chartConfig]?.color}
+                        />
+                        ))}
+                    </Pie>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
-          </Card>
-        </ChartContainer>
+        </Card>
       </div>
 
        <Card>
@@ -401,5 +403,3 @@ export default function Dashboard() {
 
     
 }
-
-    
