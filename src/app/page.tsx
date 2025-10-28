@@ -107,16 +107,45 @@ export default function Dashboard() {
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
 
   const filteredData = useMemo(() => {
-    return revenueData.filter(d => {
+    // Start with all months from the base data to ensure the chart has a consistent axis
+    const fullMonthData = revenueData.map(d => ({ month: d.month, revenue: 0, newStudents: 0, activeClasses: 0, retention: 0 }));
+
+    const dataToFilter = revenueData.filter(d => {
       const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
       const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
       const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
       return monthMatch && dayMatch && typeMatch;
     });
+
+    // If filters are applied, populate the fullMonthData with filtered values
+    if (dataToFilter.length < revenueData.length) {
+        dataToFilter.forEach(filteredItem => {
+            const index = fullMonthData.findIndex(item => item.month === filteredItem.month);
+            if (index !== -1) {
+                fullMonthData[index] = {
+                    ...fullMonthData[index],
+                    revenue: filteredItem.revenue,
+                    newStudents: filteredItem.newStudents,
+                    activeClasses: filteredItem.activeClasses,
+                    retention: filteredItem.retention
+                };
+            }
+        });
+        return fullMonthData;
+    }
+    
+    return revenueData; // Return original data if 'all' is selected or no specific filters are applied that reduce the dataset
   }, [selectedMonths, selectedDays, selectedClassTypes]);
 
   const aggregatedKpis = useMemo(() => {
-    const dataToAggregate = filteredData.length > 0 ? filteredData : revenueData;
+    const dataToFilter = revenueData.filter(d => {
+      const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
+      const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
+      const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
+      return monthMatch && dayMatch && typeMatch;
+    });
+    
+    const dataToAggregate = dataToFilter.length > 0 ? dataToFilter : revenueData;
 
     const totals = dataToAggregate.reduce((acc, item) => {
         acc.revenue += item.revenue;
@@ -138,7 +167,7 @@ export default function Dashboard() {
       coaching: Math.round(totals.coaching / totalMonths),
       bootcamps: Math.round(totals.bootcamps / totalMonths),
     };
-  }, [filteredData]);
+  }, [selectedMonths, selectedDays, selectedClassTypes]);
 
 
   const kpiData = [
@@ -193,7 +222,7 @@ export default function Dashboard() {
                             Selecciona uno o más filtros para visualizar tus datos.
                         </CardDescription>
                     </div>
-                     <Button>
+                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         <Download className="mr-2 h-4 w-4" />
                         Descargar Excel
                     </Button>
@@ -252,7 +281,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={filteredData.length > 0 ? filteredData : revenueData}>
+              <LineChart data={filteredData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
@@ -276,11 +305,13 @@ export default function Dashboard() {
                  />
                 <Legend />
                 <Line
-                  type="monotone"
+                  type="natural"
                   dataKey="revenue"
                   stroke="hsl(var(--chart-1))"
                   activeDot={{ r: 8 }}
                   name="Ingresos"
+                  strokeWidth={2}
+                  dot={false}
                 />
               </LineChart>
             </ResponsiveContainer>
