@@ -5,6 +5,8 @@ import type { ClassPricePlan } from './types';
 
 
 export type SearchableClass = {
+  category: string;
+  subCategory: ReactNode;
   id: string;
   name: string;
   instructorName: string;
