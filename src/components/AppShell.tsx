@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser, useAuth } from '@/firebase';
+import { useUser, useAuth } from '@/firebase/provider';
 import {
   SidebarProvider,
   Sidebar,
@@ -121,8 +121,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+
   useEffect(() => {
-    const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
     if (!USE_FIREBASE) return;
     
     if (isUserLoading) {
@@ -134,9 +135,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
      if (user && pathname === '/login') {
       router.replace('/');
     }
-  }, [user, isUserLoading, router, pathname]);
-
-  const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+  }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
 
   if (pathname === '/login') {
     return <>{children}</>;
