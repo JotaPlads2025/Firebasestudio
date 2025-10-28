@@ -17,7 +17,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, Instagram, Search, LogOut, Loader2, MessageSquare } from 'lucide-react';
+import { Bell, Instagram, Search, LogOut, Loader2, MessageSquare, UserCircle, Settings } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,7 +54,32 @@ const PladsProLogo = () => (
   </div>
 );
 
-const UserMenu = () => {
+const SidebarUserMenu = () => {
+    const { user } = useUser();
+
+    if (!user) return null;
+
+    return (
+        <div
+            className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
+          >
+            <Avatar className="h-8 w-8">
+              {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+              <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+            <div className="group-data-[collapsible=icon]:hidden">
+              <p className="font-medium text-sidebar-foreground">
+                {user.displayName}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {user.email}
+              </p>
+            </div>
+          </div>
+    )
+}
+
+const HeaderUserMenu = () => {
     const { user } = useUser();
     const auth = useAuth();
 
@@ -67,29 +92,33 @@ const UserMenu = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
-              >
-                <Avatar className="h-8 w-8">
-                  {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                  <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
-                <div className="group-data-[collapsible=icon]:hidden">
-                  <p className="font-medium text-sidebar-foreground">
-                    {user.displayName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start" className="w-56">
-              <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <Link href="/profile"><DropdownMenuItem>Perfil</DropdownMenuItem></Link>
-              <Link href="/settings"><DropdownMenuItem>Configuraciones</DropdownMenuItem></Link>
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Perfil</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configuraciones</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
@@ -97,22 +126,6 @@ const UserMenu = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-    )
-}
-
-const HeaderUser = () => {
-    const { user } = useUser();
-
-    if (!user) return null;
-
-    return (
-        <div className="hidden items-center gap-2 md:flex">
-              <Avatar className="h-8 w-8">
-                {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:inline">{user.displayName}</span>
-        </div>
     )
 }
 
@@ -196,7 +209,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <SidebarSeparator />
-          <UserMenu />
+          <SidebarUserMenu />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -206,16 +219,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 " />
             <Input
               type="search"
-              placeholder="Search..."
-              className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[200px] lg:w-[320px]"
+              placeholder="Escribe un comando o busca... (ej: 'crear clase')"
+              className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[300px] lg:w-[420px]"
             />
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            <HeaderUser />
+            <HeaderUserMenu />
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
