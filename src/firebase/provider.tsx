@@ -20,7 +20,7 @@ interface UserAuthState {
 }
 
 // Combined state for the Firebase context
-export interface FirebaseContextState {
+export interface FirebaseContextState extends UserAuthState {
   areServicesAvailable: boolean; // True if core services (app, firestore, auth instance) are provided
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
@@ -28,7 +28,9 @@ export interface FirebaseContextState {
 }
 
 // React Context
-export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
+export const FirebaseContext = createContext<FirebaseContextState | undefined>(
+  undefined
+);
 
 const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
@@ -82,20 +84,17 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       firebaseApp: servicesAvailable ? firebaseServices.firebaseApp : null,
       firestore: servicesAvailable ? firebaseServices.firestore : null,
       auth: servicesAvailable ? firebaseServices.auth : null,
+      ...userAuthState
     };
-  }, [firebaseServices]);
+  }, [firebaseServices, userAuthState]);
 
-  const providerValue = {
-      ...contextValue,
-      ...userAuthState,
-  };
 
   if (!USE_FIREBASE) {
     return <>{children}</>;
   }
 
   return (
-    <FirebaseContext.Provider value={providerValue}>
+    <FirebaseContext.Provider value={contextValue}>
       <FirebaseErrorListener />
       {children}
     </FirebaseContext.Provider>
@@ -107,28 +106,18 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
  * Hook to access the core Firebase services (app, firestore, auth).
  * Throws an error if used outside of a FirebaseProvider.
  */
-function useFirebase(): FirebaseContextState {
-  const context = useContext(FirebaseContext);
-  if (context === undefined) {
-    throw new Error('useFirebase must be used within a FirebaseProvider.');
-  }
-
-  if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
-    if (USE_FIREBASE) {
-        throw new Error('Firebase services are not available.');
-    }
-  }
-
-  return context;
+function useFirebase(): FirebaseContextState | undefined {
+  return useContext(FirebaseContext);
 }
+
 
 /**
  * Hook to access the Firebase Auth instance.
  * @returns {Auth | null} The Firebase Auth instance, or null if not available.
  */
 export function useAuth(): Auth | null {
-  const { auth } = useFirebase();
-  return auth;
+  const context = useFirebase();
+  return context?.auth ?? null;
 }
 
 /**
@@ -136,8 +125,8 @@ export function useAuth(): Auth | null {
  * @returns {Firestore | null} The Firestore instance, or null if not available.
  */
 export function useFirestore(): Firestore | null {
-    const { firestore } = useFirebase();
-    return firestore;
+    const context = useFirebase();
+    return context?.firestore ?? null;
 }
 
 /**
@@ -150,10 +139,14 @@ export function useFirestore(): Firestore | null {
 * }}
 */
 export function useUser(): UserAuthState {
-    const context = useContext(FirebaseContext);
+    const context = useFirebase();
+    
+    // If context is not yet available, return a default loading state.
+    // This makes the hook safe to use during server-side rendering or initial client render.
     if (context === undefined) {
-        throw new Error('useUser must be used within a FirebaseProvider.');
+        return { user: null, isUserLoading: true, userError: null };
     }
+
     const { user, isUserLoading, userError } = context;
     return { user, isUserLoading, userError };
 }
