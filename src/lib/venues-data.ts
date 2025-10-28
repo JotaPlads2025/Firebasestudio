@@ -2,13 +2,6 @@ import type { Venue } from './types';
 
 export const venues: Venue[] = [
     {
-        id: 'venue-001',
-        name: 'Academia BailaPro',
-        address: 'Av. Providencia 1234',
-        region: 'rm',
-        commune: 'prov',
-    },
-    {
         id: 'venue-002',
         name: 'Estudio de Danza Ñuñoa',
         address: 'Jorge Washington 56',
