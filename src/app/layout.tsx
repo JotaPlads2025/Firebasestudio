@@ -71,11 +71,13 @@ const UserMenu = () => {
     const { user } = useUser();
     const auth = useAuth();
     
-    if (!user) return null;
+    if (!auth) return null;
 
     const handleLogout = () => {
         auth?.signOut();
     }
+
+    if (!user) return null;
 
     return (
         <DropdownMenu>
@@ -131,11 +133,15 @@ const HeaderUser = () => {
 
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading } = useUser() || {}; // Provide a fallback
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    // If auth is not used, don't run auth logic
+    const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+    if (!USE_FIREBASE) return;
+    
     if (isUserLoading) {
       return; 
     }
@@ -147,11 +153,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [user, isUserLoading, router, pathname]);
 
+  const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+
   if (pathname === '/login') {
     return <>{children}</>;
   }
-
-  if (isUserLoading || !user) {
+  
+  if (USE_FIREBASE && (isUserLoading || (!isUserLoading && !user))) {
       return (
           <div className="flex h-screen w-screen items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin" />
