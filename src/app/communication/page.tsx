@@ -9,42 +9,70 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mail, MessageCircle, Send, Users, Wand2 } from 'lucide-react';
+import { Mail, MessageSquare, Send, Users, Wand2, ArrowRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { demoClasses } from '@/lib/demo-data';
+import { Badge } from '@/components/ui/badge';
 
 export default function CommunicationPage() {
+  const activeClasses = demoClasses.filter(c => c.status === 'Active');
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Comunicación</h1>
 
-      <Tabs defaultValue="direct-message">
+      <Tabs defaultValue="class-forums">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="direct-message">
-             <MessageCircle className="mr-2 h-4 w-4" /> Mensajes Directos
+          <TabsTrigger value="class-forums">
+             <MessageSquare className="mr-2 h-4 w-4" /> Foros de Clase
           </TabsTrigger>
           <TabsTrigger value="campaign">
             <Mail className="mr-2 h-4 w-4" /> Campañas de Email
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="direct-message">
+        <TabsContent value="class-forums">
             <Card>
                 <CardHeader>
-                    <CardTitle>Mensajes Directos</CardTitle>
-                    <CardDescription>Comunícate directamente con tus estudiantes.</CardDescription>
+                    <CardTitle>Foros de Clase</CardTitle>
+                    <CardDescription>Comunícate con los estudiantes de cada una de tus clases activas.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex h-96 items-center justify-center rounded-lg border-2 border-dashed">
-                    <div className="text-center text-muted-foreground">
-                        <MessageCircle className="mx-auto h-12 w-12" />
-                        <p className="mt-4 font-semibold">
-                            Funcionalidad de chat próximamente
-                        </p>
-                        <p className="mt-1 text-sm">
-                            Estamos trabajando en una herramienta de chat para facilitar la comunicación.
-                        </p>
-                    </div>
+                <CardContent className="space-y-4">
+                    {activeClasses.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {activeClasses.map(cls => (
+                                <Card key={cls.id} className="flex flex-col">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">{cls.name}</CardTitle>
+                                        <div className="flex gap-2 pt-1">
+                                           <Badge variant="secondary">{cls.category}</Badge>
+                                            <Badge variant="outline">{cls.bookings} Estudiantes</Badge>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="flex-grow flex items-end">
+                                        <Button variant="outline" className="w-full">
+                                            Entrar al Foro
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed">
+                            <div className="text-center text-muted-foreground">
+                                <MessageSquare className="mx-auto h-12 w-12" />
+                                <p className="mt-4 font-semibold">
+                                    No tienes clases activas
+                                </p>
+                                <p className="mt-1 text-sm">
+                                    Crea una clase para empezar a comunicarte con tus estudiantes.
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </TabsContent>
