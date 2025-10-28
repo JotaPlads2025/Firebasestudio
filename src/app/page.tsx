@@ -10,6 +10,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
   BarChart,
   LineChart,
   ResponsiveContainer,
@@ -23,7 +31,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Sector,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download } from 'lucide-react';
@@ -353,27 +360,68 @@ export default function Dashboard() {
 
        <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><TrendingUp /> Recupera Alumnos Inactivos</CardTitle>
+          <CardTitle>Detalle de Rendimiento por Clase</CardTitle>
           <CardDescription>
-            La IA te puede ayudar a contactar a estudiantes que no han vuelto a agendar.
+            Un resumen del rendimiento de cada clase que impartes.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {inactiveStudents.map((student) => (
-                <Card key={student.name} className="p-4 flex items-center justify-between">
-                    <div>
-                        <p className="font-semibold">{student.name}</p>
-                        <p className="text-sm text-muted-foreground">{student.lastClass}</p>
-                        <p className="text-xs text-muted-foreground">{student.lastSeen}</p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => setSelectedStudent(student)}>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Clase</TableHead>
+                <TableHead className="text-right">Ingresos</TableHead>
+                <TableHead className="text-right">Cupos</TableHead>
+                <TableHead className="text-right">% Retención</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {classPerformanceData.map((cls) => (
+                <TableRow key={cls.id}>
+                  <TableCell className="font-medium">{cls.name}</TableCell>
+                  <TableCell className="text-right">${cls.revenue.toLocaleString('es-CL')}</TableCell>
+                  <TableCell className="text-right">{cls.bookings}</TableCell>
+                  <TableCell className="text-right">{cls.retention}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+       <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><TrendingUp /> Recupera Alumnos Inactivos</CardTitle>
+          <CardDescription>
+            Contacta a estudiantes que no han vuelto a agendar para motivarlos a regresar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Estudiante</TableHead>
+                <TableHead>Última Clase</TableHead>
+                <TableHead>Última Visita</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {inactiveStudents.map((student) => (
+                <TableRow key={student.name}>
+                  <TableCell className="font-medium">{student.name}</TableCell>
+                  <TableCell>{student.lastClass}</TableCell>
+                  <TableCell className="text-muted-foreground">{student.lastSeen}</TableCell>
+                  <TableCell className="text-right">
+                     <Button variant="outline" size="sm" onClick={() => setSelectedStudent(student)}>
                         <Mail className="mr-2 h-4 w-4" />
                         Contactar
                     </Button>
-                </Card>
-            ))}
-            </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
       
@@ -400,6 +448,6 @@ export default function Dashboard() {
 
     </div>
   );
+}
 
     
-}
