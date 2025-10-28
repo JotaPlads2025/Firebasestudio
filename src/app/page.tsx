@@ -20,6 +20,10 @@ import {
   CartesianGrid,
   Line,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Sector,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download } from 'lucide-react';
@@ -28,6 +32,8 @@ import AiAssistantForm from '@/components/ai-assistant-form';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+
 
 const inactiveStudents = [
     { name: 'Benjamín Soto', lastClass: 'Bachata Básico', lastSeen: 'hace 2 meses' },
@@ -59,6 +65,32 @@ const classTypeOptions: Option[] = [
     { value: 'Coaching', label: 'Coaching' },
     { value: 'Bootcamp', label: 'Bootcamps' },
 ];
+
+const chartConfig = {
+  revenue: {
+    label: "Ingresos",
+  },
+  'Bachata Básico': {
+    label: 'Bachata Básico',
+    color: "hsl(var(--chart-1))",
+  },
+  'Bachata Open Lady': {
+    label: 'Bachata Open Lady',
+    color: "hsl(var(--chart-2))",
+  },
+  'Bachata Amateur': {
+    label: 'Bachata Amateur',
+    color: "hsl(var(--chart-3))",
+  },
+  'Bachata Alumna': {
+    label: 'Bachata Alumna',
+    color: "hsl(var(--chart-4))",
+  },
+  'Bachata Intermedio': {
+    label: 'Bachata Intermedio',
+    color: "hsl(var(--chart-5))",
+  },
+} satisfies ChartConfig
 
 export default function Dashboard() {
   const [selectedStudent, setSelectedStudent] = useState<{name: string, lastClass: string} | null>(null);
@@ -203,7 +235,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Rendimiento General</CardTitle>
@@ -247,8 +279,10 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      </div>
 
-        <Card className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+         <Card>
           <CardHeader>
             <CardTitle>Rendimiento por Clase</CardTitle>
             <CardDescription>Ingresos generados por cada clase.</CardDescription>
@@ -274,12 +308,45 @@ export default function Dashboard() {
                         border: "1px solid hsl(var(--border))"
                     }}
                 />
-                <Legend />
-                <Bar dataKey="revenue" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} name="Ingresos"/>
+                <Bar dataKey="revenue" name="Ingresos">
+                    {classPerformanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
+                    ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
+        <ChartContainer config={chartConfig} className="min-h-[300px]">
+          <Card>
+            <CardHeader>
+              <CardTitle>% Ingreso por Clase</CardTitle>
+              <CardDescription>Distribución porcentual de los ingresos por cada clase.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                  <Pie
+                    data={classPerformanceData}
+                    dataKey="revenue"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    strokeWidth={5}
+                  >
+                    {classPerformanceData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={chartConfig[entry.name as keyof typeof chartConfig]?.color}
+                      />
+                    ))}
+                  </Pie>
+                  <ChartLegend content={<ChartLegendContent />} />
+                </PieChart>
+            </CardContent>
+          </Card>
+        </ChartContainer>
       </div>
 
        <Card>
@@ -331,5 +398,8 @@ export default function Dashboard() {
 
     </div>
   );
+
+    
+}
 
     
