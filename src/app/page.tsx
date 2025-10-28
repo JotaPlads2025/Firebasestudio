@@ -40,6 +40,7 @@ import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { venues } from '@/lib/venues-data';
 
 
 const inactiveStudents = [
@@ -73,6 +74,11 @@ const classTypeOptions: Option[] = [
     { value: 'Bootcamp', label: 'Bootcamps' },
 ];
 
+const venueOptions: Option[] = [
+    { value: 'all', label: 'Todas las Sedes' },
+    ...venues.map(v => ({ value: v.id, label: v.name })),
+  ];
+
 const chartConfig = {
   revenue: {
     label: "Ingresos",
@@ -105,6 +111,7 @@ export default function Dashboard() {
   const [selectedMonths, setSelectedMonths] = useState<string[]>(['all']);
   const [selectedDays, setSelectedDays] = useState<string[]>(['all']);
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
+  const [selectedVenues, setSelectedVenues] = useState<string[]>(['all']);
 
   const filteredData = useMemo(() => {
     // Start with all months from the base data to ensure the chart has a consistent axis
@@ -114,7 +121,8 @@ export default function Dashboard() {
       const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
       const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
       const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
-      return monthMatch && dayMatch && typeMatch;
+      const venueMatch = selectedVenues.includes('all') || selectedVenues.includes(d.venueId);
+      return monthMatch && dayMatch && typeMatch && venueMatch;
     });
 
     // If filters are applied, populate the fullMonthData with filtered values
@@ -135,14 +143,15 @@ export default function Dashboard() {
     }
     
     return revenueData; // Return original data if 'all' is selected or no specific filters are applied that reduce the dataset
-  }, [selectedMonths, selectedDays, selectedClassTypes]);
+  }, [selectedMonths, selectedDays, selectedClassTypes, selectedVenues]);
 
   const aggregatedKpis = useMemo(() => {
     const dataToFilter = revenueData.filter(d => {
       const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
       const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
       const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
-      return monthMatch && dayMatch && typeMatch;
+      const venueMatch = selectedVenues.includes('all') || selectedVenues.includes(d.venueId);
+      return monthMatch && dayMatch && typeMatch && venueMatch;
     });
     
     const dataToAggregate = dataToFilter.length > 0 ? dataToFilter : revenueData;
@@ -167,7 +176,7 @@ export default function Dashboard() {
       coaching: Math.round(totals.coaching / totalMonths),
       bootcamps: Math.round(totals.bootcamps / totalMonths),
     };
-  }, [selectedMonths, selectedDays, selectedClassTypes]);
+  }, [selectedMonths, selectedDays, selectedClassTypes, selectedVenues]);
 
 
   const kpiData = [
@@ -228,7 +237,7 @@ export default function Dashboard() {
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MultiSelectFilter
                     title="Mes"
                     options={monthOptions}
@@ -246,6 +255,12 @@ export default function Dashboard() {
                     options={classTypeOptions}
                     selectedValues={selectedClassTypes}
                     onSelectionChange={setSelectedClassTypes}
+                />
+                <MultiSelectFilter
+                    title="Sede"
+                    options={venueOptions}
+                    selectedValues={selectedVenues}
+                    onSelectionChange={setSelectedVenues}
                 />
             </CardContent>
         </Card>
