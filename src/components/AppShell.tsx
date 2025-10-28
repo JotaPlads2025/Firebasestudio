@@ -54,37 +54,14 @@ const PladsProLogo = () => (
   </div>
 );
 
-const SidebarUserMenu = () => {
-    const { user } = useUser();
-
-    if (!user) return null;
-
-    return (
-        <div
-            className="flex h-12 w-full items-center justify-start gap-2 p-2 text-left text-sm"
-          >
-            <Avatar className="h-8 w-8">
-              {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-              <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-            <div className="group-data-[collapsible=icon]:hidden">
-              <p className="font-medium text-sidebar-foreground">
-                {user.displayName}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {user.email}
-              </p>
-            </div>
-          </div>
-    )
-}
-
 const HeaderUserMenu = () => {
     const { user } = useUser();
     const auth = useAuth();
 
     const handleLogout = () => {
-        auth?.signOut();
+        if (auth) {
+            auth.signOut();
+        }
     }
 
     if (!user) return null;
