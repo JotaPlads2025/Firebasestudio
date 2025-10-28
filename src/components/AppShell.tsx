@@ -208,8 +208,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p>hola@plads.cl</p>
             </div>
           </div>
-          <SidebarSeparator />
-          <SidebarUserMenu />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
