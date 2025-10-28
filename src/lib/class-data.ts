@@ -9,6 +9,9 @@ export const revenueData = [
     { month: 'Jul', revenue: 750000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all', retention: 85, venueId: 'all' },
     { month: 'Ago', revenue: 820000, newStudents: 25, activeClasses: 8, bookings: 190, dayOfWeek: 'all', classType: 'all', retention: 86, venueId: 'all' },
     { month: 'Sep', revenue: 900000, newStudents: 28, activeClasses: 9, bookings: 200, dayOfWeek: 'all', classType: 'all', retention: 88, venueId: 'all' },
+    { month: 'Oct', revenue: 850000, newStudents: 26, activeClasses: 9, bookings: 195, dayOfWeek: 'all', classType: 'all', retention: 87, venueId: 'all' },
+    { month: 'Nov', revenue: 800000, newStudents: 24, activeClasses: 8, bookings: 185, dayOfWeek: 'all', classType: 'all', retention: 85, venueId: 'all' },
+    { month: 'Dic', revenue: 760000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all', retention: 84, venueId: 'all' },
     // Sample data for specific days/types/venues
     { month: 'Jul', revenue: 150000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance', retention: 80, venueId: 'venue-001' },
     { month: 'Jul', revenue: 200000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance', retention: 82, venueId: 'venue-001' },
