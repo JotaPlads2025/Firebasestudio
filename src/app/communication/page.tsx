@@ -13,11 +13,11 @@ import { Mail, MessageSquare, Send, Users, Wand2, ArrowRight } from 'lucide-reac
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { demoClasses } from '@/lib/demo-data';
+import { classPerformanceData } from '@/lib/class-data';
 import { Badge } from '@/components/ui/badge';
 
 export default function CommunicationPage() {
-  const activeClasses = demoClasses.filter(c => c.status === 'Active');
+  const activeClasses = classPerformanceData;
 
   return (
     <div className="flex flex-col gap-8">
@@ -47,7 +47,7 @@ export default function CommunicationPage() {
                                     <CardHeader>
                                         <CardTitle className="text-lg">{cls.name}</CardTitle>
                                         <div className="flex gap-2 pt-1">
-                                           <Badge variant="secondary">{cls.category}</Badge>
+                                           <Badge variant="secondary">Clase Regular</Badge>
                                             <Badge variant="outline">{cls.bookings} Estudiantes</Badge>
                                         </div>
                                     </CardHeader>
