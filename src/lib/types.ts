@@ -4,6 +4,13 @@ export type ClassPricePlan = {
   price: number;
 };
 
+export type Schedule = {
+    day: string;
+    startTime: string;
+    endTime: string;
+};
+  
+
 export type ScheduleDay = 'Lun' | 'Mar' | 'Mie' | 'Jue' | 'Vie' | 'Sab' | 'Dom';
 
 export type Venue = {
@@ -19,6 +26,7 @@ export type Class = {
   name: string;
   category: 'Dance' | 'Sports' | 'Health' | 'Coaching' | 'Bootcamp';
   schedule: string;
+  schedules?: Schedule[];
   scheduleDays?: ScheduleDay[];
   pricePlans: ClassPricePlan[];
   status: 'Active' | 'Inactive';

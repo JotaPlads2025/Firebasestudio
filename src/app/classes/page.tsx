@@ -42,28 +42,28 @@ const dayNameToIndex: Record<string, number> = {
 
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
-  if (!classes) return [];
-  const events: Class[] = [];
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const interval = eachDayOfInterval({ start: startOfWeek(monthStart), end: endOfWeek(monthEnd) });
-
-  interval.forEach(day => {
-    classes.forEach(cls => {
-      const scheduleDays = cls.scheduleDays?.map(d => d.slice(0, 3));
-      const dayOfWeek = day.getDay(); // Sunday is 0
-
-      if (cls.status === 'Active' && scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
-        events.push({
-          ...cls,
-          id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
-          date: day,
-        });
-      }
+    if (!classes) return [];
+    const events: Class[] = [];
+    const monthStart = startOfMonth(month);
+    const monthEnd = endOfMonth(month);
+    const interval = eachDayOfInterval({ start: startOfWeek(monthStart), end: endOfWeek(monthEnd) });
+  
+    interval.forEach(day => {
+      classes.forEach(cls => {
+        const scheduleDays = cls.schedules?.map(s => s.day.slice(0, 3)); // Use cls.schedules
+        const dayOfWeek = day.getDay(); // Sunday is 0, Monday is 1, etc.
+  
+        if (cls.status === 'Active' && scheduleDays && scheduleDays.some(scheduleDay => dayNameToIndex[scheduleDay] === dayOfWeek)) {
+          events.push({
+            ...cls,
+            id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
+            date: day,
+          });
+        }
+      });
     });
-  });
-  return events;
-};
+    return events;
+  };
 
 
 export default function ClassesPage() {
@@ -82,7 +82,7 @@ export default function ClassesPage() {
   }, [auth?.currentUser, firestore]);
   
   const { data: classesData, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
-  const [localClasses, setLocalClasses] = useState(classesData);
+  const [localClasses, setLocalClasses] = useState<Class[] | null>(classesData);
 
   useEffect(() => {
     setLocalClasses(classesData);
