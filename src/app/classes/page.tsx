@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
-import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDay } from 'date-fns';
+import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDay, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import ClassCalendar from '@/components/class-calendar';
 import type { Class, Venue } from '@/lib/types';
@@ -34,16 +34,17 @@ import { collection, doc, updateDoc } from 'firebase/firestore';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { demoClasses } from '@/lib/demo-data';
 
 
 const dayNameToIndex: { [key: string]: number } = {
-  Domingo: 0,
-  Lunes: 1,
-  Martes: 2,
-  Miércoles: 3,
-  Jueves: 4,
-  Viernes: 5,
-  Sábado: 6,
+  'Domingo': 0,
+  'Lunes': 1,
+  'Martes': 2,
+  'Miércoles': 3,
+  'Jueves': 4,
+  'Viernes': 5,
+  'Sábado': 6,
 };
 
 
@@ -53,6 +54,7 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
     const events: Class[] = [];
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
+    // Use startOfWeek and endOfWeek with Spanish locale
     const interval = eachDayOfInterval({ start: startOfWeek(monthStart, { locale: es }), end: endOfWeek(monthEnd, { locale: es }) });
   
     interval.forEach(day => {
@@ -61,12 +63,14 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
       classes.forEach(cls => {
         if (cls.status === 'Active' && cls.schedules) {
             cls.schedules.forEach(schedule => {
-                if (dayNameToIndex[schedule.day] === dayOfWeek) {
+                if (dayNameToIndex[schedule.day as keyof typeof dayNameToIndex] === dayOfWeek) {
+                    const startTime = parse(schedule.startTime, 'HH:mm', new Date());
+                    const eventDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startTime.getHours(), startTime.getMinutes());
+
                      events.push({
                         ...cls,
                         id: `${cls.id}-${format(day, 'yyyy-MM-dd')}`,
-                        date: day,
-                        // Use the specific schedule time for this event
+                        date: eventDate,
                         schedule: `${schedule.startTime} - ${schedule.endTime}`,
                     });
                 }
@@ -94,11 +98,20 @@ export default function ClassesPage() {
   }, [auth?.currentUser, firestore]);
   
   const { data: classesData, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
-  const [localClasses, setLocalClasses] = useState<Class[] | null>(classesData);
+  const [localClasses, setLocalClasses] = useState<Class[] | null>(null);
 
   useEffect(() => {
-    setLocalClasses(classesData);
-  }, [classesData]);
+    if (classesData) {
+        // If firestore returns data (even an empty array), use it.
+        // If it's an empty array, it means the user has no classes, so we load demo data.
+        setLocalClasses(classesData.length > 0 ? classesData : demoClasses);
+    } else if (!isLoadingClasses) {
+        // If there's no data and we are not loading (e.g., Firestore is disabled or user is logged out)
+        // load demo data.
+        setLocalClasses(demoClasses);
+    }
+  }, [classesData, isLoadingClasses]);
+
 
   const calendarEvents = useMemo(() => {
     return generateCalendarEvents(localClasses || [], currentMonth);
@@ -139,6 +152,16 @@ export default function ClassesPage() {
 
   const handleStatusChange = async (classId: string, newStatus: boolean) => {
     if (!firestore || !auth?.currentUser) return;
+
+    // Prevent status change for demo classes
+    if (classId.startsWith('demo-')) {
+        toast({
+            variant: "destructive",
+            title: "Acción no permitida",
+            description: "No se puede cambiar el estado de una clase de demostración."
+        });
+        return;
+    }
 
     const status = newStatus ? 'Active' : 'Inactive';
     const classRef = doc(firestore, 'instructors', auth.currentUser.uid, 'classes', classId);
@@ -321,3 +344,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    

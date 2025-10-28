@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Booking } from '@/lib/student-data';
 
 interface Attendee extends Student {
@@ -35,15 +35,18 @@ export default function AttendeesDialog({
   // Use a state for attendees to manage their attendance status locally
   const [attendees, setAttendees] = useState<Attendee[]>([]);
 
-  useState(() => {
-    if (classData) {
-      const classIdWithoutDay = classData.id.split('-').slice(0, -1).join('-');
-      const filteredAttendees = students
+  useEffect(() => {
+    if (classData && classData.date) {
+        // The ID from the calendar event is in the format 'demo-cls-001-2024-07-29'
+        // We need the base class ID, like 'demo-cls-001'
+        const classIdParts = classData.id.split('-');
+        const baseClassId = classIdParts.slice(0, -3).join('-');
+        
+        const filteredAttendees = students
         .map(student => {
           const relevantBooking = student.bookings.find(booking =>
-            booking.classId === classIdWithoutDay &&
-            classData.date &&
-            isSameDay(new Date(booking.date), classData.date)
+            booking.classId === baseClassId &&
+            isSameDay(new Date(booking.date), classData.date!)
           );
           return relevantBooking ? { ...student, booking: relevantBooking } : null;
         })
@@ -51,7 +54,7 @@ export default function AttendeesDialog({
         
       setAttendees(filteredAttendees);
     }
-  }, [classData, students]);
+  }, [classData, students, open]); // Re-run when the dialog opens
 
 
   if (!classData) return null;
@@ -72,6 +75,10 @@ export default function AttendeesDialog({
 
   const venueName = venues.find(v => v.id === classData.venueId)?.name || 'Sede no especificada';
 
+  const bookingsCount = attendees.length;
+  const capacity = classData.availability;
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
@@ -83,7 +90,7 @@ export default function AttendeesDialog({
         </DialogHeader>
         <div className='py-4'>
             <div className="mb-4 text-center text-sm font-semibold text-muted-foreground">
-                {attendees.length} de {classData.bookings} cupos ocupados
+                {bookingsCount} de {capacity} cupos ocupados
             </div>
             {attendees.length > 0 ? (
                  <Table>
@@ -106,7 +113,7 @@ export default function AttendeesDialog({
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={attendee.booking.paymentStatus === 'Pagado' ? 'default' : 'destructive'}
-                                       className={attendee.booking.paymentStatus === 'Pagado' ? 'bg-green-600/80 text-white' : ''}>
+                                       className={attendee.booking.paymentStatus === 'Pagado' ? 'bg-green-600/80 text-white hover:bg-green-600' : 'bg-amber-500/80 hover:bg-amber-500'}>
                                         {attendee.booking.paymentStatus}
                                     </Badge>
                                 </TableCell>
@@ -135,3 +142,5 @@ export default function AttendeesDialog({
     </Dialog>
   );
 }
+
+    
