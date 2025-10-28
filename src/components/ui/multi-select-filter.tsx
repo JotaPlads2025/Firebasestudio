@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -50,10 +51,15 @@ export function MultiSelectFilter({
     }
   };
 
-  const getLabel = (value: string) => options.find(o => o.value === value)?.label || value;
+  const getLabel = (value: string) => {
+      const option = options.find(o => o.value === value);
+      if (option) return option.label;
+      return value;
+  };
 
   const handleClear = (value: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     const newSelection = selectedValues.filter(v => v !== value);
     if (newSelection.length === 0) {
         onSelectionChange(['all']);
@@ -62,26 +68,29 @@ export function MultiSelectFilter({
     }
   };
 
+  const isAllSelected = selectedValues.length === 1 && selectedValues[0] === 'all';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className={cn('w-full flex justify-between items-center h-auto min-h-10', className)}
+          className={cn('w-full flex justify-between items-center h-auto min-h-10 text-left', className)}
         >
-          <div className="flex flex-col items-start">
-            <span className="text-xs text-muted-foreground">{title}</span>
+          <div className="flex flex-col items-start gap-1">
+            <span className="text-xs text-muted-foreground font-normal">{title}</span>
             <div className="flex flex-wrap gap-1 items-center">
-              {selectedValues.map(value => (
-                <Badge
-                  key={value}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
-                  {getLabel(value)}
-                  {value !== 'all' && (
-                     <span
+              {isAllSelected ? (
+                 <span className="font-medium text-sm">{getLabel('all')}</span>
+              ) : (
+                selectedValues.map(value => (
+                  <Badge
+                    key={value}
+                    variant="secondary"
+                    className="flex items-center gap-1 font-normal"
+                  >
+                    {getLabel(value)}
+                    <span
                         role="button"
                         tabIndex={0}
                         onClick={(e) => handleClear(value, e)}
@@ -91,18 +100,18 @@ export function MultiSelectFilter({
                             }
                         }}
                         className="rounded-full hover:bg-muted-foreground/20 p-0.5"
-                     >
+                    >
                         <X className="h-3 w-3" />
-                     </span>
-                  )}
-                </Badge>
-              ))}
+                    </span>
+                  </Badge>
+                ))
+              )}
             </div>
           </div>
           <ChevronDown className="h-4 w-4 opacity-50 ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel>{title}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.map((option) => (
@@ -119,5 +128,3 @@ export function MultiSelectFilter({
     </DropdownMenu>
   );
 }
-
-    

@@ -1,10 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -24,19 +21,13 @@ import {
   Line,
   Bar,
 } from 'recharts';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase } from 'lucide-react';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { cn } from '@/lib/utils';
+import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
 
 const inactiveStudents = [
     { name: 'Benjamín Soto', lastClass: 'Bachata Básico', lastSeen: 'hace 2 meses' },
@@ -44,77 +35,157 @@ const inactiveStudents = [
     { name: 'Joaquín Núñez', lastClass: 'Bachata Básico', lastSeen: 'hace 1 mes' },
 ];
 
+const monthOptions: Option[] = [
+    { value: 'all', label: 'Todos los Meses' },
+    { value: 'Ene', label: 'Enero' }, { value: 'Feb', label: 'Febrero' },
+    { value: 'Mar', label: 'Marzo' }, { value: 'Abr', label: 'Abril' },
+    { value: 'May', label: 'Mayo' }, { value: 'Jun', label: 'Junio' },
+    { value: 'Jul', label: 'Julio' }, { value: 'Ago', label: 'Agosto' },
+    { value: 'Sep', label: 'Septiembre' }, { value: 'Oct', label: 'Octubre' },
+    { value: 'Nov', label: 'Noviembre' }, { value: 'Dic', label: 'Diciembre' },
+];
+
+const dayOptions: Option[] = [
+    { value: 'all', label: 'Todos los Días' },
+    { value: 'Lun', label: 'Lunes' }, { value: 'Mar', label: 'Martes' },
+    { value: 'Mie', label: 'Miércoles' }, { value: 'Jue', label: 'Jueves' },
+    { value: 'Vie', label: 'Viernes' }, { value: 'Sab', label: 'Sábado' },
+    { value: 'Dom', label: 'Domingo' },
+];
+
+const classTypeOptions: Option[] = [
+    { value: 'all', label: 'Todas las Clases' },
+    { value: 'Dance', label: 'Clases Regulares' },
+    { value: 'Coaching', label: 'Coaching' },
+    { value: 'Bootcamp', label: 'Bootcamps' },
+];
+
 export default function Dashboard() {
   const [selectedStudent, setSelectedStudent] = useState<{name: string, lastClass: string} | null>(null);
 
+  const [selectedMonths, setSelectedMonths] = useState<string[]>(['all']);
+  const [selectedDays, setSelectedDays] = useState<string[]>(['all']);
+  const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
+
+  const filteredData = useMemo(() => {
+    return revenueData.filter(d => {
+      const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
+      const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
+      const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
+      return monthMatch && dayMatch && typeMatch;
+    });
+  }, [selectedMonths, selectedDays, selectedClassTypes]);
+
+  const aggregatedKpis = useMemo(() => {
+    const dataToAggregate = filteredData.length > 0 ? filteredData : revenueData;
+
+    const totals = dataToAggregate.reduce((acc, item) => {
+        acc.revenue += item.revenue;
+        acc.newStudents += item.newStudents;
+        acc.activeClasses += item.activeClasses;
+        // Mock data for coaching and bootcamps as it is not in revenueData
+        acc.coaching = Math.round(item.activeClasses / 2);
+        acc.bootcamps = Math.round(item.activeClasses / 8);
+        return acc;
+    }, { revenue: 0, newStudents: 0, activeClasses: 0, coaching: 0, bootcamps: 0 });
+
+    const totalMonths = dataToAggregate.length > 0 ? new Set(dataToAggregate.map(d => d.month)).size : 1;
+
+    return {
+      revenue: totals.revenue,
+      newStudents: totals.newStudents,
+      retention: dataToAggregate.length > 0 ? Math.round(dataToAggregate.reduce((acc, item) => acc + item.retention, 0) / dataToAggregate.length) : 86, // Average retention
+      activeClasses: Math.round(totals.activeClasses / totalMonths),
+      coaching: Math.round(totals.coaching / totalMonths),
+      bootcamps: Math.round(totals.bootcamps / totalMonths),
+    };
+  }, [filteredData]);
+
+
   const kpiData = [
     {
-      title: 'Ingresos Totales (Últ. Mes)',
-      value: '$820.000',
-      change: '+12.5%',
+      title: 'Ingresos Totales',
+      value: `$${aggregatedKpis.revenue.toLocaleString('es-CL')}`,
+      change: '+12.5%', // Static change for demo
       icon: DollarSign,
     },
     {
-      title: 'Nuevos Alumnos (Últ. Mes)',
-      value: '25',
-      change: '+8.7%',
+      title: 'Nuevos Alumnos',
+      value: aggregatedKpis.newStudents.toString(),
+      change: '+8.7%', // Static change for demo
       icon: Users,
     },
     {
       title: 'Tasa de Retención',
-      value: '86%',
-      change: '-1.5%',
+      value: `${aggregatedKpis.retention}%`,
+      change: '-1.5%', // Static change for demo
       icon: Target,
     },
      {
       title: 'Clases Activas',
-      value: '8',
-      change: '+1',
+      value: aggregatedKpis.activeClasses.toString(),
+      change: '+1', // Static change for demo
       icon: Activity,
     },
     {
       title: 'Coaching Activos',
-      value: '4',
-      change: '+2',
+      value: aggregatedKpis.coaching.toString(),
+      change: '+2', // Static change for demo
       icon: Dumbbell,
     },
     {
       title: 'Bootcamps Activos',
-      value: '1',
-      change: '0',
+      value: aggregatedKpis.bootcamps.toString(),
+      change: '0', // Static change for demo
       icon: Briefcase,
     },
   ];
-
-  const chartConfig = {
-    revenue: {
-      label: 'Ingresos',
-      color: 'hsl(var(--chart-1))',
-    },
-    newStudents: {
-      label: 'Nuevos Alumnos',
-      color: 'hsl(var(--chart-2))',
-    },
-  };
 
   return (
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
 
+        <Card>
+            <CardHeader>
+                <CardTitle>Filtros</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <MultiSelectFilter
+                    title="Mes"
+                    options={monthOptions}
+                    selectedValues={selectedMonths}
+                    onSelectionChange={setSelectedMonths}
+                />
+                <MultiSelectFilter
+                    title="Día de la semana"
+                    options={dayOptions}
+                    selectedValues={selectedDays}
+                    onSelectionChange={setSelectedDays}
+                />
+                <MultiSelectFilter
+                    title="Tipo de Clase"
+                    options={classTypeOptions}
+                    selectedValues={selectedClassTypes}
+                    onSelectionChange={setSelectedClassTypes}
+                />
+            </CardContent>
+        </Card>
+
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {kpiData.map((kpi) => (
           <Card key={kpi.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-primary">{kpi.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-brand-purple">{kpi.title}</CardTitle>
               <kpi.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpi.value}</div>
               <p className={cn(
                   "text-xs",
-                  kpi.change.startsWith('+') ? 'text-green-600' : kpi.change.startsWith('-') ? 'text-destructive' : 'text-muted-foreground'
+                  kpi.change.startsWith('+') ? 'text-green-600' : 'text-destructive'
               )}>
-                {kpi.change !== '0' && `${kpi.change} desde el mes pasado`}
+                {kpi.change !== '0' ? `${kpi.change} desde el mes pasado` : 'sin cambios'}
               </p>
             </CardContent>
           </Card>
@@ -124,49 +195,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
         <Card className="lg:col-span-3">
           <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <CardTitle>Rendimiento General</CardTitle>
-                 <div className="flex flex-wrap items-center gap-2">
-                    <Select defaultValue="all">
-                        <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Mes" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Este Mes</SelectItem>
-                            <SelectItem value="last">Mes Pasado</SelectItem>
-                            <SelectItem value="last3">Últimos 3 Meses</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select defaultValue="all">
-                        <SelectTrigger className="w-[140px]">
-                            <SelectValue placeholder="Día" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos los días</SelectItem>
-                            <SelectItem value="lunes">Lunes</SelectItem>
-                            <SelectItem value="martes">Martes</SelectItem>
-                        </SelectContent>
-                    </Select>
-                     <Select defaultValue="all">
-                        <SelectTrigger className="w-[150px]">
-                            <SelectValue placeholder="Clases" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas las clases</SelectItem>
-                            <SelectItem value="regular">Clases Regulares</SelectItem>
-                            <SelectItem value="coaching">Coaching</SelectItem>
-                            <SelectItem value="bootcamp">Bootcamps</SelectItem>
-                        </SelectContent>
-                    </Select>
-                 </div>
-            </div>
+            <CardTitle>Rendimiento General</CardTitle>
             <CardDescription>
               Una vista general de tus ingresos y crecimiento de alumnos.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={revenueData}>
+              <LineChart data={filteredData.length > 0 ? filteredData : revenueData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
