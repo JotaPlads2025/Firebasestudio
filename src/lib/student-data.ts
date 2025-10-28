@@ -5,6 +5,7 @@ export type Booking = {
     date: string; // YYYY-MM-DD
     paymentStatus: 'Pagado' | 'Pendiente';
     attendance: 'Presente' | 'Ausente' | 'No registrado';
+    paymentMethod?: 'Plads' | 'Efectivo' | 'Transferencia';
 };
   
 export type Student = {
@@ -21,10 +22,10 @@ export const studentData: Student[] = [
       name: 'Ana García',
       joinDate: '2024-01-10',
       bookings: [
-        { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente' },
-        { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente' },
-        { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente' },
-        { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'No registrado' },
+        { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+        { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+        { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+        { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'No registrado', paymentMethod: 'Plads' },
       ],
     },
     {
@@ -32,7 +33,7 @@ export const studentData: Student[] = [
       name: 'Benjamín Soto',
       joinDate: '2024-01-12',
       bookings: [
-        { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pendiente', attendance: 'Presente' },
+        { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pendiente', attendance: 'Presente', paymentMethod: 'Efectivo' },
         // Did not return
       ],
     },
@@ -41,9 +42,9 @@ export const studentData: Student[] = [
         name: 'Camila Díaz',
         joinDate: '2024-01-18',
         bookings: [
-          { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente' },
+          { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Transferencia' },
+          { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
         ],
     },
     // Students who joined in February
@@ -52,10 +53,10 @@ export const studentData: Student[] = [
         name: 'Diego Pérez',
         joinDate: '2024-02-05',
         bookings: [
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pendiente', attendance: 'Ausente' },
+          { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+          { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
+          { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pendiente', attendance: 'Ausente', paymentMethod: 'Efectivo' },
         ],
     },
     {
@@ -63,8 +64,8 @@ export const studentData: Student[] = [
         name: 'Elena Castillo',
         joinDate: '2024-02-10',
         bookings: [
-          { classId: 'demo-cls-004', planType: 'suelta', date: '2024-08-01', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-001', planType: 'suelta', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente' },
+          { classId: 'demo-cls-004', planType: 'suelta', date: '2024-08-01', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+          { classId: 'demo-cls-001', planType: 'suelta', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente', paymentMethod: 'Plads' },
         ],
     },
     // Students who joined in March
@@ -73,8 +74,8 @@ export const studentData: Student[] = [
         name: 'Felipe Morales',
         joinDate: '2024-03-01',
         bookings: [
-          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-02', paymentStatus: 'Pagado', attendance: 'Presente' },
-          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-09', paymentStatus: 'Pagado', attendance: 'Presente' },
+          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-02', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Transferencia' },
+          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-09', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
           { classId: 'demo-cls-001', planType: 'suelta', date: '2024-08-05', paymentStatus: 'Pendiente', attendance: 'No registrado' },
         ],
     },
@@ -84,12 +85,12 @@ export const studentData: Student[] = [
         name: 'Gabriela Rojas',
         joinDate: '2024-01-25',
         bookings: [
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente' },
+            { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
+            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
         ],
     },
     {
@@ -97,9 +98,9 @@ export const studentData: Student[] = [
         name: 'Hugo Silva',
         joinDate: '2024-04-02',
         bookings: [
-            { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente' },
+            { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente', paymentMethod: 'Efectivo' },
         ],
     },
     {
@@ -107,9 +108,9 @@ export const studentData: Student[] = [
         name: 'Isidora Flores',
         joinDate: '2024-05-15',
         bookings: [
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-13', paymentStatus: 'Pendiente', attendance: 'No registrado' },
+            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
+            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-13', paymentStatus: 'Pendiente', attendance: 'No registrado', paymentMethod: 'Plads' },
         ],
     },
     {
@@ -117,9 +118,7 @@ export const studentData: Student[] = [
         name: 'Joaquín Núñez',
         joinDate: '2024-06-01',
         bookings: [
-            { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente' },
+            { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
         ],
     },
 ];
-
-    

@@ -6,11 +6,12 @@ import type { Class, Student, Venue } from '@/lib/types';
 import { isSameDay } from 'date-fns';
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Users } from 'lucide-react';
+import { CreditCard, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useState, useEffect } from 'react';
 import type { Booking } from '@/lib/student-data';
+import { cn } from '@/lib/utils';
 
 interface Attendee extends Student {
   booking: Booking;
@@ -32,13 +33,10 @@ export default function AttendeesDialog({
   venues
 }: AttendeesDialogProps) {
   
-  // Use a state for attendees to manage their attendance status locally
   const [attendees, setAttendees] = useState<Attendee[]>([]);
 
   useEffect(() => {
     if (classData && classData.date) {
-        // The ID from the calendar event is in the format 'demo-cls-001-2024-07-29'
-        // We need the base class ID, like 'demo-cls-001'
         const classIdParts = classData.id.split('-');
         const baseClassId = classIdParts.slice(0, -3).join('-');
         
@@ -54,7 +52,7 @@ export default function AttendeesDialog({
         
       setAttendees(filteredAttendees);
     }
-  }, [classData, students, open]); // Re-run when the dialog opens
+  }, [classData, students, open]); 
 
 
   if (!classData) return null;
@@ -70,7 +68,6 @@ export default function AttendeesDialog({
           : attendee
       )
     );
-    // Here you would typically also trigger a mutation to update the backend
   };
 
   const venueName = venues.find(v => v.id === classData.venueId)?.name || 'Sede no especificada';
@@ -112,10 +109,26 @@ export default function AttendeesDialog({
                                     <span className="font-medium">{attendee.name}</span>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant={attendee.booking.paymentStatus === 'Pagado' ? 'default' : 'destructive'}
-                                       className={attendee.booking.paymentStatus === 'Pagado' ? 'bg-green-600/80 text-white hover:bg-green-600' : 'bg-amber-500/80 hover:bg-amber-500'}>
-                                        {attendee.booking.paymentStatus}
-                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant={attendee.booking.paymentStatus === 'Pagado' ? 'default' : 'destructive'}
+                                        className={cn(
+                                            attendee.booking.paymentStatus === 'Pagado' ? 'bg-green-600/80 text-white hover:bg-green-600' : 'bg-amber-500/80 hover:bg-amber-500',
+                                            attendee.booking.paymentMethod === 'Plads' && attendee.booking.paymentStatus === 'Pagado' && 'bg-primary/90 hover:bg-primary'
+                                        )}>
+                                            {attendee.booking.paymentStatus}
+                                        </Badge>
+                                        {attendee.booking.paymentMethod === 'Plads' && (
+                                            <Badge variant="outline" className="border-primary text-primary font-semibold">
+                                                <CreditCard className="h-3 w-3 mr-1" />
+                                                Plads
+                                            </Badge>
+                                        )}
+                                         {attendee.booking.paymentMethod && attendee.booking.paymentMethod !== 'Plads' && (
+                                            <Badge variant="secondary">
+                                                {attendee.booking.paymentMethod}
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <Switch
@@ -142,5 +155,3 @@ export default function AttendeesDialog({
     </Dialog>
   );
 }
-
-    
