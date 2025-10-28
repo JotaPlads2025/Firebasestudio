@@ -89,12 +89,14 @@ export default function ProPlanPage() {
        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         {plans.map((plan) => (
           <Card key={plan.name} className={`flex flex-col ${plan.name === 'Pro' ? 'border-primary ring-2 ring-primary' : ''}`}>
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl font-bold text-primary">{plan.name}</CardTitle>
-              <p className="text-3xl font-bold">
-                {plan.price}
-                <span className="text-sm font-normal text-accent"> {plan.period}</span>
+            <CardHeader className="space-y-2">
+              <CardTitle className="font-headline text-2xl font-bold text-brand-purple">{plan.name}</CardTitle>
+              <div>
+                <p className="text-3xl font-bold">
+                    {plan.price}
                 </p>
+                <p className="text-sm font-medium text-green-600">{plan.period}</p>
+              </div>
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
