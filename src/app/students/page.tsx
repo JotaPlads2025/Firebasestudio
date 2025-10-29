@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -24,16 +24,19 @@ import { differenceInDays, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Eye, Loader2 } from 'lucide-react';
 import StudentProfileDialog from '@/components/student-profile-dialog';
 import type { StudentWithDetails } from '@/lib/types';
 
 export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<StudentWithDetails | null>(null);
+  const [processedStudents, setProcessedStudents] = useState<StudentWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const processedStudents = useMemo(() => {
+  useEffect(() => {
+    // Perform calculations on the client-side to avoid hydration mismatch
     const now = new Date();
-    return studentData.map(student => {
+    const studentsWithDetails = studentData.map(student => {
       const totalBookings = student.bookings.length;
       
       const lastBooking = student.bookings.reduce((latest, booking) => {
@@ -60,7 +63,6 @@ export default function StudentsPage() {
       const attendedCount = student.bookings.filter(b => b.attendance === 'Presente').length;
       const attendanceRate = totalBookings > 0 ? Math.round((attendedCount / totalBookings) * 100) : 0;
 
-
       return {
         ...student,
         totalBookings,
@@ -69,7 +71,17 @@ export default function StudentsPage() {
         attendanceRate,
       };
     });
+    setProcessedStudents(studentsWithDetails);
+    setIsLoading(false);
   }, []);
+
+  if (isLoading) {
+    return (
+        <div className="flex h-full w-full items-center justify-center p-16">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
