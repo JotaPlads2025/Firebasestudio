@@ -19,10 +19,11 @@ import {
   Briefcase,
   Dumbbell,
   BookOpenCheck,
+  Users,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
-import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDay, parse } from 'date-fns';
+import { add, format, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDay, parse, compareAsc } from 'date-fns';
 import { es } from 'date-fns/locale';
 import ClassCalendar from '@/components/class-calendar';
 import type { Class, Venue } from '@/lib/types';
@@ -120,7 +121,9 @@ export default function ClassesPage() {
 
   const calendarEvents = useMemo(() => {
     if (!currentMonth) return [];
-    return generateCalendarEvents(localClasses || [], currentMonth);
+    const events = generateCalendarEvents(localClasses || [], currentMonth);
+    // Sort events chronologically for the list view
+    return events.sort((a, b) => compareAsc(a.date!, b.date!));
   }, [localClasses, currentMonth]);
 
   const { regularClasses, coachingClasses, bootcampClasses } = useMemo(() => {
@@ -243,6 +246,10 @@ export default function ClassesPage() {
     </Table>
   );
 
+  const getVenueName = (venueId: string) => {
+    return initialVenues.find(v => v.id === venueId)?.name || 'Sede no especificada';
+  }
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -296,9 +303,41 @@ export default function ClassesPage() {
                 onClassSelect={handleClassSelect}
              />
           ) : (
-             <div>
-                <p className="text-muted-foreground text-center">La vista de lista estará disponible próximamente.</p>
-            </div>
+             <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Clase</TableHead>
+                        <TableHead>Fecha y Hora</TableHead>
+                        <TableHead>Sede</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {calendarEvents.length > 0 ? (
+                        calendarEvents.map(cls => (
+                            <TableRow key={cls.id}>
+                                <TableCell className="font-medium">{cls.name}</TableCell>
+                                <TableCell>
+                                    <span className='capitalize'>{format(cls.date!, 'eeee dd, HH:mm', { locale: es })}</span>
+                                </TableCell>
+                                <TableCell>{getVenueName(cls.venueId)}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="sm" onClick={() => handleClassSelect(cls)}>
+                                        <Users className="h-4 w-4 mr-2" />
+                                        Ver Asistentes
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center h-24">
+                                No hay clases programadas para este mes.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+             </Table>
           )}
         </CardContent>
       </Card>
@@ -352,3 +391,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    
