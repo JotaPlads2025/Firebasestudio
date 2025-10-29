@@ -71,7 +71,7 @@ export default function StudentProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader className="flex flex-row items-center gap-4 space-y-0">
           <Avatar className="h-16 w-16">
             <AvatarImage src={`https://picsum.photos/seed/${student.studentId}/100/100`} />
@@ -94,7 +94,7 @@ export default function StudentProfileDialog({
           </div>
         </DialogHeader>
 
-        <div className="my-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="my-4 grid grid-cols-2 gap-4">
             <StatCard title="Clases Totales" value={student.totalBookings} icon={Hash} />
             <StatCard title="Tasa de Asistencia" value={`${student.attendanceRate}%`} icon={Percent} change={student.attendanceRate > 80 ? 5 : -5} />
             <StatCard title="Última Clase" value={student.lastAttendance} icon={Calendar} />
