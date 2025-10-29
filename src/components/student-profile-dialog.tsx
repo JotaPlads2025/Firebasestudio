@@ -25,7 +25,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { StudentWithDetails } from '@/lib/types';
 import { demoClasses } from '@/lib/demo-data';
 import { cn } from '@/lib/utils';
-import { TrendingDown, TrendingUp, Percent, Calendar, Hash } from 'lucide-react';
+import { TrendingUp, Percent, Calendar, Hash, DollarSign } from 'lucide-react';
 import { parseISO } from 'date-fns';
 
 interface StudentProfileDialogProps {
@@ -69,6 +69,17 @@ export default function StudentProfileDialog({
   
   const sortedBookings = [...student.bookings].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  const totalInvested = student.bookings.reduce((total, booking) => {
+    if (booking.paymentStatus === 'Pagado') {
+      const classInfo = demoClasses.find(c => c.id === booking.classId);
+      // Assuming the first price plan is the single class price
+      const classPrice = classInfo?.pricePlans[0]?.price || 0;
+      return total + classPrice;
+    }
+    return total;
+  }, 0);
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
@@ -96,9 +107,9 @@ export default function StudentProfileDialog({
 
         <div className="grid grid-cols-2 gap-2">
             <StatCard title="Clases Totales" value={student.totalBookings} icon={Hash} />
-            <StatCard title="Asistencia" value={`${student.attendanceRate}%`} icon={Percent} change={student.attendanceRate > 80 ? 5 : -5} />
+            <StatCard title="Monto Invertido" value={`$${totalInvested.toLocaleString('es-CL')}`} icon={DollarSign} />
+            <StatCard title="Asistencia" value={`${student.attendanceRate}%`} icon={Percent} />
             <StatCard title="Última Clase" value={student.lastAttendance} icon={Calendar} />
-            <StatCard title="Racha" value="3 clases" icon={TrendingUp} />
         </div>
 
         <Card>
@@ -112,6 +123,7 @@ export default function StudentProfileDialog({
                   <TableRow>
                     <TableHead className="px-4">Clase</TableHead>
                     <TableHead className="px-4">Fecha</TableHead>
+                    <TableHead className="px-4">Método Pago</TableHead>
                     <TableHead className="px-4 text-right">Asistencia</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -120,6 +132,7 @@ export default function StudentProfileDialog({
                     <TableRow key={`${booking.classId}-${booking.date}-${index}`}>
                       <TableCell className="font-medium px-4">{getClassName(booking.classId)}</TableCell>
                       <TableCell className="px-4">{parseISO(booking.date).toLocaleDateString('es-CL')}</TableCell>
+                       <TableCell className="px-4 text-muted-foreground">{booking.paymentMethod || '-'}</TableCell>
                       <TableCell className="text-right px-4">
                          <Badge variant={booking.attendance === 'Presente' ? 'default' : booking.attendance === 'Ausente' ? 'destructive' : 'secondary'}
                              className={cn('text-xs', booking.attendance === 'Presente' && 'bg-green-600/80')}
