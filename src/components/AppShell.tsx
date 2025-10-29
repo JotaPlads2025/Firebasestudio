@@ -15,7 +15,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare } from 'lucide-react';
+import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,8 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 
 const PladsProLogo = () => (
@@ -59,8 +61,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
-  const { toast } = useToast();
-  const [command, setCommand] = React.useState('');
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
+
 
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
@@ -81,33 +83,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       auth.signOut();
     }
   };
-  
-  const handleCommandSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const lowerCaseCommand = command.toLowerCase().trim();
 
-    let path = '';
-    if (lowerCaseCommand === 'crear clase' || lowerCaseCommand === 'crear clases') {
-      path = '/classes/new';
-    } else if (lowerCaseCommand === 'perfil') {
-      path = '/profile';
-    } else if (lowerCaseCommand === 'dashboard') {
-      path = '/';
-    } else if (lowerCaseCommand === 'mi academia') {
-      path = '/academy';
-    }
-
-    if (path) {
-      router.push(path);
-      setCommand(''); // Reset input
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Comando no reconocido',
-        description: `El comando "${command}" no es válido.`,
-      });
-    }
-  };
+  const runCommand = React.useCallback((command: () => void) => {
+    setIsCommandPaletteOpen(false);
+    command();
+  }, []);
 
   const isPublicPage = pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/');
 
@@ -148,15 +128,42 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
-            <form onSubmit={handleCommandSubmit}>
-              <Input
-                type="search"
-                placeholder="Escribe un comando o busca... (ej: 'crear clase')"
-                className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[300px] lg:w-[420px]"
-                value={command}
-                onChange={(e) => setCommand(e.target.value)}
-              />
-            </form>
+             <Popover open={isCommandPaletteOpen} onOpenChange={setIsCommandPaletteOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                    variant="outline"
+                    className="w-full justify-start rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 hover:bg-background/20 hover:text-sidebar-foreground md:w-[300px] lg:w-[420px]"
+                    >
+                    <span className="truncate">Escribe un comando o busca...</span>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[420px] p-0" align="start">
+                    <Command>
+                    <CommandInput placeholder="Escribe un comando..." />
+                    <CommandList>
+                        <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+                        <CommandGroup heading="Comandos">
+                            <CommandItem onSelect={() => runCommand(() => router.push('/'))}>
+                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                <span>Dashboard</span>
+                            </CommandItem>
+                             <CommandItem onSelect={() => runCommand(() => router.push('/classes/new'))}>
+                                <BookOpenCheck className="mr-2 h-4 w-4" />
+                                <span>Crear Clase</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => router.push('/academy'))}>
+                                <Building className="mr-2 h-4 w-4" />
+                                <span>Mi Academia</span>
+                            </CommandItem>
+                             <CommandItem onSelect={() => runCommand(() => router.push('/profile'))}>
+                                <UserCircle className="mr-2 h-4 w-4" />
+                                <span>Perfil</span>
+                            </CommandItem>
+                        </CommandGroup>
+                    </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="rounded-full">
@@ -164,7 +171,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <span className="sr-only">Toggle notifications</span>
             </Button>
             {/* Simplificado: Si hay usuario (o Firebase está deshabilitado), mostrar avatar */}
-            {(USE_FIREBASE && user) || !USE_FIREBASE ? (
+            {(!isUserLoading && user) ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -201,7 +208,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : null}
+            ) : <Loader2 className="h-6 w-6 animate-spin" />}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
