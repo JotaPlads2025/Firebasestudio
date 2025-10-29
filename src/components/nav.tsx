@@ -27,6 +27,7 @@ import {
   Briefcase,
   Calendar,
   Users,
+  Beaker,
 } from 'lucide-react';
 import React from 'react';
 
@@ -75,6 +76,11 @@ const navItems = [
     href: '/settings',
     icon: Settings,
     label: 'Configuraciones',
+  },
+   {
+    href: '/test-firebase',
+    icon: Beaker,
+    label: 'Test Firebase',
   },
 ];
 
