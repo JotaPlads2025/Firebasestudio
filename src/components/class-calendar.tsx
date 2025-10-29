@@ -20,18 +20,6 @@ interface ClassCalendarProps {
 
 export default function ClassCalendar({ classes, month, venues, onClassSelect }: ClassCalendarProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
-  
-  useEffect(() => {
-    // Only set the date if the month prop is not null.
-    // This allows us to control the calendar from the parent.
-    if (month) {
-      setDate(prevDate => {
-        // If a date is already selected, keep it. Otherwise, initialize with the month prop.
-        return prevDate || month;
-      });
-    }
-  }, [month]);
-
 
   const classesByDate = classes.reduce((acc, cls) => {
     if (cls.date) {
@@ -91,43 +79,50 @@ export default function ClassCalendar({ classes, month, venues, onClassSelect }:
         <Card>
           <CardHeader>
             <CardTitle>
-              Clases para{' '}
-              {date ? date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : '...'}
+              {date
+                ? `Clases para ${date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}`
+                : 'Selecciona una fecha'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {selectedDayClasses.length > 0 ? (
-              selectedDayClasses.map((cls) => (
-                <Card 
-                    key={cls.id}
-                    className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => onClassSelect(cls)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{cls.name}</p>
-                      <p className="text-sm text-muted-foreground">{cls.schedule}</p>
-                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {getVenueName(cls.venueId)}
-                      </p>
+            {date ? (
+              selectedDayClasses.length > 0 ? (
+                selectedDayClasses.map((cls) => (
+                  <Card 
+                      key={cls.id}
+                      className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                      onClick={() => onClassSelect(cls)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{cls.name}</p>
+                        <p className="text-sm text-muted-foreground">{cls.schedule}</p>
+                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <MapPin className="h-3 w-3" />
+                            {getVenueName(cls.venueId)}
+                        </p>
+                      </div>
+                      <div className='text-right'>
+                          <Badge variant="secondary" className="mb-2">
+                          {cls.bookings} Cupos
+                          </Badge>
+                           <Button variant="ghost" size="sm" className="h-auto p-1 text-xs">
+                              <Users className="h-3 w-3 mr-1"/>
+                              Ver Asistentes
+                          </Button>
+                      </div>
                     </div>
-                    <div className='text-right'>
-                        <Badge variant="secondary" className="mb-2">
-                        {cls.bookings} Cupos
-                        </Badge>
-                         <Button variant="ghost" size="sm" className="h-auto p-1 text-xs">
-                            <Users className="h-3 w-3 mr-1"/>
-                            Ver Asistentes
-                        </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))
+                  </Card>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground">
+                  No hay clases programadas para este día.
+                </p>
+              )
             ) : (
-              <p className="text-center text-muted-foreground">
-                No hay clases programadas para este día.
-              </p>
+                <p className="text-center text-muted-foreground">
+                    Selecciona un día en el calendario para ver las clases.
+                </p>
             )}
           </CardContent>
         </Card>
