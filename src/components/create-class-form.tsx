@@ -124,7 +124,7 @@ export default function CreateClassForm() {
       };
 
       try {
-        await addDocumentNonBlocking(classesCollectionRef, newClassData);
+        await addDocumentNonBlocking(firestore, classesCollectionRef, newClassData);
         toast({
             title: "¡Clase Creada!",
             description: `La clase "${data.name}" ha sido guardada en la base de datos.`,

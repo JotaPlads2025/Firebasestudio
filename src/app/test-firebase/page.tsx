@@ -25,28 +25,21 @@ export default function TestFirebasePage() {
 
     setIsLoading(true);
 
-    try {
-      // Definimos la referencia a la nueva colección
-      const testCollectionRef = collection(firestore, 'testCollection');
+    const testCollectionRef = collection(firestore, 'testCollection');
+    const newDocument = {
+      message: '¡Hola, Firestore!',
+      createdAt: new Date().toISOString(),
+      randomNumber: Math.random(),
+    };
 
-      // Creamos un documento de ejemplo para añadir
-      const newDocument = {
-        message: '¡Hola, Firestore!',
-        createdAt: new Date().toISOString(),
-        randomNumber: Math.random(),
-      };
-      
-      // Al llamar a addDocumentNonBlocking, se crea el documento y,
-      // si no existe, la colección 'testCollection' se creará automáticamente.
-      // Esta función es no-bloqueante (no usa await).
-      addDocumentNonBlocking(testCollectionRef, newDocument);
+    try {
+      addDocumentNonBlocking(firestore, testCollectionRef, newDocument);
 
       toast({
         title: '¡Operación enviada!',
         description: 'Se ha enviado la solicitud para crear "testCollection". ¡Revisa tu consola de Firebase!',
       });
     } catch (error) {
-      // El error ya es manejado por el emisor global, pero lo mostramos por si acaso.
       console.error("Error creating test document:", error);
       toast({
         variant: 'destructive',
