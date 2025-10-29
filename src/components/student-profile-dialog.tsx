@@ -69,15 +69,12 @@ export default function StudentProfileDialog({
   
   const sortedBookings = [...student.bookings].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const totalInvested = student.bookings.reduce((total, booking) => {
-    if (booking.paymentStatus === 'Pagado') {
-      const classInfo = demoClasses.find(c => c.id === booking.classId);
-      // Assuming the first price plan is the single class price
-      const classPrice = classInfo?.pricePlans[0]?.price || 0;
-      return total + classPrice;
-    }
-    return total;
-  }, 0);
+  const totalInvested = useMemo(() => {
+    const paidBookings = student.bookings.filter(
+      (booking) => booking.paymentStatus === 'Pagado'
+    ).length;
+    return paidBookings * 8000; // Use an average price of 8000 per paid class
+  }, [student.bookings]);
 
 
   return (
@@ -107,7 +104,7 @@ export default function StudentProfileDialog({
 
         <div className="grid grid-cols-2 gap-2">
             <StatCard title="Clases Totales" value={student.totalBookings} icon={Hash} />
-            <StatCard title="Monto Invertido" value={`$${totalInvested.toLocaleString('es-CL')}`} icon={DollarSign} />
+            <StatCard title="Monto Invertido (est.)" value={`$${totalInvested.toLocaleString('es-CL')}`} icon={DollarSign} />
             <StatCard title="Asistencia" value={`${student.attendanceRate}%`} icon={Percent} />
             <StatCard title="Última Clase" value={student.lastAttendance} icon={Calendar} />
         </div>
@@ -157,3 +154,4 @@ export default function StudentProfileDialog({
     </Dialog>
   );
 }
+
