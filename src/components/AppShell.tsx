@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -67,14 +66,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (!user && pathname !== '/login') {
       router.replace('/login');
     }
-     if (user && pathname === '/login') {
+    if (user && pathname === '/login') {
       router.replace('/');
     }
   }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
   
   const handleLogout = () => {
     if (auth) {
-        auth.signOut();
+      auth.signOut();
     }
   };
 
@@ -84,12 +83,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
   
-  if (USE_FIREBASE && (isUserLoading || !user)) {
-      return (
-          <div className="flex h-screen w-screen items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-      );
+  // Solo mostrar loading si Firebase está habilitado Y está cargando
+  if (USE_FIREBASE && isUserLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Si Firebase está habilitado pero no hay usuario (y no está cargando), el useEffect ya se encargó o se encargará de redirigir.
+  // Devolvemos null para no renderizar el layout mientras ocurre la redirección.
+  if (USE_FIREBASE && !user) {
+    return (
+        <div className="flex h-screen w-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
   }
 
   return (
@@ -122,64 +132,104 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {isUserLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : user ? (
+            
+            {/* La condición clave: solo se muestra el menú si el usuario existe (implica que la carga ha terminado) */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                      <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.displayName || 'Usuario'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email || ''}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      <span>Perfil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Configuraciones</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar sesión</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {/* Si Firebase está deshabilitado, mostramos una versión placeholder para desarrollo */}
+            {!USE_FIREBASE && (
                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                        </Avatar>
-                    </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                        </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href="/profile">
-                            <UserCircle className="mr-2 h-4 w-4" />
-                            <span>Perfil</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href="/settings">
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Configuraciones</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Cerrar sesión</span>
-                    </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ) : null}
+                 <DropdownMenuTrigger asChild>
+                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                     <Avatar className="h-8 w-8">
+                       <AvatarFallback>U</AvatarFallback>
+                     </Avatar>
+                   </Button>
+                 </DropdownMenuTrigger>
+                 <DropdownMenuContent className="w-56" align="end" forceMount>
+                   <DropdownMenuLabel className="font-normal">
+                     <div className="flex flex-col space-y-1">
+                       <p className="text-sm font-medium leading-none">Usuario Demo</p>
+                       <p className="text-xs leading-none text-muted-foreground">demo@plads.com</p>
+                     </div>
+                   </DropdownMenuLabel>
+                   <DropdownMenuSeparator />
+                   <DropdownMenuItem asChild>
+                     <Link href="/profile">
+                       <UserCircle className="mr-2 h-4 w-4" />
+                       <span>Perfil</span>
+                     </Link>
+                   </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                     <Link href="/settings">
+                       <Settings className="mr-2 h-4 w-4" />
+                       <span>Configuraciones</span>
+                     </Link>
+                   </DropdownMenuItem>
+                   <DropdownMenuSeparator />
+                   <DropdownMenuItem>
+                     <LogOut className="mr-2 h-4 w-4" />
+                     <span>Cerrar sesión</span>
+                   </DropdownMenuItem>
+                 </DropdownMenuContent>
+               </DropdownMenu>
+            )}
+            
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
         <TooltipProvider>
-            <Tooltip>
+          <Tooltip>
             <TooltipTrigger asChild>
-                <Button
+              <Button
                 className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
                 size="icon"
-                >
+              >
                 <MessageSquare className="h-7 w-7" />
                 <span className="sr-only">Soporte</span>
-                </Button>
+              </Button>
             </TooltipTrigger>
             <TooltipContent side="left">
-                <p>Soporte</p>
+              <p>Soporte</p>
             </TooltipContent>
-            </Tooltip>
+          </Tooltip>
         </TooltipProvider>
       </SidebarInset>
     </SidebarProvider>
