@@ -15,7 +15,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard } from 'lucide-react';
+import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard, Search, Rocket } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -142,7 +141,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     <CommandInput placeholder="Escribe un comando..." />
                     <CommandList>
                         <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-                        <CommandGroup heading="Comandos">
+                        <CommandGroup heading="Navegación">
                             <CommandItem onSelect={() => runCommand(() => router.push('/'))}>
                                 <LayoutDashboard className="mr-2 h-4 w-4" />
                                 <span>Dashboard</span>
@@ -155,9 +154,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 <Building className="mr-2 h-4 w-4" />
                                 <span>Mi Academia</span>
                             </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => router.push('/communication'))}>
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                <span>Comunicación</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => router.push('/search-classes'))}>
+                                <Search className="mr-2 h-4 w-4" />
+                                <span>Buscar Clases</span>
+                            </CommandItem>
                              <CommandItem onSelect={() => runCommand(() => router.push('/profile'))}>
                                 <UserCircle className="mr-2 h-4 w-4" />
                                 <span>Perfil</span>
+                            </CommandItem>
+                             <CommandItem onSelect={() => runCommand(() => router.push('/pro-plan'))}>
+                                <Rocket className="mr-2 h-4 w-4" />
+                                <span>Planes</span>
+                            </CommandItem>
+                             <CommandItem onSelect={() => runCommand(() => router.push('/settings'))}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Configuraciones</span>
                             </CommandItem>
                         </CommandGroup>
                     </CommandList>
@@ -170,22 +185,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {/* Simplificado: Si hay usuario (o Firebase está deshabilitado), mostrar avatar */}
-            {(!isUserLoading && user) ? (
+            {isUserLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                      <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                      <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.displayName || 'Usuario Demo'}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user?.email || 'demo@plads.com'}</p>
+                      <p className="text-sm font-medium leading-none">{user.displayName || 'Usuario Demo'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email || 'demo@plads.com'}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -208,7 +224,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : <Loader2 className="h-6 w-6 animate-spin" />}
+            ) : null}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
