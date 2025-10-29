@@ -92,13 +92,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Si Firebase está habilitado pero no hay usuario (y no está cargando), el useEffect ya se encargó o se encargará de redirigir.
-  // Devolvemos null para no renderizar el layout mientras ocurre la redirección.
+  // Si Firebase está habilitado pero no hay usuario, el useEffect redirigirá.
+  // Devolvemos null (o un loader) para no renderizar el layout mientras ocurre la redirección.
   if (USE_FIREBASE && !user) {
-    return (
-        <div className="flex h-screen w-screen items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
+     return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
@@ -133,22 +133,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <span className="sr-only">Toggle notifications</span>
             </Button>
             
-            {/* La condición clave: solo se muestra el menú si el usuario existe (implica que la carga ha terminado) */}
-            {user && (
+            {/* Si no estamos cargando, y tenemos un usuario (o Firebase está apagado), mostramos el menú */}
+            {!isUserLoading && (user || !USE_FIREBASE) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                      <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                      {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                      <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.displayName || 'Usuario'}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email || ''}</p>
+                      <p className="text-sm font-medium leading-none">{user?.displayName || 'Usuario Demo'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user?.email || 'demo@plads.com'}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -172,46 +172,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-
-            {/* Si Firebase está deshabilitado, mostramos una versión placeholder para desarrollo */}
-            {!USE_FIREBASE && (
-                 <DropdownMenu>
-                 <DropdownMenuTrigger asChild>
-                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                     <Avatar className="h-8 w-8">
-                       <AvatarFallback>U</AvatarFallback>
-                     </Avatar>
-                   </Button>
-                 </DropdownMenuTrigger>
-                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                   <DropdownMenuLabel className="font-normal">
-                     <div className="flex flex-col space-y-1">
-                       <p className="text-sm font-medium leading-none">Usuario Demo</p>
-                       <p className="text-xs leading-none text-muted-foreground">demo@plads.com</p>
-                     </div>
-                   </DropdownMenuLabel>
-                   <DropdownMenuSeparator />
-                   <DropdownMenuItem asChild>
-                     <Link href="/profile">
-                       <UserCircle className="mr-2 h-4 w-4" />
-                       <span>Perfil</span>
-                     </Link>
-                   </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                     <Link href="/settings">
-                       <Settings className="mr-2 h-4 w-4" />
-                       <span>Configuraciones</span>
-                     </Link>
-                   </DropdownMenuItem>
-                   <DropdownMenuSeparator />
-                   <DropdownMenuItem>
-                     <LogOut className="mr-2 h-4 w-4" />
-                     <span>Cerrar sesión</span>
-                   </DropdownMenuItem>
-                 </DropdownMenuContent>
-               </DropdownMenu>
-            )}
-            
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
