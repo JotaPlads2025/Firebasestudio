@@ -12,12 +12,17 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Calendar, Clock, MapPin, Tag } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Tag, Bell } from 'lucide-react';
 import { venues } from '@/lib/venues-data';
 import { regions } from '@/lib/locations';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ClassDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { toast } = useToast();
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  
   const classData = searchableClasses.find(c => c.id === params.id);
 
   if (!classData) {
@@ -33,6 +38,14 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
   // For demonstration, we'll filter reviews that might match this class or instructor.
   // In a real app, reviews would be linked directly to the class or instructor.
   const classReviews = reviewsData.slice(0, 3); 
+
+  const handleSubscription = () => {
+    setIsSubscribed(true);
+    toast({
+      title: "¡Suscripción exitosa!",
+      description: `Ahora sigues a ${classData.instructorName} y recibirás sus novedades.`,
+    });
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
@@ -113,17 +126,28 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
             <CardHeader>
               <CardTitle className="text-lg">Instructor</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-                <Avatar className="h-14 w-14">
-                    <AvatarImage src={classData.instructorAvatar.imageUrl} alt={classData.instructorName} />
-                    <AvatarFallback>{classData.instructorName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <h3 className="font-semibold">{classData.instructorName}</h3>
-                    <Link href="/profile" className="text-sm text-primary hover:underline">
-                        Ver perfil
-                    </Link>
+            <CardContent className="flex flex-col gap-4">
+                <div className='flex items-center gap-4'>
+                    <Avatar className="h-14 w-14">
+                        <AvatarImage src={classData.instructorAvatar.imageUrl} alt={classData.instructorName} />
+                        <AvatarFallback>{classData.instructorName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <h3 className="font-semibold">{classData.instructorName}</h3>
+                        <Link href="/profile" className="text-sm text-primary hover:underline">
+                            Ver perfil
+                        </Link>
+                    </div>
                 </div>
+                <Button 
+                    onClick={handleSubscription} 
+                    disabled={isSubscribed}
+                    variant={isSubscribed ? "secondary" : "default"}
+                    className="w-full"
+                >
+                    <Bell className={`mr-2 h-4 w-4 ${isSubscribed ? 'fill-current' : ''}`} />
+                    {isSubscribed ? 'Suscrito' : 'Suscribirse'}
+                </Button>
             </CardContent>
           </Card>
 
