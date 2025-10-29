@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -27,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -79,13 +81,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       auth.signOut();
     }
   };
-
+  
   const handleCommandSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const lowerCaseCommand = command.toLowerCase().trim();
 
-    if (lowerCaseCommand === 'crear clase') {
-      router.push('/classes/new');
+    let path = '';
+    if (lowerCaseCommand === 'crear clase' || lowerCaseCommand === 'crear clases') {
+      path = '/classes/new';
+    } else if (lowerCaseCommand === 'perfil') {
+      path = '/profile';
+    } else if (lowerCaseCommand === 'dashboard') {
+      path = '/';
+    }
+
+    if (path) {
+      router.push(path);
       setCommand(''); // Reset input
     } else {
       toast({
@@ -102,6 +113,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
   
+  // Solo mostrar loading si Firebase está habilitado Y está cargando
   if (USE_FIREBASE && isUserLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -110,6 +122,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Si Firebase está habilitado pero no hay usuario, el useEffect redirigirá
   if (USE_FIREBASE && !user) {
     return null;
   }
