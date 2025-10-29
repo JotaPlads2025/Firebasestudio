@@ -36,12 +36,12 @@ interface StudentProfileDialogProps {
 
 const StatCard = ({ title, value, icon: Icon, change }: { title: string, value: string | number, icon: React.ElementType, change?: number }) => (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-1">
         <CardTitle className="text-xs font-medium">{title}</CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="p-3 pt-0">
-        <div className="text-xl font-bold">{value}</div>
+      <CardContent className="p-2 pt-0">
+        <div className="text-lg font-bold">{value}</div>
         {change !== undefined && (
              <p className={cn(
                 "text-xs text-muted-foreground",
@@ -73,13 +73,13 @@ export default function StudentProfileDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader className="flex flex-row items-center gap-4 space-y-0">
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-12 w-12">
             <AvatarImage src={`https://picsum.photos/seed/${student.studentId}/100/100`} />
             <AvatarFallback className="text-xl">{student.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <DialogTitle className="text-2xl mb-1">{student.name}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl mb-1">{student.name}</DialogTitle>
+            <DialogDescription className="text-xs">
               Se unió el {new Date(student.joinDate).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}
             </DialogDescription>
              <Badge
@@ -87,50 +87,42 @@ export default function StudentProfileDialog({
                     student.status === 'Activo' ? 'default' : 
                     student.status === 'Inactivo' ? 'destructive' : 'secondary'
                 }
-                className={cn('mt-2', student.status === 'Activo' && 'bg-green-600/80')}
+                className={cn('mt-2 text-xs', student.status === 'Activo' && 'bg-green-600/80')}
             >
                 {student.status}
             </Badge>
           </div>
         </DialogHeader>
 
-        <div className="my-4 grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
             <StatCard title="Clases Totales" value={student.totalBookings} icon={Hash} />
-            <StatCard title="Tasa de Asistencia" value={`${student.attendanceRate}%`} icon={Percent} change={student.attendanceRate > 80 ? 5 : -5} />
+            <StatCard title="Asistencia" value={`${student.attendanceRate}%`} icon={Percent} change={student.attendanceRate > 80 ? 5 : -5} />
             <StatCard title="Última Clase" value={student.lastAttendance} icon={Calendar} />
             <StatCard title="Racha" value="3 clases" icon={TrendingUp} />
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Historial de Clases</CardTitle>
+          <CardHeader className="p-4">
+            <CardTitle className="text-base">Historial de Clases</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <ScrollArea className="h-[200px] pr-4">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Clase</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Pago</TableHead>
-                    <TableHead className="text-right">Asistencia</TableHead>
+                    <TableHead className="px-4">Clase</TableHead>
+                    <TableHead className="px-4">Fecha</TableHead>
+                    <TableHead className="px-4 text-right">Asistencia</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sortedBookings.map((booking, index) => (
                     <TableRow key={`${booking.classId}-${booking.date}-${index}`}>
-                      <TableCell className="font-medium">{getClassName(booking.classId)}</TableCell>
-                      <TableCell>{parseISO(booking.date).toLocaleDateString('es-CL')}</TableCell>
-                      <TableCell>
-                         <Badge variant={booking.paymentStatus === 'Pagado' ? 'secondary' : 'outline'}
-                            className={cn(booking.paymentStatus === 'Pagado' ? 'border-green-600/50' : 'border-amber-500/50')}
-                         >
-                            {booking.paymentStatus}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="font-medium px-4">{getClassName(booking.classId)}</TableCell>
+                      <TableCell className="px-4">{parseISO(booking.date).toLocaleDateString('es-CL')}</TableCell>
+                      <TableCell className="text-right px-4">
                          <Badge variant={booking.attendance === 'Presente' ? 'default' : booking.attendance === 'Ausente' ? 'destructive' : 'secondary'}
-                             className={cn(booking.attendance === 'Presente' && 'bg-green-600/80')}
+                             className={cn('text-xs', booking.attendance === 'Presente' && 'bg-green-600/80')}
                          >
                             {booking.attendance}
                         </Badge>
@@ -143,7 +135,7 @@ export default function StudentProfileDialog({
           </CardContent>
         </Card>
 
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cerrar
           </Button>
