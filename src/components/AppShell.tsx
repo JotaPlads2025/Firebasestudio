@@ -15,7 +15,7 @@ import {
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard, Search, Rocket } from 'lucide-react';
+import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard, Search, Rocket, Users } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -145,6 +145,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             <CommandItem onSelect={() => runCommand(() => router.push('/'))}>
                                 <LayoutDashboard className="mr-2 h-4 w-4" />
                                 <span>Dashboard</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => router.push('/classes'))}>
+                                <BookOpenCheck className="mr-2 h-4 w-4" />
+                                <span>Mis Clases</span>
+                            </CommandItem>
+                            <CommandItem onSelect={() => runCommand(() => router.push('/students'))}>
+                                <Users className="mr-2 h-4 w-4" />
+                                <span>Estudiantes</span>
                             </CommandItem>
                              <CommandItem onSelect={() => runCommand(() => router.push('/classes/new'))}>
                                 <BookOpenCheck className="mr-2 h-4 w-4" />

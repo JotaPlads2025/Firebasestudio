@@ -26,6 +26,7 @@ import {
   Dumbbell,
   Briefcase,
   Calendar,
+  Users,
 } from 'lucide-react';
 import React from 'react';
 
@@ -39,6 +40,11 @@ const navItems = [
     href: '/classes',
     icon: BookOpenCheck,
     label: 'Mis Clases',
+  },
+  {
+    href: '/students',
+    icon: Users,
+    label: 'Estudiantes',
   },
   {
     href: '/search-classes',
