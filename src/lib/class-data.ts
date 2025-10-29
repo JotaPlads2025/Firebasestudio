@@ -13,8 +13,8 @@ export const revenueData = [
     { month: 'Nov', revenue: 800000, newStudents: 24, activeClasses: 8, bookings: 185, dayOfWeek: 'all', classType: 'all', retention: 85, venueId: 'venue-001' },
     { month: 'Dic', revenue: 760000, newStudents: 22, activeClasses: 8, bookings: 180, dayOfWeek: 'all', classType: 'all', retention: 84, venueId: 'venue-002' },
     // Sample data for specific days/types/venues
-    { month: 'Jul', revenue: 150000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance', retention: 80, venueId: 'venue-001' },
-    { month: 'Jul', revenue: 200000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance', retention: 82, venueId: 'venue-001' },
+    { month: 'Jul', revenue: 550000, newStudents: 5, activeClasses: 1, bookings: 20, dayOfWeek: 'Lun', classType: 'Dance', retention: 80, venueId: 'venue-001' },
+    { month: 'Jul', revenue: 600000, newStudents: 8, activeClasses: 1, bookings: 30, dayOfWeek: 'Mar', classType: 'Dance', retention: 82, venueId: 'venue-001' },
     { month: 'Jul', revenue: 250000, newStudents: 9, activeClasses: 1, bookings: 50, dayOfWeek: 'Vie', classType: 'Dance', retention: 88, venueId: 'venue-002' },
     { month: 'Ago', revenue: 300000, newStudents: 10, activeClasses: 1, bookings: 25, dayOfWeek: 'Jue', classType: 'Coaching', retention: 90, venueId: 'venue-002' },
   ];
