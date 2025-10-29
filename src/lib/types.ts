@@ -1,4 +1,5 @@
 
+
 export type ClassPricePlan = {
   name: string;
   price: number;
@@ -38,6 +39,7 @@ export type Class = {
   daysOffset?: number; // Only for demo data
   // --- Fields from Firestore ---
   instructorId?: string; 
+  venueId: string;
 };
 
 export type Review = {
@@ -58,4 +60,28 @@ export type Academy = {
     instructorIds: string[];
 };
 
-    
+
+// From student-data.ts
+export type Booking = {
+    classId: string;
+    planType: 'suelta' | 'pack';
+    date: string; // YYYY-MM-DD
+    paymentStatus: 'Pagado' | 'Pendiente';
+    attendance: 'Presente' | 'Ausente' | 'No registrado';
+    paymentMethod?: 'Plads' | 'Efectivo' | 'Transferencia';
+};
+  
+export type Student = {
+    studentId: string;
+    name: string;
+    joinDate: string; // YYYY-MM-DD
+    bookings: Booking[];
+};
+
+// For processed student data
+export interface StudentWithDetails extends Student {
+  totalBookings: number;
+  lastAttendance: string;
+  status: 'Activo' | 'Inactivo' | 'Nuevo';
+  attendanceRate: number;
+}

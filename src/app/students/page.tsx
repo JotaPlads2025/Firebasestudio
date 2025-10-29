@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -25,8 +25,11 @@ import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
+import StudentProfileDialog from '@/components/student-profile-dialog';
+import type { StudentWithDetails } from '@/lib/types';
 
 export default function StudentsPage() {
+  const [selectedStudent, setSelectedStudent] = useState<StudentWithDetails | null>(null);
 
   const processedStudents = useMemo(() => {
     const now = new Date();
@@ -54,11 +57,16 @@ export default function StudentsPage() {
         }
       }
 
+      const attendedCount = student.bookings.filter(b => b.attendance === 'Presente').length;
+      const attendanceRate = totalBookings > 0 ? Math.round((attendedCount / totalBookings) * 100) : 0;
+
+
       return {
         ...student,
         totalBookings,
         lastAttendance,
-        status
+        status,
+        attendanceRate,
       };
     });
   }, []);
@@ -111,7 +119,7 @@ export default function StudentsPage() {
                   <TableCell className="text-center">{student.totalBookings}</TableCell>
                   <TableCell className="text-muted-foreground">{student.lastAttendance}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(student)}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Ver detalles</span>
                     </Button>
@@ -122,6 +130,13 @@ export default function StudentsPage() {
           </Table>
         </CardContent>
       </Card>
+       {selectedStudent && (
+        <StudentProfileDialog
+          student={selectedStudent}
+          open={!!selectedStudent}
+          onOpenChange={(isOpen) => !isOpen && setSelectedStudent(null)}
+        />
+      )}
     </div>
   );
 }
