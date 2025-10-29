@@ -78,11 +78,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   };
 
-  if (pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/')) {
+  const isPublicPage = pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/');
+
+  if (isPublicPage) {
     return <>{children}</>;
   }
   
-  if (USE_FIREBASE && (isUserLoading || (!isUserLoading && !user))) {
+  if (USE_FIREBASE && (isUserLoading || !user)) {
       return (
           <div className="flex h-screen w-screen items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin" />
