@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,15 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Beaker } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useFirestore } from '@/firebase/provider';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function TestFirebasePage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  const handleCreateCollection = () => {
+  const handleCreateCollection = async () => {
     if (!firestore) {
       toast({
         variant: 'destructive',
@@ -25,27 +26,39 @@ export default function TestFirebasePage() {
 
     setIsLoading(true);
 
-    const testCollectionRef = collection(firestore, 'testCollection');
-    const newDocument = {
-      message: '¡Hola, Firestore!',
-      createdAt: new Date().toISOString(),
-      randomNumber: Math.random(),
-    };
-
     try {
-      addDocumentNonBlocking(firestore, testCollectionRef, newDocument);
+      const testCollectionRef = collection(firestore, 'testCollection');
+      const newDocument = {
+        message: '¡Hola, Firestore!',
+        createdAt: new Date().toISOString(),
+        randomNumber: Math.random(),
+      };
+
+      // Usar addDoc directamente de Firebase
+      const docRef = await addDoc(testCollectionRef, newDocument);
 
       toast({
-        title: '¡Operación enviada!',
-        description: 'Se ha enviado la solicitud para crear "testCollection". ¡Revisa tu consola de Firebase!',
+        title: '¡Colección creada exitosamente!',
+        description: `Documento creado con ID: ${docRef.id}. ¡Revisa tu consola de Firebase!`,
       });
     } catch (error) {
       console.error("Error creating test document:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Error al crear la colección',
-        description: 'Hubo un problema al intentar escribir en Firestore.',
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Hubo un problema al intentar escribir en Firestore.';
+      
+      // Emit a more specific error if it's a permission error
+      if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+         toast({
+            variant: 'destructive',
+            title: 'Error de Permisos',
+            description: 'No tienes permisos para escribir en esta colección. Revisa tus Reglas de Seguridad en Firestore.',
+        });
+      } else {
+        toast({
+            variant: 'destructive',
+            title: 'Error al crear la colección',
+            description: errorMessage,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
