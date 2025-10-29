@@ -9,6 +9,18 @@
  * - QueryInstructorDataOutput - The return type for the queryInstructorData function.
  */
 
+// Genkit functionality is temporarily disabled.
+export async function queryInstructorData(input: any) {
+  console.warn('queryInstructorData is disabled. Install Genkit dependencies to re-enable.');
+  return {
+    answer: 'El asistente de IA está temporalmente deshabilitado. Por favor, intente más tarde.'
+  };
+}
+
+export type QueryInstructorDataInput = { query: string };
+export type QueryInstructorDataOutput = { answer: string };
+
+/*
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
@@ -79,3 +91,4 @@ const queryInstructorDataFlow = ai.defineFlow(
     return output!;
   }
 );
+*/

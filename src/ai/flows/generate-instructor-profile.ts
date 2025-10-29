@@ -10,6 +10,18 @@
  * - GenerateInstructorProfileOutput - The return type for the generateInstructorProfile function.
  */
 
+// Genkit functionality is temporarily disabled.
+export async function generateInstructorProfile(input: any) {
+  console.warn('generateInstructorProfile is disabled. Install Genkit dependencies to re-enable.');
+  return {
+    profileDraft: 'La generación de perfil con IA está temporalmente deshabilitada. Por favor, intente más tarde.'
+  };
+}
+
+export type GenerateInstructorProfileInput = { prompt: string };
+export type GenerateInstructorProfileOutput = { profileDraft: string };
+
+/*
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
@@ -53,3 +65,4 @@ const generateInstructorProfileFlow = ai.defineFlow(
     return output!;
   }
 );
+*/

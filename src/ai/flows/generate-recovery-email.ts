@@ -10,6 +10,20 @@
  * - GenerateRecoveryEmailOutput - The return type for the generateRecoveryEmail function.
  */
 
+// Genkit functionality is temporarily disabled.
+export async function generateRecoveryEmail(input: any) {
+    console.warn('generateRecoveryEmail is disabled. Install Genkit dependencies to re-enable.');
+    return {
+      subject: 'Error de IA',
+      body: 'La generación de correo con IA está temporalmente deshabilitada. Por favor, escriba el correo manualmente o intente más tarde.'
+    };
+  }
+
+export type GenerateRecoveryEmailInput = { studentName: string, lastClass: string };
+export type GenerateRecoveryEmailOutput = { subject: string, body: string };
+
+
+/*
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
@@ -64,3 +78,4 @@ const generateRecoveryEmailFlow = ai.defineFlow(
     return output!;
   }
 );
+*/
