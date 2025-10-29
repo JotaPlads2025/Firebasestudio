@@ -88,7 +88,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     command();
   }, []);
 
-  const isPublicPage = pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/');
+  const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
 
   if (isPublicPage) {
     return <>{children}</>;
