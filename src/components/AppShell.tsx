@@ -26,6 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 const PladsProLogo = () => (
   <div className="flex items-center gap-2">
@@ -56,6 +57,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
+  const { toast } = useToast();
+  const [command, setCommand] = React.useState('');
 
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
@@ -77,13 +80,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleCommandSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const lowerCaseCommand = command.toLowerCase().trim();
+
+    if (lowerCaseCommand === 'crear clase') {
+      router.push('/classes/new');
+      setCommand(''); // Reset input
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Comando no reconocido',
+        description: `El comando "${command}" no es válido.`,
+      });
+    }
+  };
+
   const isPublicPage = pathname === '/login' || pathname === '/search-classes' || pathname.startsWith('/search-classes/');
 
   if (isPublicPage) {
     return <>{children}</>;
   }
   
-  // Solo mostrar loading si Firebase está habilitado Y está cargando
   if (USE_FIREBASE && isUserLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -92,14 +110,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Si Firebase está habilitado pero no hay usuario, el useEffect redirigirá.
-  // Devolvemos null (o un loader) para no renderizar el layout mientras ocurre la redirección.
   if (USE_FIREBASE && !user) {
-     return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -121,20 +133,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="relative flex-1">
-            <Input
-              type="search"
-              placeholder="Escribe un comando o busca... (ej: 'crear clase')"
-              className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[300px] lg:w-[420px]"
-            />
+            <form onSubmit={handleCommandSubmit}>
+              <Input
+                type="search"
+                placeholder="Escribe un comando o busca... (ej: 'crear clase')"
+                className="w-full rounded-lg bg-background/10 pl-8 text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:bg-background/20 md:w-[300px] lg:w-[420px]"
+                value={command}
+                onChange={(e) => setCommand(e.target.value)}
+              />
+            </form>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            
-            {/* Si no estamos cargando, y tenemos un usuario (o Firebase está apagado), mostramos el menú */}
-            {!isUserLoading && (user || !USE_FIREBASE) && (
+            {isUserLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : user || !USE_FIREBASE ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -171,7 +187,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
+            ) : null}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
