@@ -93,6 +93,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       path = '/profile';
     } else if (lowerCaseCommand === 'dashboard') {
       path = '/';
+    } else if (lowerCaseCommand === 'mi academia') {
+      path = '/academy';
     }
 
     if (path) {
@@ -161,9 +163,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {isUserLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : user || !USE_FIREBASE ? (
+            {/* Simplificado: Si hay usuario (o Firebase está deshabilitado), mostrar avatar */}
+            {(USE_FIREBASE && user) || !USE_FIREBASE ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
