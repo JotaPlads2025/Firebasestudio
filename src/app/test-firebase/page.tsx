@@ -34,31 +34,28 @@ export default function TestFirebasePage() {
         randomNumber: Math.random(),
       };
 
-      // Usar addDoc directamente de Firebase
       const docRef = await addDoc(testCollectionRef, newDocument);
 
       toast({
         title: '¡Colección creada exitosamente!',
         description: `Documento creado con ID: ${docRef.id}. ¡Revisa tu consola de Firebase!`,
       });
-    } catch (error) {
-      console.error("Error creating test document:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Hubo un problema al intentar escribir en Firestore.';
-      
-      // Emit a more specific error if it's a permission error
-      if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
-         toast({
-            variant: 'destructive',
-            title: 'Error de Permisos',
-            description: 'No tienes permisos para escribir en esta colección. Revisa tus Reglas de Seguridad en Firestore.',
-        });
-      } else {
-        toast({
-            variant: 'destructive',
-            title: 'Error al crear la colección',
-            description: errorMessage,
-        });
-      }
+    } catch (error: any) {
+        console.error("Error creating test document:", error);
+        // Specific check for permission errors
+        if (error.code === 'permission-denied') {
+             toast({
+                variant: 'destructive',
+                title: 'Error de Permisos en Firestore',
+                description: 'No tienes permisos para escribir en esta colección. Revisa tus Reglas de Seguridad en la consola de Firebase.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Error al crear la colección',
+                description: error.message || 'Hubo un problema al intentar escribir en Firestore.',
+            });
+        }
     } finally {
       setIsLoading(false);
     }
