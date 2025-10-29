@@ -13,19 +13,24 @@ import { Button } from './ui/button';
 
 interface ClassCalendarProps {
   classes: Class[];
-  startDate?: Date;
+  month: Date | null;
   venues: Venue[];
   onClassSelect: (cls: Class) => void;
 }
 
-export default function ClassCalendar({ classes, startDate, venues, onClassSelect }: ClassCalendarProps) {
-  const [date, setDate] = useState<Date | undefined>(startDate);
+export default function ClassCalendar({ classes, month, venues, onClassSelect }: ClassCalendarProps) {
+  const [date, setDate] = useState<Date | undefined>(undefined);
   
   useEffect(() => {
-    if (startDate) {
-      setDate(startDate);
+    // Only set the date if the month prop is not null.
+    // This allows us to control the calendar from the parent.
+    if (month) {
+      setDate(prevDate => {
+        // If a date is already selected, keep it. Otherwise, initialize with the month prop.
+        return prevDate || month;
+      });
     }
-  }, [startDate]);
+  }, [month]);
 
 
   const classesByDate = classes.reduce((acc, cls) => {
@@ -77,9 +82,10 @@ export default function ClassCalendar({ classes, startDate, venues, onClassSelec
           coaching: 'day-coaching',
           bootcamp: 'day-bootcamp',
         }}
-        // The key forces a re-render when the startDate changes, ensuring the calendar shows the correct month.
-        key={startDate?.toISOString()}
-        defaultMonth={startDate}
+        // The key forces a re-render when the month changes, ensuring the calendar shows the correct month.
+        key={month?.toISOString()}
+        month={month || undefined}
+        disabled={!month}
       />
       <div>
         <Card>

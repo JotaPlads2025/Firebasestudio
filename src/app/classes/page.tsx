@@ -50,7 +50,7 @@ const dayNameToIndex: { [key: string]: number } = {
 
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
-    if (!classes) return [];
+    if (!classes || !month) return [];
     const events: Class[] = [];
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
@@ -83,7 +83,7 @@ const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
 
 
 export default function ClassesPage() {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
   const [view, setView] = useState('calendar'); // 'list' or 'calendar'
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isAttendeesDialogOpen, setIsAttendeesDialogOpen] = useState(false);
@@ -91,6 +91,11 @@ export default function ClassesPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Set the date on the client to avoid hydration mismatch
+    setCurrentMonth(new Date());
+  }, []);
 
   const classesRef = useMemoFirebase(() => {
     if (!auth?.currentUser || !firestore) return null;
@@ -114,6 +119,7 @@ export default function ClassesPage() {
 
 
   const calendarEvents = useMemo(() => {
+    if (!currentMonth) return [];
     return generateCalendarEvents(localClasses || [], currentMonth);
   }, [localClasses, currentMonth]);
 
@@ -189,10 +195,12 @@ export default function ClassesPage() {
   };
 
   const goToPreviousMonth = () => {
+    if (!currentMonth) return;
     setCurrentMonth(add(currentMonth, { months: -1 }));
   };
 
   const goToNextMonth = () => {
+    if (!currentMonth) return;
     setCurrentMonth(add(currentMonth, { months: 1 }));
   };
   
@@ -253,16 +261,16 @@ export default function ClassesPage() {
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-4">
               <h2 className="text-xl font-semibold capitalize">
-                {format(currentMonth, 'MMMM yyyy', { locale: es })}
+                {currentMonth ? format(currentMonth, 'MMMM yyyy', { locale: es }) : 'Cargando...'}
               </h2>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
+                <Button variant="outline" size="icon" onClick={goToPreviousMonth} disabled={!currentMonth}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                 <Button variant="outline" size="sm" onClick={goToToday}>
+                 <Button variant="outline" size="sm" onClick={goToToday} disabled={!currentMonth}>
                   Hoy
                 </Button>
-                <Button variant="outline" size="icon" onClick={goToNextMonth}>
+                <Button variant="outline" size="icon" onClick={goToNextMonth} disabled={!currentMonth}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -283,7 +291,7 @@ export default function ClassesPage() {
           {view === 'calendar' ? (
               <ClassCalendar 
                 classes={calendarEvents} 
-                startDate={currentMonth} 
+                month={currentMonth} 
                 venues={initialVenues}
                 onClassSelect={handleClassSelect}
              />
@@ -344,5 +352,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
