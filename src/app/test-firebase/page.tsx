@@ -13,7 +13,7 @@ export default function TestFirebasePage() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  const handleCreateCollection = async () => {
+  const handleCreateCollection = () => {
     if (!firestore) {
       toast({
         variant: 'destructive',
@@ -38,11 +38,12 @@ export default function TestFirebasePage() {
       
       // Al llamar a addDocumentNonBlocking, se crea el documento y,
       // si no existe, la colección 'testCollection' se creará automáticamente.
-      await addDocumentNonBlocking(testCollectionRef, newDocument);
+      // Esta función es no-bloqueante (no usa await).
+      addDocumentNonBlocking(testCollectionRef, newDocument);
 
       toast({
-        title: '¡Colección Creada!',
-        description: 'La colección "testCollection" y su primer documento han sido creados. ¡Revisa tu consola de Firebase!',
+        title: '¡Operación enviada!',
+        description: 'Se ha enviado la solicitud para crear "testCollection". ¡Revisa tu consola de Firebase!',
       });
     } catch (error) {
       // El error ya es manejado por el emisor global, pero lo mostramos por si acaso.
