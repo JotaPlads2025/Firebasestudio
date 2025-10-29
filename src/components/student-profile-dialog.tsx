@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -25,7 +26,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { StudentWithDetails } from '@/lib/types';
 import { demoClasses } from '@/lib/demo-data';
 import { cn } from '@/lib/utils';
-import { TrendingUp, Percent, Calendar, Hash, DollarSign } from 'lucide-react';
+import { Percent, Calendar, Hash, DollarSign } from 'lucide-react';
 import { parseISO } from 'date-fns';
 
 interface StudentProfileDialogProps {
@@ -34,7 +35,7 @@ interface StudentProfileDialogProps {
   student: StudentWithDetails;
 }
 
-const StatCard = ({ title, value, icon: Icon, change }: { title: string, value: string | number, icon: React.ElementType, change?: number }) => (
+const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-1">
         <CardTitle className="text-xs font-medium">{title}</CardTitle>
@@ -42,14 +43,6 @@ const StatCard = ({ title, value, icon: Icon, change }: { title: string, value: 
       </CardHeader>
       <CardContent className="p-2 pt-0">
         <div className="text-lg font-bold">{value}</div>
-        {change !== undefined && (
-             <p className={cn(
-                "text-xs text-muted-foreground",
-                change >= 0 ? "text-green-600" : "text-destructive"
-             )}>
-            {change >= 0 ? '+' : ''}{change}% desde el último mes
-          </p>
-        )}
       </CardContent>
     </Card>
 );
@@ -154,4 +147,3 @@ export default function StudentProfileDialog({
     </Dialog>
   );
 }
-
