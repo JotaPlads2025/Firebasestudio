@@ -84,7 +84,6 @@ export default function LoginPage() {
         // The useEffect in LoginPageContent will handle the redirection.
         // Let's ensure the main content is wrapped in AppShell for logged-in users.
         // This is a bit of a workaround due to not using route groups.
-        // A cleaner solution would be to restructure with `(auth)` and `(app)` groups.
         
         // For now, let's just let the content redirect.
         return <LoginPageContent />;
