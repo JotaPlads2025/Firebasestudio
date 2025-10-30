@@ -89,8 +89,8 @@ export default function Nav() {
   const { openMobile, setOpenMobile } = useSidebar();
   const [openSubMenus, setOpenSubMenus] = React.useState<Record<string, boolean>>({});
 
-  const handleLinkClick = (isSubItem: boolean = false) => {
-    if (openMobile && isSubItem) {
+  const handleLinkClick = () => {
+    if (openMobile) {
       setOpenMobile(false);
     }
   };
@@ -103,7 +103,7 @@ export default function Nav() {
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-            <Link href={item.href} onClick={() => handleLinkClick()}>
+            <Link href={item.href} onClick={handleLinkClick}>
                 <SidebarMenuButton
                 isActive={pathname === item.href}
                 tooltip={item.label}
