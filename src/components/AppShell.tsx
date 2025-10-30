@@ -66,15 +66,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
   React.useEffect(() => {
-    if (!USE_FIREBASE || isUserLoading) {
+    if (!USE_FIREBASE || isUserLoading || pathname === '/login') {
       return; 
     }
-    if (!user && pathname !== '/login') {
+    if (!user) {
       router.replace('/login');
     }
+    /*
     if (user && pathname === '/login') {
       router.replace('/');
     }
+    */
   }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
   
   const handleLogout = () => {

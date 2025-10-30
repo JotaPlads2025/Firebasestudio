@@ -38,6 +38,7 @@ export default function LoginPage() {
         }
     };
 
+    /*
     if (isUserLoading || (!isUserLoading && user)) {
         return (
             <div className="flex h-screen w-screen items-center justify-center bg-muted/40">
@@ -45,6 +46,7 @@ export default function LoginPage() {
             </div>
         );
     }
+    */
     
     return (
         <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-brand-purple/20 via-background to-brand-green/20">
