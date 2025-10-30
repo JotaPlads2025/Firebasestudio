@@ -57,27 +57,23 @@ const PladsProLogo = () => (
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
 
+  const pathname = usePathname();
+  const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
 
   const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
   React.useEffect(() => {
-    if (!USE_FIREBASE || isUserLoading || pathname === '/login') {
+    if (!USE_FIREBASE || isUserLoading || isPublicPage) {
       return; 
     }
     if (!user) {
       router.replace('/login');
     }
-    /*
-    if (user && pathname === '/login') {
-      router.replace('/');
-    }
-    */
-  }, [user, isUserLoading, router, pathname, USE_FIREBASE]);
+  }, [user, isUserLoading, router, isPublicPage, USE_FIREBASE]);
   
   const handleLogout = () => {
     if (auth) {
@@ -90,24 +86,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     command();
   }, []);
 
-  const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
-
   if (isPublicPage) {
     return <>{children}</>;
   }
   
-  // Solo mostrar loading si Firebase está habilitado Y está cargando
-  if (USE_FIREBASE && isUserLoading) {
+  if ((USE_FIREBASE && isUserLoading) || (USE_FIREBASE && !user)) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
-  }
-
-  // Si Firebase está habilitado pero no hay usuario, el useEffect redirigirá
-  if (USE_FIREBASE && !user) {
-    return null;
   }
 
   return (
