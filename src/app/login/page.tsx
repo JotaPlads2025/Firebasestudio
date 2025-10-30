@@ -24,11 +24,13 @@ export default function LoginPage() {
     const { user, isUserLoading } = useUser();
     const router = useRouter();
 
+    /*
     useEffect(() => {
         if (!isUserLoading && user) {
             router.replace('/'); // Redirect to dashboard if already logged in
         }
     }, [user, isUserLoading, router]);
+    */
 
     const handleLogin = () => {
         if (auth) {
