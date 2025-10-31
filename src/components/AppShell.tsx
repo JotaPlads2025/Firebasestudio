@@ -29,30 +29,35 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Badge } from './ui/badge';
 
 
-const PladsProLogo = () => (
-  <div className="flex items-center gap-2">
-    <div className="p-0">
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="24" height="24" rx="6" fill="hsl(var(--brand-purple))" />
-        <path
-          d="M12.5 5C13.3284 5 14 5.67157 14 6.5C14 7.32843 13.3284 8 12.5 8C11.6716 8 11 7.32843 11 6.5C11 5.67157 11.6716 5 12.5 5ZM9.3 19L11 15.65L14 9H9V11H12.5L10.3 15.65L11.5 18L15 11H17L11.5 22L9.3 19Z"
-          fill="hsl(var(--brand-green))"
-        />
-      </svg>
+const PladsProLogo = () => {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_FIREBASE !== 'true';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="p-0">
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="24" height="24" rx="6" fill="hsl(var(--brand-purple))" />
+          <path
+            d="M12.5 5C13.3284 5 14 5.67157 14 6.5C14 7.32843 13.3284 8 12.5 8C11.6716 8 11 7.32843 11 6.5C11 5.67157 11.6716 5 12.5 5ZM9.3 19L11 15.65L14 9H9V11H12.5L10.3 15.65L11.5 18L15 11H17L11.5 22L9.3 19Z"
+            fill="hsl(var(--brand-green))"
+          />
+        </svg>
+      </div>
+      <span className="font-headline text-xl font-bold text-sidebar-foreground">
+        Plads Pro
+      </span>
+       {isDemoMode && <Badge variant="secondary" className="text-xs absolute -bottom-4 left-10 group-data-[collapsible=icon]:hidden">Demo</Badge>}
     </div>
-    <span className="font-headline text-xl font-bold text-sidebar-foreground">
-      Plads Pro
-    </span>
-  </div>
-);
+  );
+};
 
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -105,7 +110,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         collapsible="icon"
         className="group data-[state=expanded]:bg-gradient-to-b from-brand-purple to-brand-green"
       >
-        <SidebarHeader className="flex items-center justify-between">
+        <SidebarHeader className="flex items-center justify-between relative">
           <PladsProLogo />
           <SidebarTrigger className="hidden md:flex" />
         </SidebarHeader>
