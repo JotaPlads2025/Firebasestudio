@@ -11,11 +11,13 @@ import {
   SidebarContent,
   SidebarInset,
   SidebarTrigger,
+  SidebarFooter,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import Nav from '@/components/nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard, Search, Rocket, Users } from 'lucide-react';
+import { Bell, LogOut, Loader2, Settings, UserCircle, MessageSquare, BookOpenCheck, Building, LayoutDashboard, Search, Rocket, Users, Instagram } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from './ui/badge';
+import { TikTokIcon } from './ui/icons';
 
 
 const PladsProLogo = () => {
@@ -117,6 +120,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
+         <SidebarFooter className="p-2 mt-auto">
+          <SidebarSeparator />
+          <div className="flex items-center justify-around p-2 group-data-[collapsible=icon]:hidden">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="#" target="_blank">
+                  <Button variant="ghost" size="icon" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
+                    <Instagram className="h-5 w-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Instagram</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="#" target="_blank">
+                  <Button variant="ghost" size="icon" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
+                    <TikTokIcon className="h-5 w-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>TikTok</TooltipContent>
+            </Tooltip>
+          </div>
+          <Link
+            href="#"
+            className="group-data-[collapsible=icon]:hidden text-center text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground/80"
+          >
+            Términos y Condiciones
+          </Link>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-brand-purple to-brand-green px-4 text-sidebar-foreground md:px-6">
