@@ -119,7 +119,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-         <SidebarFooter className="p-2 mt-auto space-y-1 text-center">
+         <SidebarFooter className="p-2 mt-auto space-y-0.5 text-center">
           <SidebarSeparator className="mb-1" />
           <div className="flex items-center justify-center group-data-[collapsible=icon]:hidden">
             <Tooltip>
@@ -274,3 +274,5 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    
