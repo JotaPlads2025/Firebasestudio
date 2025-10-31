@@ -121,7 +121,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Nav />
         </SidebarContent>
          <SidebarFooter className="p-2 mt-auto">
-          <SidebarSeparator />
+          <SidebarSeparator className="my-1" />
           <div className="flex items-center justify-around p-2 group-data-[collapsible=icon]:hidden">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -132,16 +132,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               </TooltipTrigger>
               <TooltipContent>Instagram</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="#" target="_blank">
-                  <Button variant="ghost" size="icon" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
-                    <TikTokIcon className="h-5 w-5" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>TikTok</TooltipContent>
             </Tooltip>
           </div>
           <Link
