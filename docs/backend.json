@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "InstructorProfile": {
@@ -9,7 +8,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the instructor profile."
+          "description": "Unique identifier for the InstructorProfile entity."
         },
         "userId": {
           "type": "string",
@@ -17,15 +16,15 @@
         },
         "name": {
           "type": "string",
-          "description": "Instructor's full name."
+          "description": "The full name of the instructor."
         },
         "bio": {
           "type": "string",
-          "description": "A short biography of the instructor."
+          "description": "A short biography or description of the instructor."
         },
         "expertise": {
           "type": "string",
-          "description": "Instructor's area of expertise."
+          "description": "Instructor's area of expertise or specialization."
         },
         "certifications": {
           "type": "array",
@@ -34,21 +33,23 @@
             "type": "string"
           }
         },
-        "profilePictureUrl": {
+        "profileImageUrl": {
           "type": "string",
-          "description": "URL of the instructor's profile picture.",
+          "description": "URL to the instructor's profile image.",
           "format": "uri"
         },
         "contactEmail": {
           "type": "string",
-          "description": "Instructor's contact email address.",
+          "description": "Contact email address for the instructor.",
           "format": "email"
         }
       },
       "required": [
         "id",
         "userId",
-        "name"
+        "name",
+        "bio",
+        "expertise"
       ]
     },
     "Class": {
@@ -59,35 +60,39 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the class."
+          "description": "Unique identifier for the Class entity."
         },
         "instructorId": {
           "type": "string",
-          "description": "Reference to InstructorProfile. (Relationship: InstructorProfile 1:N Class)"
+          "description": "Reference to the InstructorProfile entity. (Relationship: InstructorProfile 1:N Class)"
         },
         "name": {
           "type": "string",
-          "description": "Name of the class."
+          "description": "The name of the class."
         },
         "description": {
           "type": "string",
-          "description": "Detailed description of the class."
+          "description": "A detailed description of the class."
         },
         "schedule": {
           "type": "string",
-          "description": "Scheduling details for the class (e.g., days, times)."
+          "description": "The schedule of the class (e.g., days, times)."
         },
         "price": {
           "type": "number",
-          "description": "Price of the class."
+          "description": "The price of the class."
         },
         "availability": {
           "type": "number",
-          "description": "Number of available slots in the class."
+          "description": "The number of available slots in the class."
         },
         "isActive": {
           "type": "boolean",
           "description": "Indicates whether the class is currently active."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the class (e.g., art, sports, health)."
         }
       },
       "required": [
@@ -98,41 +103,42 @@
         "schedule",
         "price",
         "availability",
-        "isActive"
+        "isActive",
+        "category"
       ]
     },
     "Booking": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Booking",
       "type": "object",
-      "description": "Represents a student's booking for a class.",
+      "description": "Represents a booking for a class.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the booking."
+          "description": "Unique identifier for the Booking entity."
         },
         "classId": {
           "type": "string",
-          "description": "Reference to Class. (Relationship: Class 1:N Booking)"
+          "description": "Reference to the Class entity. (Relationship: Class 1:N Booking)"
         },
-        "studentId": {
+        "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Booking)"
+          "description": "Reference to the User entity. (Relationship: User 1:N Booking)"
         },
         "bookingDate": {
           "type": "string",
-          "description": "Date and time when the booking was made.",
+          "description": "The date and time the booking was made.",
           "format": "date-time"
         },
         "attendanceStatus": {
           "type": "string",
-          "description": "Attendance status of the student for the class (e.g., Attended, Absent)."
+          "description": "The attendance status of the user for the booked class (e.g., attended, missed)."
         }
       },
       "required": [
         "id",
         "classId",
-        "studentId",
+        "userId",
         "bookingDate",
         "attendanceStatus"
       ]
@@ -141,28 +147,28 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Notification",
       "type": "object",
-      "description": "Represents a notification sent to an instructor or student.",
+      "description": "Represents a notification sent to an instructor or user.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the notification."
+          "description": "Unique identifier for the Notification entity."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to the User that the notification is for. (Relationship: User 1:N Notification)"
-        },
-        "type": {
-          "type": "string",
-          "description": "Type of notification (e.g., New booking, Class reminder)."
+          "description": "Reference to the User entity. (Relationship: User 1:N Notification)"
         },
         "message": {
           "type": "string",
-          "description": "Content of the notification."
+          "description": "The content of the notification."
         },
-        "sentAt": {
+        "timestamp": {
           "type": "string",
-          "description": "Date and time when the notification was sent.",
+          "description": "The date and time the notification was sent.",
           "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of notification (e.g., booking, reminder, update)."
         },
         "isRead": {
           "type": "boolean",
@@ -172,9 +178,9 @@
       "required": [
         "id",
         "userId",
-        "type",
         "message",
-        "sentAt",
+        "timestamp",
+        "type",
         "isRead"
       ]
     },
@@ -182,42 +188,38 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the application (either an instructor or a student).",
+      "description": "Represents a user of the application (instructor or student).",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the user."
+          "description": "Unique identifier for the User entity."
         },
         "email": {
           "type": "string",
-          "description": "User's email address.",
+          "description": "The user's email address.",
           "format": "email"
         },
-        "firstName": {
+        "fullName": {
           "type": "string",
-          "description": "User's first name."
+          "description": "The user's full name."
         },
-        "lastName": {
-          "type": "string",
-          "description": "User's last name."
-        },
-        "role": {
-          "type": "string",
-          "description": "The role of the user, e.g., 'instructor' or 'student'."
+        "isInstructor": {
+          "type": "boolean",
+          "description": "Indicates whether the user is an instructor."
         }
       },
       "required": [
         "id",
         "email",
-        "firstName",
-        "lastName",
-        "role"
+        "fullName",
+        "isInstructor"
       ]
     }
   },
   "auth": {
     "providers": [
-      "google"
+      "password",
+      "anonymous"
     ]
   },
   "firestore": {
@@ -229,27 +231,27 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user information. Each user document is uniquely identified by its userId.",
+          "description": "Stores user information. Path-based ownership ensures only the user can access their own data.",
           "params": [
             {
               "name": "userId",
-              "description": "Unique identifier for the user."
+              "description": "The unique identifier of the user."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/instructorProfile",
+        "path": "/instructors/{instructorId}",
         "definition": {
           "entityName": "InstructorProfile",
           "schema": {
             "$ref": "#/backend/entities/InstructorProfile"
           },
-          "description": "Stores the instructor profile information, linked 1:1 with the User entity. Accessible only to the user.",
+          "description": "Stores instructor profiles. Path-based ownership ensures only the instructor or admin can manage the profile.",
           "params": [
             {
-              "name": "userId",
-              "description": "Unique identifier for the user (also the instructor)."
+              "name": "instructorId",
+              "description": "The unique identifier of the instructor."
             }
           ]
         }
@@ -261,15 +263,15 @@
           "schema": {
             "$ref": "#/backend/entities/Class"
           },
-          "description": "Stores classes created by instructors.  Includes denormalized 'instructorId' for authorization independence.",
+          "description": "Stores classes offered by instructors. Nested under instructor ID for clear ownership.",
           "params": [
             {
               "name": "instructorId",
-              "description": "Unique identifier for the instructor."
+              "description": "The unique identifier of the instructor."
             },
             {
               "name": "classId",
-              "description": "Unique identifier for the class."
+              "description": "The unique identifier of the class."
             }
           ]
         }
@@ -281,15 +283,35 @@
           "schema": {
             "$ref": "#/backend/entities/Booking"
           },
-          "description": "Stores bookings for each class. Includes the 'studentId' for authorization independence.",
+          "description": "Stores bookings for classes. Nested under class ID for efficient queries and management.",
           "params": [
             {
               "name": "classId",
-              "description": "Unique identifier for the class."
+              "description": "The unique identifier of the class."
             },
             {
               "name": "bookingId",
-              "description": "Unique identifier for the booking."
+              "description": "The unique identifier of the booking."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Duplicate of booking for classes. Nested under user ID for efficient queries and management.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "bookingId",
+              "description": "The unique identifier of the booking."
             }
           ]
         }
@@ -301,20 +323,20 @@
           "schema": {
             "$ref": "#/backend/entities/Notification"
           },
-          "description": "Stores notifications for each user.",
+          "description": "Stores notifications for users. Nested under user ID to easily fetch notifications for a specific user.",
           "params": [
             {
               "name": "userId",
-              "description": "Unique identifier for the user."
+              "description": "The unique identifier of the user."
             },
             {
               "name": "notificationId",
-              "description": "Unique identifier for the notification."
+              "description": "The unique identifier of the notification."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the Plads Pro application. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership, ensuring only the user can access their own profile. Classes are stored under `/instructors/{instructorId}/classes/{classId}`, allowing instructors to manage their classes, with the instructorId also stored in the Class document for authorization independence. Bookings are stored under `/classes/{classId}/bookings/{bookingId}` and contain the `studentId` to enable rules to verify user booking and attendance. Notifications are structured under `/users/{userId}/notifications/{notificationId}`, providing a clear path for delivering notifications to specific users.\n\n**Authorization Independence:** The design emphasizes denormalization. For example, the `Class` entity includes `instructorId`, even though the path includes it as well, allowing security rules to validate instructor ownership without additional `get()` calls. The `Booking` document includes `studentId` and is located under `/classes/{classId}`, denormalizing the `classId` from the path so the security rules can validate the request.\n\n**QAPs (Rules are not Filters):** The segregation of data into instructor-owned classes and user-owned notifications supports secure list operations. Listing classes under `/instructors/{instructorId}/classes` is secure because the instructor ID is part of the path. Similarly, listing notifications under `/users/{userId}/notifications` is secure because the user ID is part of the path. The structure avoids mixing data with different access needs within the same collection."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability, adhering to the specified principles. User profiles and related data are segregated under the `/users/{userId}` path for private data. Instructor profiles are stored separately to allow for independent management. Classes are also nested under the instructor's profile to maintain ownership, and bookings are nested under both user and class to support efficient queries and denormalization. Notifications are segregated under user to allow list operation for specific user.\n\n*   **Authorization Independence:** Achieved through path-based ownership for user-specific data and explicit instructorId on classes and bookings. The `instructorId` field in the `classes` collection allows us to determine the instructor owning the class without needing to read the instructor profile document. The `userId` and `classId` fields in the `bookings` collection provide authorization context for bookings without needing to `get()` the parent documents.\n*   **QAPs:** Secure `list` operations are supported by segregating data based on ownership. For example, listing classes is performed under `/instructors/{instructorId}/classes`, which restricts access to classes owned by a specific instructor. Listing bookings can be performed under `/users/{userId}/bookings` to get bookings related to a user, or under `/classes/{classId}/bookings` to get bookings for the class.\n*   **Data Clarity and Predictability:** The structure utilizes explicit state modeling through boolean fields like `isActive` in classes, avoiding the need to infer state. Predictable schema is enforced by using static keys and avoiding dynamic keys. Standardized naming conventions are applied (e.g., `userId`, `instructorId`)."
   }
 }

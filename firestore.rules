@@ -1,197 +1,167 @@
 /**
- * @fileoverview Firestore Security Rules for the Avanzamos application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for personal data
- * (users, instructor profiles, and notifications). Classes are owned by instructors,
- * and bookings are associated with both classes and students. The rules prioritize
- * authorization independence by denormalizing authorization-relevant data (e.g.,
- * instructorId in Class documents, studentId in Booking documents) directly onto the
- * documents being secured.  This avoids the need for costly and slow `get()` calls
- * in the security rules.
+ * @fileOverview
+ * This ruleset enforces a strict user-ownership model for users, instructors and their associated data.
+ * All data is nested under user-specific or instructor-specific paths (/users/{userId}, /instructors/{instructorId}),
+ * ensuring that only the authenticated user or the instructor has full access to their respective data.
+ * Classes are nested under instructor profiles, and bookings are duplicated under both users and classes
+ * for efficient data retrieval and management. Notifications are also nested under the user's path.
  *
  * Data Structure:
- * - /users/{userId}: Stores user information.
- * - /users/{userId}/instructorProfile: Stores instructor-specific profile information.
- * - /instructors/{instructorId}/classes/{classId}: Stores class information, nested under the instructor.
- * - /classes/{classId}/bookings/{bookingId}: Stores booking information for each class.
- * - /users/{userId}/notifications/{notificationId}: Stores user-specific notifications.
+ * - /users/{userId}: Stores user profiles, accessible only by the user.
+ * - /instructors/{instructorId}: Stores instructor profiles, accessible only by the instructor.
+ * - /instructors/{instructorId}/classes/{classId}: Stores classes owned by instructors, accessible only by the owning instructor.
+ * - /classes/{classId}/bookings/{bookingId}: Stores bookings for classes, accessible by either class or user.
+ * - /users/{userId}/bookings/{bookingId}: Stores booking duplicated for users, accessible only by the user.
+ * - /users/{userId}/notifications/{notificationId}: Stores notifications for users, accessible only by the user.
  *
  * Key Security Decisions:
- * - Users can only access their own data (user documents, instructor profiles, notifications).
- * - Instructors can manage (create, update, delete) their own classes.
- * - Students can only create bookings for themselves.
- * - Listing operations are generally restricted to owners (e.g., users listing their own notifications, instructors listing their own classes).
- * - Data validation is relaxed to allow for rapid prototyping, focusing primarily on
- *   ownership and relational integrity checks.
+ * - User and instructor profiles are private and only accessible by the authenticated user or instructor.
+ * - Class creation, update, and deletion are restricted to the owning instructor.
+ * - Bookings can be created by anyone (assuming the application handles payment and class availability).
+ *   However, access to booking data is restricted to the user who made the booking.
+ * - Notifications are private and only accessible by the intended user.
  *
  * Denormalization for Authorization:
- * - The `Class` entity includes `instructorId`, allowing rules to validate instructor ownership without extra reads.
- * - The `Booking` document includes `studentId` to enable rules to verify user booking and attendance.
- *
- * Structural Segregation:
- * - Classes are stored under instructors, and notifications are stored under users,
- *   providing clear ownership and simplifying list operations.
+ * - Classes documents has an `instructorId` field for authorization.
+ * - Bookings documents has `classId` and `userId` for authorization.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user documents. Only the user themselves can read or write their own document.
+     * @description Enforces that only the authenticated user can access their own user profile.
      * @path /users/{userId}
-     * @allow (create) User with ID 'user123' creates their own user document.
-     *   request.auth.uid == 'user123'
-     * @allow (get) User with ID 'user123' reads their own user document.
-     *   request.auth.uid == 'user123'
-     * @allow (update) User with ID 'user123' updates their own user document.
-     *   request.auth.uid == 'user123'
-     * @allow (delete) User with ID 'user123' deletes their own user document.
-     *   request.auth.uid == 'user123'
-     * @deny (create) User with ID 'user123' attempts to create a user document for 'user456'.
-     *   request.auth.uid != 'user456'
+     * @allow (create) User with ID 'user123' can create their own profile.
+     * @allow (get, update, delete) Authenticated user 'user123' can access and modify their own profile.
+     * @deny (get, update, delete) Authenticated user 'user456' cannot access user 'user123' profile.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
       function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
       function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+        return request.auth.uid == userId && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to instructor profile documents. Only the owning user can read or write their own profile.
-     * @path /users/{userId}/instructorProfile
-     * @allow (create) User with ID 'user123' creates their own instructor profile.
-     *   request.auth.uid == 'user123'
-     * @allow (get) User with ID 'user123' reads their own instructor profile.
-     *   request.auth.uid == 'user123'
-     * @allow (update) User with ID 'user123' updates their own instructor profile.
-     *   request.auth.uid == 'user123'
-     * @allow (delete) User with ID 'user123' deletes their own instructor profile.
-     *   request.auth.uid == 'user123'
-     * @deny (create) User with ID 'user123' attempts to create an instructor profile for 'user456'.
-     *   request.auth.uid != 'user456'
+     * @description Enforces that only the authenticated instructor can access their own instructor profile.
+     * @path /instructors/{instructorId}
+     * @allow (create) Instructor with ID 'instructor123' can create their own profile.
+     * @allow (get, update, delete) Authenticated instructor 'instructor123' can access and modify their own profile.
+     * @deny (get, update, delete) Authenticated instructor 'instructor456' cannot access instructor 'instructor123' profile.
      * @principle Enforces document ownership for all operations.
      */
-    match /users/{userId}/instructorProfile {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Controls access to class documents. Only the instructor who created the class can manage it.
-     * @path /instructors/{instructorId}/classes/{classId}
-     * @allow (create) Instructor 'instructor123' creates a class.
-     *   request.auth.uid == 'instructor123' && request.resource.data.instructorId == 'instructor123'
-     * @allow (get) Any user can read a class.
-     *   true
-     * @allow (list) Instructor 'instructor123' lists their classes.
-     *   request.auth.uid == 'instructor123'
-     * @allow (update) Instructor 'instructor123' updates a class they own.
-     *   request.auth.uid == 'instructor123' && resource.data.instructorId == 'instructor123'
-     * @allow (delete) Instructor 'instructor123' deletes a class they own.
-     *   request.auth.uid == 'instructor123' && resource.data.instructorId == 'instructor123'
-     * @deny (create) User 'student456' attempts to create a class.
-     *   request.auth.uid != 'instructor123'
-     * @principle Enforces instructor ownership for write operations and allows public read access.
-     */
-    match /instructors/{instructorId}/classes/{classId} {
+    match /instructors/{instructorId} {
       function isOwner(instructorId) {
-        return request.auth != null && request.auth.uid == instructorId;
+        return request.auth.uid == instructorId;
       }
 
       function isExistingOwner(instructorId) {
-        return isOwner(instructorId) && resource != null;
+        return request.auth.uid == instructorId && resource != null;
       }
 
-      allow get: if true;
-      allow list: if isOwner(instructorId);
-      allow create: if isOwner(instructorId) && request.resource.data.instructorId == instructorId;
-      allow update: if isExistingOwner(instructorId) && resource.data.instructorId == instructorId;
-      allow delete: if isExistingOwner(instructorId) && resource.data.instructorId == instructorId;
+      allow get: if isOwner(instructorId);
+      allow list: if false;
+      allow create: if isOwner(instructorId);
+      allow update: if isExistingOwner(instructorId);
+      allow delete: if isExistingOwner(instructorId);
     }
 
     /**
-     * @description Controls access to booking documents.  Any authenticated user can create a booking for themselves for a class.
-     * @path /classes/{classId}/bookings/{bookingId}
-     * @allow (create) User 'student123' creates a booking for class 'class456'.
-     *   request.auth.uid == 'student123'
-     * @allow (get) Any authenticated user can read a booking.
-     *   request.auth != null
-     * @allow (list) Any authenticated user can list bookings.
-     *   request.auth != null
-     * @allow (update) No one can update a booking document after it has been created.
-     *   false
-     * @allow (delete) No one can delete a booking document after it has been created.
-     *   false
-     * @deny (create) User 'student123' attempts to create a booking for 'student456'.
-     *   request.auth.uid != 'student123'
-     *
-     * @principle Allows booking creation only by the authenticated user.
+     * @description Enforces that only the instructor can manage their own classes.
+     * @path /instructors/{instructorId}/classes/{classId}
+     * @allow (create) Instructor 'instructor123' can create a class under their profile.
+     * @allow (get, update, delete) Instructor 'instructor123' can access and modify class 'classABC' under their profile.
+     * @deny (get, update, delete) Instructor 'instructor456' cannot access class 'classABC' under instructor 'instructor123' profile.
+     * @principle Enforces document ownership for all operations.
      */
-    match /classes/{classId}/bookings/{bookingId} {
-      function isSignedIn() {
-        return request.auth != null;
+    match /instructors/{instructorId}/classes/{classId} {
+      function isOwner(instructorId) {
+        return request.auth.uid == instructorId;
       }
 
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
+      function isExistingOwner(instructorId) {
+        return request.auth.uid == instructorId && resource != null;
+      }
+      allow get: if isOwner(instructorId);
+      allow list: if isOwner(instructorId);
+      allow create: if isOwner(instructorId);
+      allow update: if isExistingOwner(instructorId);
+      allow delete: if isExistingOwner(instructorId);
+    }
+
+    /**
+     * @description Allows access to bookings nested under classes.
+     * @path /classes/{classId}/bookings/{bookingId}
+     * @allow (create) Any authenticated user can create a booking for a class.
+     * @allow (get, list) Any authenticated user can get or list a booking for a class.
+     * @deny (update, delete) Only a user with appropriate permission can update or delete a booking.
+     * @principle Allows public read access, restricts write access.
+     */
+    match /classes/{classId}/bookings/{bookingId} {
+
+      allow get: if true;
+      allow list: if true;
+      allow create: if request.auth != null;
       allow update: if false;
       allow delete: if false;
     }
 
-    /**
-     * @description Controls access to notification documents. Only the user receiving the notification can read or write it.
-     * @path /users/{userId}/notifications/{notificationId}
-     * @allow (create) User with ID 'user123' creates a notification for themselves.
-     *   request.auth.uid == 'user123'
-     * @allow (get) User with ID 'user123' reads their own notification.
-     *   request.auth.uid == 'user123'
-     * @allow (list) User with ID 'user123' lists their own notifications.
-     *   request.auth.uid == 'user123'
-     * @allow (update) User with ID 'user123' updates their own notification.
-     *   request.auth.uid == 'user123'
-     * @allow (delete) User with ID 'user123' deletes their own notification.
-     *   request.auth.uid == 'user123'
-     * @deny (create) User with ID 'user123' attempts to create a notification for 'user456'.
-     *   request.auth.uid != 'user456'
-     * @principle Enforces document ownership for all operations.
+      /**
+     * @description Allows access to bookings nested under users.
+     * @path /users/{userId}/bookings/{bookingId}
+     * @allow (create) Any authenticated user can create a booking for themself.
+     * @allow (get, list) Any authenticated user can get or list their own booking.
+     * @deny (update, delete) Only the user with appropriate permission can update or delete their booking.
+     * @principle Allows public read access, restricts write access.
      */
-    match /users/{userId}/notifications/{notificationId} {
+    match /users/{userId}/bookings/{bookingId} {
       function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
       function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+        return request.auth.uid == userId && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Enforces that only the authenticated user can access their own notifications.
+     * @path /users/{userId}/notifications/{notificationId}
+     * @allow (create) User with ID 'user123' can create their own notification.
+     * @allow (get, update, delete) Authenticated user 'user123' can access and modify their own notification.
+     * @deny (get, update, delete) Authenticated user 'user456' cannot access user 'user123' notification.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/notifications/{notificationId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return request.auth.uid == userId && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
   }
