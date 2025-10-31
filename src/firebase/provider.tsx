@@ -27,8 +27,6 @@ export const FirebaseContext = createContext<FirebaseContextState | undefined>(
   undefined
 );
 
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
-
 /**
  * FirebaseProvider manages and provides Firebase services and user authentication state.
  */
@@ -45,10 +43,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       auth: auth,
     };
   }, [firebaseApp, firestore, auth]);
-
-  if (!USE_FIREBASE) {
-    return <>{children}</>;
-  }
 
   return (
     <FirebaseContext.Provider value={contextValue}>

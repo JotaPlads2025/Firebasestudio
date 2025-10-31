@@ -20,8 +20,6 @@ import { collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
-
 const scheduleSchema = z.object({
   day: z.string().min(1, 'Debes seleccionar un día.'),
   startTime: z.string().min(1, 'La hora de inicio es requerida.'),
@@ -66,8 +64,8 @@ export default function CreateClassForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const auth = USE_FIREBASE ? useAuth() : null;
-  const firestore = USE_FIREBASE ? useFirestore() : null;
+  const auth = useAuth();
+  const firestore = useFirestore();
 
   const form = useForm<ClassFormValues>({
     resolver: zodResolver(classFormSchema),
@@ -102,56 +100,42 @@ export default function CreateClassForm() {
   async function onSubmit(data: ClassFormValues) {
     setIsSubmitting(true);
     
-    if (USE_FIREBASE) {
-      if (!auth?.currentUser || !firestore) {
-        toast({
-            variant: 'destructive',
-            title: 'Error de autenticación',
-            description: 'Debes iniciar sesión para crear una clase.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
+    if (!auth?.currentUser || !firestore) {
+      toast({
+          variant: 'destructive',
+          title: 'Error de autenticación',
+          description: 'Debes iniciar sesión para crear una clase.',
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
-      const instructorId = auth.currentUser.uid;
-      const classesCollectionRef = collection(firestore, `instructors/${instructorId}/classes`);
-      
-      const newClassData = {
-        ...data,
-        instructorId: instructorId,
-        schedule: data.schedules.map(s => `${s.day} ${s.startTime}`).join(', '), // Simplified schedule string
-        scheduleDays: data.schedules.map(s => s.day)
-      };
+    const instructorId = auth.currentUser.uid;
+    const classesCollectionRef = collection(firestore, `instructors/${instructorId}/classes`);
+    
+    const newClassData = {
+      ...data,
+      instructorId: instructorId,
+      schedule: data.schedules.map(s => `${s.day} ${s.startTime}`).join(', '), // Simplified schedule string
+      scheduleDays: data.schedules.map(s => s.day)
+    };
 
-      try {
-        await addDocumentNonBlocking(firestore, classesCollectionRef, newClassData);
-        toast({
-            title: "¡Clase Creada!",
-            description: `La clase "${data.name}" ha sido guardada en la base de datos.`,
-        });
-        router.push('/classes');
-      } catch (error) {
-        // Error is handled by the global error emitter in addDocumentNonBlocking
-        console.error("Error creating class:", error); // console.error for visibility during dev
-        toast({
-            variant: 'destructive',
-            title: 'Error al crear la clase',
-            description: 'Hubo un problema al guardar la clase.',
-        });
-        setIsSubmitting(false);
-      }
-
-    } else {
-        // --- MODO DEMO ---
-        console.log(data);
-        toast({
-            title: "Clase Creada (Simulación)",
-            description: "Los datos de la clase han sido registrados en la consola.",
-        });
-        setTimeout(() => {
-            setIsSubmitting(false);
-            router.push('/classes');
-        }, 1000);
+    try {
+      await addDocumentNonBlocking(firestore, classesCollectionRef, newClassData);
+      toast({
+          title: "¡Clase Creada!",
+          description: `La clase "${data.name}" ha sido guardada en la base de datos.`,
+      });
+      router.push('/classes');
+    } catch (error) {
+      // Error is handled by the global error emitter in addDocumentNonBlocking
+      console.error("Error creating class:", error); // console.error for visibility during dev
+      toast({
+          variant: 'destructive',
+          title: 'Error al crear la clase',
+          description: 'Hubo un problema al guardar la clase.',
+      });
+      setIsSubmitting(false);
     }
   }
 

@@ -35,7 +35,6 @@ import { Badge } from './ui/badge';
 
 
 const PladsProLogo = () => {
-  const isDemoMode = process.env.NEXT_PUBLIC_USE_FIREBASE === 'false';
   return (
     <div className="flex items-center gap-2">
       <div className="p-0">
@@ -56,7 +55,6 @@ const PladsProLogo = () => {
       <span className="font-headline text-xl font-bold text-sidebar-foreground">
         Plads Pro
       </span>
-       {isDemoMode && <Badge variant="secondary" className="text-xs absolute -bottom-4 left-10 group-data-[collapsible=icon]:hidden">Demo</Badge>}
     </div>
   );
 };
@@ -71,16 +69,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
 
-  const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
-
   React.useEffect(() => {
-    if (!USE_FIREBASE || isUserLoading || isPublicPage) {
+    if (isUserLoading || isPublicPage) {
       return; 
     }
     if (!user) {
       router.replace('/login');
     }
-  }, [user, isUserLoading, router, isPublicPage, USE_FIREBASE]);
+  }, [user, isUserLoading, router, isPublicPage]);
   
   const handleLogout = () => {
     if (auth) {
@@ -97,7 +93,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
   
-  if ((USE_FIREBASE && isUserLoading) || (USE_FIREBASE && !user)) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -119,9 +115,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-         <SidebarFooter className="p-2 mt-auto space-y-0.5 text-center">
-          <SidebarSeparator className="mb-1" />
-          <div className="flex items-center justify-center group-data-[collapsible=icon]:hidden">
+        <SidebarFooter className="mt-auto p-2 text-center space-y-1">
+          <SidebarSeparator className="mb-2" />
+          <div className="flex items-center justify-center gap-1 group-data-[collapsible=icon]:hidden">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link href="#" target="_blank">
@@ -226,8 +222,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.displayName || 'Usuario Demo'}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email || 'demo@plads.com'}</p>
+                      <p className="text-sm font-medium leading-none">{user.displayName || 'Usuario'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email || 'No email'}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -274,5 +270,3 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    

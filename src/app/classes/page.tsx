@@ -108,15 +108,9 @@ export default function ClassesPage() {
 
   useEffect(() => {
     if (classesData) {
-        // If firestore returns data (even an empty array), use it.
-        // If it's an empty array, it means the user has no classes, so we load demo data.
-        setLocalClasses(classesData.length > 0 ? classesData : demoClasses);
-    } else if (!isLoadingClasses) {
-        // If there's no data and we are not loading (e.g., Firestore is disabled or user is logged out)
-        // load demo data.
-        setLocalClasses(demoClasses);
+      setLocalClasses(classesData);
     }
-  }, [classesData, isLoadingClasses]);
+  }, [classesData]);
 
 
   const calendarEvents = useMemo(() => {
