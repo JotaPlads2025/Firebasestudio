@@ -35,7 +35,7 @@ import { Badge } from './ui/badge';
 
 
 const PladsProLogo = () => {
-  const isDemoMode = process.env.NEXT_PUBLIC_USE_FIREBASE !== 'true';
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_FIREBASE === 'false';
   return (
     <div className="flex items-center gap-2">
       <div className="p-0">
@@ -119,9 +119,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-         <SidebarFooter className="p-2 mt-auto">
-          <SidebarSeparator className="my-1" />
-          <div className="flex items-center justify-around group-data-[collapsible=icon]:hidden">
+         <SidebarFooter className="p-2 mt-auto space-y-1 text-center">
+          <SidebarSeparator className="mb-1" />
+          <div className="flex items-center justify-center group-data-[collapsible=icon]:hidden">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link href="#" target="_blank">
@@ -135,7 +135,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <Link
             href="#"
-            className="group-data-[collapsible=icon]:hidden text-center text-[10px] text-sidebar-foreground/50 hover:text-sidebar-foreground/70"
+            className="group-data-[collapsible=icon]:hidden text-[10px] text-sidebar-foreground/50 hover:text-sidebar-foreground/70"
           >
             Términos y Condiciones
           </Link>
