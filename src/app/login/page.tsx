@@ -19,6 +19,29 @@ d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.
     </svg>
 );
 
+const PladsProLogo = () => (
+    <div className="flex items-center gap-2">
+        <div className="p-0">
+        <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <rect width="24" height="24" rx="6" fill="hsl(var(--brand-purple))" />
+            <path
+            d="M12.5 5C13.3284 5 14 5.67157 14 6.5C14 7.32843 13.3284 8 12.5 8C11.6716 8 11 7.32843 11 6.5C11 5.67157 11.6716 5 12.5 5ZM9.3 19L11 15.65L14 9H9V11H12.5L10.3 15.65L11.5 18L15 11H17L11.5 22L9.3 19Z"
+            fill="hsl(var(--brand-green))"
+            />
+        </svg>
+        </div>
+        <span className="font-headline text-3xl font-bold text-foreground">
+            Plads Pro
+        </span>
+    </div>
+);
+
 
 const LoginPageContent = () => {
     const auth = useAuth();
@@ -27,7 +50,7 @@ const LoginPageContent = () => {
 
     useEffect(() => {
         if (!isUserLoading && user) {
-            router.replace('/'); // Redirect to dashboard if already logged in
+            router.replace('/');
         }
     }, [user, isUserLoading, router]);
 
@@ -39,22 +62,27 @@ const LoginPageContent = () => {
     
     if (isUserLoading || user) {
         return (
-            <div className="flex h-screen w-screen items-center justify-center bg-muted/40">
-                <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="flex h-screen w-screen items-center justify-center bg-background">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
     }
     
     return (
-        <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-brand-purple/20 via-background to-brand-green/20">
-            <Card className="w-full max-w-sm shadow-xl">
-                <CardHeader className="text-center">
-                    <CardTitle className="font-headline text-2xl">Bienvenido a Plads Pro</CardTitle>
-                    <CardDescription>Inicia sesión para administrar tus clases.</CardDescription>
+        <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-brand-purple to-brand-green p-4">
+            <Card className="w-full max-w-md shadow-2xl animate-fade-in-up">
+                <CardHeader className="text-center space-y-4 pt-8">
+                    <div className="flex justify-center">
+                        <PladsProLogo />
+                    </div>
+                    <CardTitle className="font-headline text-2xl tracking-tight">Bienvenid@ a Plads Pro</CardTitle>
+                    <CardDescription className="text-muted-foreground !mt-2">
+                        Conecta a quienes quieren aprender con quienes aman enseñar.
+                    </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Button onClick={handleLogin} className="w-full">
-                        <GoogleIcon className="mr-2" />
+                <CardContent className="p-8">
+                    <Button onClick={handleLogin} className="w-full h-12 text-base">
+                        <GoogleIcon className="mr-3" />
                         Ingresar con Google
                     </Button>
                 </CardContent>
@@ -63,32 +91,22 @@ const LoginPageContent = () => {
     );
 };
 
-// This wrapper ensures AppShell logic is applied *only* to authenticated pages,
-// and the login page remains separate.
 export default function LoginPage() {
     const { user, isUserLoading } = useUser();
 
     if (isUserLoading) {
         return (
             <div className="flex h-screen w-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
     }
 
     if (user) {
-        // User is logged in, show the main app shell
-        // Since we are returning null from the layout, the children of the main layout will be rendered.
-        // We can't directly render the children here, so we redirect.
-        // A better approach is using route groups, but for now, we'll keep the logic here.
-        // The useEffect in LoginPageContent will handle the redirection.
-        // Let's ensure the main content is wrapped in AppShell for logged-in users.
-        // This is a bit of a workaround due to not using route groups.
-        
-        // For now, let's just let the content redirect.
         return <LoginPageContent />;
     }
 
-    // User is not logged in, show the login page
     return <LoginPageContent />;
 }
+
+    
