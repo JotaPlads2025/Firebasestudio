@@ -1,9 +1,10 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@/firebase/provider';
+import { useAuth, useUser, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   SidebarProvider,
   Sidebar,
@@ -63,20 +64,40 @@ const PladsProLogo = () => {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
 
   const pathname = usePathname();
   const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
 
-  React.useEffect(() => {
-    if (isUserLoading || isPublicPage) {
-      return; 
-    }
-    if (!user) {
+  useEffect(() => {
+    if (isUserLoading) return;
+
+    if (!user && !isPublicPage) {
       router.replace('/login');
+      return;
     }
-  }, [user, isUserLoading, router, isPublicPage]);
+
+    if (user && firestore) {
+      const userRef = doc(firestore, 'users', user.uid);
+      getDoc(userRef).then(userDoc => {
+        if (!userDoc.exists()) {
+          // User document doesn't exist, create it.
+          const newUser = {
+            id: user.uid,
+            email: user.email,
+            firstName: user.displayName?.split(' ')[0] || '',
+            lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+            role: 'instructor', // Default role
+          };
+          setDoc(userRef, newUser).catch(error => {
+            console.error("Error creating user document:", error);
+          });
+        }
+      });
+    }
+  }, [user, isUserLoading, router, isPublicPage, firestore]);
   
   const handleLogout = () => {
     if (auth) {
@@ -116,7 +137,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Nav />
         </SidebarContent>
         <SidebarFooter className="mt-auto p-2 text-center space-y-1">
-          <SidebarSeparator className="mb-2" />
+          <SidebarSeparator className="mb-1" />
           <div className="flex items-center justify-center gap-1 group-data-[collapsible=icon]:hidden">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -270,3 +291,5 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    
