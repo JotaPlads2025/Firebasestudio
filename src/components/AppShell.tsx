@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   SidebarProvider,
@@ -34,6 +34,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from './ui/badge';
 
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 const PladsProLogo = () => {
   return (
@@ -72,7 +73,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
 
   useEffect(() => {
-    if (isUserLoading) return;
+    if (!USE_FIREBASE || isUserLoading) return;
 
     if (!user && !isPublicPage) {
       router.replace('/login');
@@ -91,9 +92,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
             role: 'instructor', // Default role
           };
-          setDoc(userRef, newUser).catch(error => {
-            console.error("Error creating user document:", error);
-          });
+          // Using a non-blocking write operation
+          setDocumentNonBlocking(firestore, userRef, newUser);
         }
       });
     }
@@ -110,11 +110,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     command();
   }, []);
 
+  const shouldShowLogin = USE_FIREBASE && (isUserLoading || !user);
+
   if (isPublicPage) {
     return <>{children}</>;
   }
   
-  if (isUserLoading || !user) {
+  if (shouldShowLogin) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -130,7 +132,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         className="group data-[state=expanded]:bg-gradient-to-b from-brand-purple to-brand-green"
       >
         <SidebarHeader className="flex items-center justify-between relative">
-          <PladsProLogo />
+          <div className="flex items-center gap-2">
+            <PladsProLogo />
+            {!USE_FIREBASE && <Badge variant="destructive" className="animate-pulse">DEMO</Badge>}
+          </div>
           <SidebarTrigger className="hidden md:flex" />
         </SidebarHeader>
         <SidebarContent className="p-2">
@@ -291,5 +296,3 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    

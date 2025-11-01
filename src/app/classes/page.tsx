@@ -30,7 +30,7 @@ import type { Class, Venue } from '@/lib/types';
 import { studentData } from '@/lib/student-data';
 import { venues as initialVenues } from '@/lib/venues-data';
 import AttendeesDialog from '@/components/attendees-dialog';
-import { useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useAuth, useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -48,6 +48,7 @@ const dayNameToIndex: { [key: string]: number } = {
   'Sábado': 6,
 };
 
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
@@ -89,7 +90,7 @@ export default function ClassesPage() {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isAttendeesDialogOpen, setIsAttendeesDialogOpen] = useState(false);
   
-  const auth = useAuth();
+  const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
 
@@ -99,16 +100,20 @@ export default function ClassesPage() {
   }, []);
 
   const classesRef = useMemoFirebase(() => {
-    if (!auth?.currentUser || !firestore) return null;
-    return collection(firestore, 'instructors', auth.currentUser.uid, 'classes');
-  }, [auth?.currentUser, firestore]);
+    if (!USE_FIREBASE || !user || !firestore) return null;
+    return collection(firestore, 'instructors', user.uid, 'classes');
+  }, [user, firestore]);
   
   const { data: classesData, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
   const [localClasses, setLocalClasses] = useState<Class[] | null>(null);
 
   useEffect(() => {
-    if (classesData) {
-      setLocalClasses(classesData);
+    if (USE_FIREBASE) {
+        if (classesData) {
+            setLocalClasses(classesData);
+        }
+    } else {
+        setLocalClasses(demoClasses);
     }
   }, [classesData]);
 
@@ -154,20 +159,24 @@ export default function ClassesPage() {
   }
 
   const handleStatusChange = async (classId: string, newStatus: boolean) => {
-    if (!firestore || !auth?.currentUser) return;
+    if (!firestore || !user) return;
 
     // Prevent status change for demo classes
-    if (classId.startsWith('demo-')) {
+    if (!USE_FIREBASE && classId.startsWith('demo-')) {
         toast({
             variant: "destructive",
             title: "Acción no permitida",
             description: "No se puede cambiar el estado de una clase de demostración."
         });
+        // Revert optimistic switch
+        setLocalClasses(prev => 
+            prev!.map(cls => cls.id === classId ? { ...cls, status: newStatus ? 'Inactive' : 'Active' } : cls)
+        );
         return;
     }
 
     const status = newStatus ? 'Active' : 'Inactive';
-    const classRef = doc(firestore, 'instructors', auth.currentUser.uid, 'classes', classId);
+    const classRef = doc(firestore, 'instructors', user.uid, 'classes', classId);
 
     try {
         await updateDoc(classRef, { status });
@@ -188,6 +197,10 @@ export default function ClassesPage() {
             title: "Error al actualizar",
             description: "No se pudo cambiar el estado de la clase."
         });
+        // Revert optimistic switch
+         setLocalClasses(prev => 
+            prev!.map(cls => cls.id === classId ? { ...cls, status: newStatus ? 'Inactive' : 'Active' } : cls)
+        );
     }
   };
 
@@ -312,7 +325,7 @@ export default function ClassesPage() {
                             <TableRow key={cls.id}>
                                 <TableCell className="font-medium">{cls.name}</TableCell>
                                 <TableCell>
-                                    <span className='capitalize'>{format(cls.date!, 'eeee dd, HH:mm', { locale: es })}</span>
+                                    <span className='capitalize'>{cls.date ? format(cls.date, 'eeee dd, HH:mm', { locale: es }) : 'Fecha no disponible'}</span>
                                 </TableCell>
                                 <TableCell>{getVenueName(cls.venueId)}</TableCell>
                                 <TableCell className="text-right">
@@ -385,5 +398,3 @@ export default function ClassesPage() {
     </div>
   );
 }
-
-    
