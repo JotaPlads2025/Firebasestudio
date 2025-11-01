@@ -2,8 +2,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseClientProvider } from '@/firebase';
-import AppShell from '@/components/AppShell';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'Plads Pro',
@@ -34,9 +33,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body bg-background text-foreground antialiased">
-        <FirebaseClientProvider>
-          <AppShell>{children}</AppShell>
-        </FirebaseClientProvider>
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>
