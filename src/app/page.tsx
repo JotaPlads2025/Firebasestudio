@@ -155,7 +155,14 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Dashboard</h1>
+      <div>
+        <h1 className="font-headline text-3xl font-semibold">
+            ¡Hola de nuevo, {user?.displayName?.split(' ')[0] || 'Artista'}!
+        </h1>
+        <p className="text-muted-foreground mt-1">
+            Qué bueno verte. Sigamos inspirando al mundo a través del movimiento.
+        </p>
+      </div>
 
         <Card>
             <CardHeader>
