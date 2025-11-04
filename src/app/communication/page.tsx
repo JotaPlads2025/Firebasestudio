@@ -13,21 +13,14 @@ import { Mail, MessageSquare, Send, Users, Wand2, ArrowRight, Inbox } from 'luci
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { classPerformanceData } from '@/lib/class-data';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
-const directMessages = [
-    { id: 'dm-1', studentName: 'Ana García', lastMessage: 'Hola! Tengo una duda sobre el horario de la próxima semana.', timestamp: 'hace 5 min', avatar: 'https://picsum.photos/seed/student1/100/100', unread: true },
-    { id: 'dm-2', studentName: 'Diego Pérez', lastMessage: '¡Gracias por la clase de ayer! Me encantó.', timestamp: 'hace 2 horas', avatar: 'https://picsum.photos/seed/student2/100/100', unread: false },
-    { id: 'dm-3', studentName: 'Camila Díaz', lastMessage: '¿Es posible cambiar mi cupo del martes para el jueves?', timestamp: 'ayer', avatar: 'https://picsum.photos/seed/student3/100/100', unread: true },
-    { id: 'dm-4', studentName: 'Felipe Morales', lastMessage: 'Confirmado para el bootcamp del sábado.', timestamp: 'hace 3 días', avatar: 'https://picsum.photos/seed/student4/100/100', unread: false },
-]
+const directMessages: any[] = []
+const activeClasses: any[] = [];
+
 
 export default function CommunicationPage() {
-  const activeClasses = classPerformanceData;
-
+  
   return (
     <div className="flex flex-col gap-8">
       <h1 className="font-headline text-3xl font-semibold">Comunicación</h1>
@@ -52,13 +45,10 @@ export default function CommunicationPage() {
                     <CardDescription>Conversaciones directas con tus estudiantes.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 p-0">
-                   {directMessages.map((message, index) => (
+                   {directMessages.length > 0 ? directMessages.map((message, index) => (
                        <div key={message.id}>
                             <div className="flex items-center gap-4 p-4 hover:bg-muted/50 cursor-pointer">
-                                <Avatar className="h-10 w-10 border">
-                                    <AvatarImage src={message.avatar} alt={message.studentName} />
-                                    <AvatarFallback>{message.studentName.charAt(0)}</AvatarFallback>
-                                </Avatar>
+                                {/* Avatar logic here */}
                                 <div className="flex-1">
                                     <div className="flex items-baseline justify-between">
                                         <p className="font-semibold">{message.studentName}</p>
@@ -72,7 +62,19 @@ export default function CommunicationPage() {
                             </div>
                            {index < directMessages.length - 1 && <Separator />}
                        </div>
-                   ))}
+                   )) : (
+                    <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed m-6">
+                        <div className="text-center text-muted-foreground">
+                            <Inbox className="mx-auto h-12 w-12" />
+                            <p className="mt-4 font-semibold">
+                                Tu bandeja de entrada está vacía
+                            </p>
+                            <p className="mt-1 text-sm">
+                                Las conversaciones con tus estudiantes aparecerán aquí.
+                            </p>
+                        </div>
+                    </div>
+                   )}
                 </CardContent>
             </Card>
         </TabsContent>
@@ -88,19 +90,7 @@ export default function CommunicationPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {activeClasses.map(cls => (
                                 <Card key={cls.id} className="flex flex-col">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">{cls.name}</CardTitle>
-                                        <div className="flex gap-2 pt-1">
-                                           <Badge variant="secondary">Clase Regular</Badge>
-                                            <Badge variant="outline">{cls.bookings} Estudiantes</Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow flex items-end">
-                                        <Button variant="outline" className="w-full">
-                                            Entrar al Foro
-                                            <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Button>
-                                    </CardContent>
+                                    {/* Class forum card logic here */}
                                 </Card>
                             ))}
                         </div>
@@ -134,7 +124,7 @@ export default function CommunicationPage() {
                     <label htmlFor="audience" className="font-medium text-sm">Destinatarios</label>
                     <div className="flex items-center gap-2 p-3 rounded-md bg-muted">
                         <Users className="h-5 w-5 text-muted-foreground" />
-                        <span className="font-semibold">Todos los estudiantes (342)</span>
+                        <span className="font-semibold">Todos los estudiantes (0)</span>
                     </div>
                 </div>
 
@@ -165,5 +155,3 @@ export default function CommunicationPage() {
     </div>
   );
 }
-
-    
