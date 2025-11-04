@@ -20,6 +20,7 @@ import {
   Dumbbell,
   BookOpenCheck,
   Users,
+  Loader2,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -30,12 +31,11 @@ import type { Class, Venue } from '@/lib/types';
 import { studentData } from '@/lib/student-data';
 import { venues as initialVenues } from '@/lib/venues-data';
 import AttendeesDialog from '@/components/attendees-dialog';
-import { useAuth, useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { demoClasses } from '@/lib/demo-data';
 
 
 const dayNameToIndex: { [key: string]: number } = {
@@ -47,8 +47,6 @@ const dayNameToIndex: { [key: string]: number } = {
   'Viernes': 5,
   'Sábado': 6,
 };
-
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 // Generate calendar events from recurring classes
 const generateCalendarEvents = (classes: Class[], month: Date): Class[] => {
@@ -100,37 +98,25 @@ export default function ClassesPage() {
   }, []);
 
   const classesRef = useMemoFirebase(() => {
-    if (!USE_FIREBASE || !user || !firestore) return null;
+    if (!user || !firestore) return null;
     return collection(firestore, 'instructors', user.uid, 'classes');
   }, [user, firestore]);
   
-  const { data: classesData, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
-  const [localClasses, setLocalClasses] = useState<Class[] | null>(null);
-
-  useEffect(() => {
-    if (USE_FIREBASE) {
-        if (classesData) {
-            setLocalClasses(classesData);
-        }
-    } else {
-        setLocalClasses(demoClasses);
-    }
-  }, [classesData]);
-
+  const { data: classes, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
 
   const calendarEvents = useMemo(() => {
     if (!currentMonth) return [];
-    const events = generateCalendarEvents(localClasses || [], currentMonth);
+    const events = generateCalendarEvents(classes || [], currentMonth);
     // Sort events chronologically for the list view
     return events.sort((a, b) => compareAsc(a.date!, b.date!));
-  }, [localClasses, currentMonth]);
+  }, [classes, currentMonth]);
 
   const { regularClasses, coachingClasses, bootcampClasses } = useMemo(() => {
     const regular: Class[] = [];
     const coaching: Class[] = [];
     const bootcamp: Class[] = [];
 
-    (localClasses || []).forEach(cls => {
+    (classes || []).forEach(cls => {
         switch (cls.category) {
             case 'Coaching':
                 coaching.push(cls);
@@ -145,7 +131,7 @@ export default function ClassesPage() {
     });
 
     return { regularClasses: regular, coachingClasses: coaching, bootcampClasses: bootcamp };
-  }, [localClasses]);
+  }, [classes]);
 
 
   const handleClassSelect = (cls: Class) => {
@@ -161,31 +147,11 @@ export default function ClassesPage() {
   const handleStatusChange = async (classId: string, newStatus: boolean) => {
     if (!firestore || !user) return;
 
-    // Prevent status change for demo classes
-    if (!USE_FIREBASE && classId.startsWith('demo-')) {
-        toast({
-            variant: "destructive",
-            title: "Acción no permitida",
-            description: "No se puede cambiar el estado de una clase de demostración."
-        });
-        // Revert optimistic switch
-        setLocalClasses(prev => 
-            prev!.map(cls => cls.id === classId ? { ...cls, status: newStatus ? 'Inactive' : 'Active' } : cls)
-        );
-        return;
-    }
-
     const status = newStatus ? 'Active' : 'Inactive';
     const classRef = doc(firestore, 'instructors', user.uid, 'classes', classId);
 
     try {
         await updateDoc(classRef, { status });
-
-        // Optimistically update local state
-        setLocalClasses(prev => 
-            prev!.map(cls => cls.id === classId ? { ...cls, status } : cls)
-        );
-
         toast({
             title: "¡Estado actualizado!",
             description: `La clase ha sido marcada como ${status.toLowerCase()}.`
@@ -197,10 +163,6 @@ export default function ClassesPage() {
             title: "Error al actualizar",
             description: "No se pudo cambiar el estado de la clase."
         });
-        // Revert optimistic switch
-         setLocalClasses(prev => 
-            prev!.map(cls => cls.id === classId ? { ...cls, status: newStatus ? 'Inactive' : 'Active' } : cls)
-        );
     }
   };
 
@@ -302,7 +264,11 @@ export default function ClassesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {view === 'calendar' ? (
+          {isLoadingClasses ? (
+            <div className="flex h-64 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : view === 'calendar' ? (
               <ClassCalendar 
                 classes={calendarEvents} 
                 month={currentMonth} 
@@ -357,31 +323,37 @@ export default function ClassesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="regular">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="regular">
-                <BookOpenCheck className="mr-2 h-4 w-4" />
-                Clases Regulares
-              </TabsTrigger>
-              <TabsTrigger value="coaching">
-                <Dumbbell className="mr-2 h-4 w-4" />
-                Coaching
-              </TabsTrigger>
-              <TabsTrigger value="bootcamp">
-                <Briefcase className="mr-2 h-4 w-4" />
-                Bootcamps
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="regular" className="mt-4">
-              {renderClassTable(regularClasses)}
-            </TabsContent>
-            <TabsContent value="coaching" className="mt-4">
-              {renderClassTable(coachingClasses)}
-            </TabsContent>
-            <TabsContent value="bootcamp" className="mt-4">
-              {renderClassTable(bootcampClasses)}
-            </TabsContent>
-          </Tabs>
+            {isLoadingClasses ? (
+                 <div className="flex h-48 items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                 </div>
+            ) : (
+                <Tabs defaultValue="regular">
+                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="regular">
+                        <BookOpenCheck className="mr-2 h-4 w-4" />
+                        Clases Regulares
+                    </TabsTrigger>
+                    <TabsTrigger value="coaching">
+                        <Dumbbell className="mr-2 h-4 w-4" />
+                        Coaching
+                    </TabsTrigger>
+                    <TabsTrigger value="bootcamp">
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        Bootcamps
+                    </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="regular" className="mt-4">
+                    {renderClassTable(regularClasses)}
+                    </TabsContent>
+                    <TabsContent value="coaching" className="mt-4">
+                    {renderClassTable(coachingClasses)}
+                    </TabsContent>
+                    <TabsContent value="bootcamp" className="mt-4">
+                    {renderClassTable(bootcampClasses)}
+                    </TabsContent>
+                </Tabs>
+            )}
         </CardContent>
       </Card>
 
@@ -398,3 +370,5 @@ export default function ClassesPage() {
     </div>
   );
 }
+
+    
