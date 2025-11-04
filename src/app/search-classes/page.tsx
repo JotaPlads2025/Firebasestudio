@@ -1,17 +1,16 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Map, List, Search, ChevronDown, XCircle, Bell } from 'lucide-react';
+import { Map, List, Search, ChevronDown, XCircle, Bell, Loader2 } from 'lucide-react';
 import { regions, communesByRegion } from '@/lib/locations';
 import { categories, subCategories } from '@/lib/categories';
-import { searchableClasses, type SearchableClass } from '@/lib/search-data';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/ui/star-rating';
@@ -21,8 +20,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Link from 'next/link';
 import { venues } from '@/lib/venues-data';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import type { Class, Venue } from '@/lib/types';
+import { collectionGroup, getDocs, query } from 'firebase/firestore';
 
-const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado'];
+const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado', 'Todos los niveles'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const timeSlots = [
     { value: 'all', label: 'Cualquier horario' },
@@ -30,6 +32,14 @@ const timeSlots = [
     { value: 'afternoon', label: 'Tarde (12pm - 7pm)' },
     { value: 'evening', label: 'Noche (7pm en adelante)' },
 ];
+
+// Simplified type for what we get from Firestore
+type FetchedClass = Omit<Class, 'schedule'> & {
+    instructorName?: string; // These will be added later
+    instructorAvatar?: string;
+    rating?: number;
+    reviewCount?: number;
+};
 
 export default function SearchClassesPage() {
   const [viewMode, setViewMode] = useState('list');
@@ -41,6 +51,44 @@ export default function SearchClassesPage() {
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedDay, setSelectedDay] = useState('all');
   const [selectedTime, setSelectedTime] = useState('all');
+  
+  const [allClasses, setAllClasses] = useState<FetchedClass[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const firestore = useFirestore();
+
+  useEffect(() => {
+    if (!firestore) return;
+    setIsLoading(true);
+
+    const fetchAllClasses = async () => {
+        try {
+            const classesQuery = query(collectionGroup(firestore, 'classes'));
+            const querySnapshot = await getDocs(classesQuery);
+            const classes: FetchedClass[] = [];
+            querySnapshot.forEach(doc => {
+                // Here we might need to fetch instructor details, but for now we'll use placeholder
+                const data = doc.data() as Class;
+                classes.push({
+                    ...data,
+                    id: doc.id,
+                    instructorName: 'Instructor', // Placeholder
+                    rating: 4.8, // Placeholder
+                    reviewCount: 30, // Placeholder
+                });
+            });
+            setAllClasses(classes);
+        } catch (error) {
+            console.error("Error fetching all classes:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    fetchAllClasses();
+
+  }, [firestore]);
+
 
   const handleRegionChange = (value: string) => {
     setSelectedRegion(value);
@@ -64,44 +112,52 @@ export default function SearchClassesPage() {
   };
 
   const filteredClasses = useMemo(() => {
-    let classes = searchableClasses.filter(c => {
+    let classes = allClasses.filter(c => {
       const venue = venues.find(v => v.id === c.venueId);
       if (!venue) return false;
 
       const searchTermMatch = searchTerm === '' || 
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
+        (c.instructorName && c.instructorName.toLowerCase().includes(searchTerm.toLowerCase()));
+      
       const regionMatch = selectedRegion === 'all' || venue.region === selectedRegion;
       const communeMatch = selectedCommune === 'all' || venue.commune === selectedCommune;
-      const categoryMatch = selectedCategory === 'all' || categories.find(cat => cat.value === c.category || cat.label === c.category); // Fix this
+      const categoryMatch = selectedCategory === 'all' || c.category === selectedCategory;
       const subCategoryMatch = selectedSubCategory === 'all' || c.subCategory === selectedSubCategory;
-      const levelMatch = selectedLevel === 'all' || selectedLevel === 'Todos' || c.level === selectedLevel;
-      const dayMatch = selectedDay === 'all' || c.dayOfWeek === selectedDay;
+      const levelMatch = selectedLevel === 'all' || selectedLevel === 'Todos' || (c.level && c.level === selectedLevel);
+      const dayMatch = selectedDay === 'all' || (c.schedules && c.schedules.some(s => s.day === selectedDay));
       
-      const timeMatch = selectedTime === 'all' || (() => {
-        const classHour = parseInt(c.schedule.split(':')[0], 10);
+      const timeMatch = selectedTime === 'all' || (c.schedules && c.schedules.some(s => {
+        const classHour = parseInt(s.startTime.split(':')[0], 10);
         if (selectedTime === 'morning') return classHour >= 9 && classHour < 12;
         if (selectedTime === 'afternoon') return classHour >= 12 && classHour < 19;
         if (selectedTime === 'evening') return classHour >= 19;
         return false;
-      })();
+      }));
 
-      return searchTermMatch && regionMatch && communeMatch && levelMatch && dayMatch && timeMatch;
+      return searchTermMatch && regionMatch && communeMatch && categoryMatch && subCategoryMatch && levelMatch && dayMatch && timeMatch && c.status === 'Active';
     });
 
     // Sort classes: available first, then unavailable
     classes.sort((a, b) => {
-        if (a.availableSlots > 0 && b.availableSlots === 0) return -1;
-        if (a.availableSlots === 0 && b.availableSlots > 0) return 1;
+        const aAvailability = a.availability || 0;
+        const bAvailability = b.availability || 0;
+        if (aAvailability > 0 && bAvailability === 0) return -1;
+        if (aAvailability === 0 && bAvailability > 0) return 1;
         return 0;
     });
 
     return classes;
-  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime]);
+  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime, allClasses]);
+  
+  const getFirstPrice = (pricePlans: Class['pricePlans']) => {
+    if (!pricePlans || pricePlans.length === 0) return 0;
+    return pricePlans[0].price;
+  };
 
-  const ClassCard = ({ cls }: { cls: SearchableClass }) => {
+  const ClassCard = ({ cls }: { cls: FetchedClass }) => {
     const { toast } = useToast();
-    const isFull = cls.availableSlots === 0;
+    const isFull = cls.availability === 0;
     const hasPacks = cls.pricePlans && cls.pricePlans.length > 1;
 
     const handleNotifyClick = () => {
@@ -117,7 +173,7 @@ export default function SearchClassesPage() {
             <div className="relative">
                 <Link href={`/search-classes/${cls.id}`} className="block">
                     <Image 
-                        src={cls.image.imageUrl} 
+                        src={`https://picsum.photos/seed/${cls.id}/600/400`}
                         alt={cls.name}
                         width={600}
                         height={400}
@@ -134,7 +190,7 @@ export default function SearchClassesPage() {
                       </Link>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <p className="font-bold text-lg text-primary">${cls.price.toLocaleString('es-CL')}</p>
+                      <p className="font-bold text-lg text-primary">${getFirstPrice(cls.pricePlans).toLocaleString('es-CL')}</p>
                       {hasPacks && (
                         <Popover>
                           <PopoverTrigger asChild>
@@ -169,13 +225,13 @@ export default function SearchClassesPage() {
                     <Link href={`/search-classes/${cls.id}`} className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Avatar className="h-6 w-6">
-                              <AvatarImage src={cls.instructorAvatar.imageUrl} alt={cls.instructorName} />
-                              <AvatarFallback>{cls.instructorName.charAt(0)}</AvatarFallback>
+                              <AvatarImage src={cls.instructorAvatar} alt={cls.instructorName} />
+                              <AvatarFallback>{cls.instructorName ? cls.instructorName.charAt(0) : 'I'}</AvatarFallback>
                           </Avatar>
                           <span>{cls.instructorName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                          <StarRating rating={cls.rating} />
+                          <StarRating rating={cls.rating || 0} />
                           <span className="text-xs text-muted-foreground">({cls.reviewCount} opiniones)</span>
                       </div>
                     </Link>
@@ -190,7 +246,7 @@ export default function SearchClassesPage() {
                         </Button>
                     ) : (
                         <Badge variant={'default'} className="whitespace-nowrap">
-                            {`${cls.availableSlots} cupos disponibles`}
+                            {`${cls.availability} cupos disponibles`}
                         </Badge>
                     )}
                  </div>
@@ -358,7 +414,7 @@ export default function SearchClassesPage() {
       </Card>
       
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{filteredClasses.length} clases encontradas.</p>
+        <p className="text-sm text-muted-foreground">{isLoading ? 'Buscando...' : `${filteredClasses.length} clases encontradas.`}</p>
         <div className="flex items-center gap-2 rounded-md bg-muted p-1">
             <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setViewMode('list')} className="gap-2">
                 <List className="h-4 w-4" />
@@ -371,11 +427,21 @@ export default function SearchClassesPage() {
         </div>
       </div>
 
-      {viewMode === 'list' ? (
+      {isLoading ? (
+        <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : viewMode === 'list' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredClasses.map(cls => (
-                <ClassCard key={cls.id} cls={cls} />
-            ))}
+            {filteredClasses.length > 0 ? (
+                filteredClasses.map(cls => (
+                    <ClassCard key={cls.id} cls={cls} />
+                ))
+            ) : (
+                <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 text-center text-muted-foreground py-16">
+                    <p>No se encontraron clases con los filtros actuales.</p>
+                </div>
+            )}
         </div>
       ) : (
         <Card className="h-[600px] flex items-center justify-center bg-muted">
