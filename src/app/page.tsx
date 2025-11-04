@@ -36,7 +36,6 @@ import { Button } from '@/components/ui/button';
 import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
-import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -44,24 +43,6 @@ import { venues as initialVenues } from '@/lib/venues-data';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { Class } from '@/lib/types';
-
-
-const inactiveStudents = [
-    { name: 'Benjamín Soto', lastClass: 'Bachata Básico', lastSeen: 'hace 2 meses' },
-    { name: 'Elena Castillo', lastClass: 'Bachata Básico', lastSeen: 'hace 3 meses' },
-    { name: 'Joaquín Núñez', lastClass: 'Bachata Básico', lastSeen: 'hace 1 mes' },
-    { name: 'Sofía Reyes', lastClass: 'Salsa On1', lastSeen: 'hace 5 semanas' },
-    { name: 'Martín González', lastClass: 'Bachata Amateur', lastSeen: 'hace 2 meses' },
-    { name: 'Valentina Torres', lastClass: 'Bachata Open Lady', lastSeen: 'hace 6 semanas' },
-    { name: 'Matías Flores', lastClass: 'Kizomba', lastSeen: 'hace 1 mes' },
-    { name: 'Isabella Paredes', lastClass: 'Salsa On1', lastSeen: 'hace 3 meses' },
-    { name: 'Lucas Bravo', lastClass: 'Bachata Básico', lastSeen: 'hace 2 meses' },
-    { name: 'Camila Ortiz', lastClass: 'Bachata Amateur', lastSeen: 'hace 1 mes' },
-    { name: 'Agustín Moya', lastClass: 'Yoga Vinyasa', lastSeen: 'hace 4 meses' },
-    { name: 'Renata Castro', lastClass: 'Bachata Básico', lastSeen: 'hace 7 semanas' },
-];
-
-const STUDENTS_PER_PAGE = 5;
 
 const monthOptions: Option[] = [
     { value: 'all', label: 'Todos los Meses' },
@@ -120,9 +101,6 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function Dashboard() {
-  const [selectedStudent, setSelectedStudent] = useState<{name: string, lastClass: string} | null>(null);
-  const [inactiveStudentsPage, setInactiveStudentsPage] = useState(1);
-
   const [selectedMonths, setSelectedMonths] = useState<string[]>(['all']);
   const [selectedDays, setSelectedDays] = useState<string[]>(['all']);
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
@@ -163,17 +141,6 @@ export default function Dashboard() {
       bootcamps: bootcamps,
     };
   }, [classes]);
-
-    const { paginatedInactiveStudents, totalInactivePages } = useMemo(() => {
-        const totalPages = Math.ceil(inactiveStudents.length / STUDENTS_PER_PAGE);
-        const startIndex = (inactiveStudentsPage - 1) * STUDENTS_PER_PAGE;
-        const endIndex = startIndex + STUDENTS_PER_PAGE;
-        return {
-            paginatedInactiveStudents: inactiveStudents.slice(startIndex, endIndex),
-            totalInactivePages: totalPages,
-        };
-    }, [inactiveStudentsPage]);
-
 
   const kpiData = [
     {
@@ -472,74 +439,6 @@ export default function Dashboard() {
             )}
         </CardContent>
       </Card>
-
-       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><TrendingUp /> Recupera Alumnos Inactivos</CardTitle>
-          <CardDescription>
-            Contacta a estudiantes que no han vuelto a agendar para motivarlos a regresar (funcionalidad en desarrollo).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Estudiante</TableHead>
-                <TableHead>Última Clase</TableHead>
-                <TableHead>Última Visita</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedInactiveStudents.map((student) => (
-                <TableRow key={student.name}>
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.lastClass}</TableCell>
-                  <TableCell className="text-muted-foreground">{student.lastSeen}</TableCell>
-                  <TableCell className="text-right">
-                     <Button variant="outline" size="sm" onClick={() => setSelectedStudent(student)}>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Contactar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex items-center justify-end space-x-2 pt-4">
-            <span className="text-sm text-muted-foreground">
-              Página {inactiveStudentsPage} de {totalInactivePages}
-            </span>
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setInactiveStudentsPage(p => p - 1)}
-                disabled={inactiveStudentsPage === 1}
-            >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Anterior
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setInactiveStudentsPage(p => p + 1)}
-                disabled={inactiveStudentsPage === totalInactivePages}
-            >
-                Siguiente
-                <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {selectedStudent && (
-        <RecoveryEmailDialog
-          open={!!selectedStudent}
-          onOpenChange={(isOpen) => !isOpen && setSelectedStudent(null)}
-          studentName={selectedStudent.name}
-          lastClass={selectedStudent.lastClass}
-        />
-      )}
 
     </div>
   );
