@@ -34,7 +34,6 @@ import {
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
@@ -43,6 +42,9 @@ import { venues as initialVenues } from '@/lib/venues-data';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { Class } from '@/lib/types';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 
 const monthOptions: Option[] = [
     { value: 'all', label: 'Todos los Meses' },
@@ -100,11 +102,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const classPerformanceData: any[] = [];
+
 export default function Dashboard() {
   const [selectedMonths, setSelectedMonths] = useState<string[]>(['all']);
   const [selectedDays, setSelectedDays] = useState<string[]>(['all']);
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
   const [selectedVenues, setSelectedVenues] = useState<string[]>(['all']);
+  const [inactiveStudents, setInactiveStudents] = useState<any[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
   const { user } = useUser();
   const firestore = useFirestore();
@@ -275,7 +281,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={revenueData}>
+              <LineChart data={[]}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
@@ -312,6 +318,69 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      
+       <Card>
+        <CardHeader>
+          <CardTitle>Recupera Alumnos Inactivos</CardTitle>
+          <CardDescription>
+            Contacta a alumnos que no han vuelto a agendar clases recientemente.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Alumno</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Última Clase</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {inactiveStudents.length > 0 ? (
+                inactiveStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {student.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="destructive">{student.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{student.lastClass}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(student)}>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Contactar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    No hay alumnos inactivos por contactar en este momento.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {selectedStudent && (
+        <RecoveryEmailDialog
+            open={!!selectedStudent}
+            onOpenChange={() => setSelectedStudent(null)}
+            studentName={selectedStudent.name}
+            lastClass={selectedStudent.lastClass}
+        />
+      )}
+
 
       <Card>
         <CardHeader>
@@ -443,3 +512,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+    
