@@ -14,50 +14,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Instagram, Rocket, MessageSquare } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
-import { reviewsData, type Review } from '@/lib/reviews-data';
 import { Separator } from '@/components/ui/separator';
 import type { Academy } from '@/lib/types';
-
-
-const ReviewItem = ({ review }: { review: Review }) => {
-    const [formattedDate, setFormattedDate] = useState('');
-
-    useEffect(() => {
-        // Ensure date formatting happens only on the client
-        setFormattedDate(new Date(review.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' }));
-    }, [review.date]);
-
-    return (
-        <div>
-            <div className="flex items-start gap-4">
-                <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={review.studentAvatarUrl} alt={review.studentName} />
-                    <AvatarFallback>{review.studentName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="font-semibold">{review.studentName}</p>
-                            <p className="text-xs text-muted-foreground">{formattedDate}</p>
-                        </div>
-                        <StarRating rating={review.rating} />
-                    </div>
-                    {review.className && <Badge variant="secondary" className="mt-2">{review.className}</Badge>}
-                    <p className="mt-3 text-sm text-muted-foreground">{review.comment}</p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
+import { useUser } from '@/firebase';
 
 export default function ProfilePage() {
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const { user } = useUser();
   const [academy, setAcademy] = useState<Academy | null>(null);
 
   useEffect(() => {
@@ -77,23 +43,16 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                 {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
-                <AvatarFallback className="text-3xl">SG</AvatarFallback>
+                 {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User Avatar'} />}
+                <AvatarFallback className="text-3xl">{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
               </Avatar>
-              <CardTitle className="font-headline text-2xl">Susana González</CardTitle>
+              <CardTitle className="font-headline text-2xl">{user?.displayName || 'Nombre de Usuario'}</CardTitle>
               <CardDescription>
-                {academy ? `Director(a) de ${academy.name}` : 'SG Ladies'}
+                {academy ? `Director(a) de ${academy.name}` : 'Instructor/a'}
               </CardDescription>
               <div className="flex items-center gap-2 pt-2">
-                <StarRating rating={4.8} />
-                <span className="text-sm font-semibold text-muted-foreground">(4.8)</span>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-4">
-                <Badge>Bachata Básico</Badge>
-                <Badge>Bachata Intermedio</Badge>
-                <Badge>Bachata Amateur</Badge>
-                <Badge>Bachata Open Lady</Badge>
-                <Badge>Coaching</Badge>
+                <StarRating rating={0} />
+                <span className="text-sm font-semibold text-muted-foreground">(Sin reseñas)</span>
               </div>
             </CardHeader>
             <CardContent>
@@ -154,19 +113,14 @@ export default function ProfilePage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Sobre Susana </CardTitle>
+              <CardTitle className="font-headline">Sobre Mí</CardTitle>
               <CardDescription>
-                Instructora profesional de Bachata
+                Tu biografía profesional.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
               <p>
-              Con más de 6 años de experiencia en la enseñanza de bachata, ha formado a decenas de estudiantes en diferentes niveles, desde principiantes hasta bailarines avanzados. Su trayectoria incluye múltiples campeonatos ganados tanto en categoría solista como en equipo, lo que respalda su nivel técnico, disciplina y pasión por el baile.
-              </p>
-              <p>
-              Su estilo de enseñanza se caracteriza por la cercanía, la claridad en la explicación y el énfasis en la musicalidad y la conexión, haciendo que cada clase sea una experiencia única y motivadora. Ofrece clases en distintos formatos y niveles: básico, intermedio, amateur, open, escuela y un espacio exclusivo para ladies, donde se potencia la confianza, el estilo y la expresión individual.
-
-Más allá de la técnica, su misión es transmitir el amor por la bachata y ayudar a cada estudiante a superar sus propios límites, disfrutando del proceso de aprendizaje en un ambiente dinámico y acogedor.
+                Aún no has añadido una biografía. Edita tu perfil para contarle a los estudiantes sobre ti, tu experiencia y tu estilo de enseñanza.
               </p>
             </CardContent>
           </Card>
@@ -177,14 +131,8 @@ Más allá de la técnica, su misión es transmitir el amor por la bachata y ayu
                 Opiniones de estudiantes que han tomado clases.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-                {reviewsData.map((review, index) => (
-                    <Fragment key={review.id}>
-                        <ReviewItem review={review} />
-                        {index < reviewsData.length - 1 && <Separator className="mt-6" />}
-                    </Fragment>
-                ))}
-                 <Button variant="outline" className="w-full mt-4">Ver todas las reseñas</Button>
+            <CardContent className="space-y-6 text-center text-muted-foreground py-10">
+                <p>Aún no tienes reseñas.</p>
             </CardContent>
           </Card>
           <Card>
