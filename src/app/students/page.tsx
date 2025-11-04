@@ -19,59 +19,29 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { studentData } from '@/lib/student-data';
 import { differenceInDays, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Eye, Loader2 } from 'lucide-react';
+import { Eye, Loader2, Users } from 'lucide-react';
 import StudentProfileDialog from '@/components/student-profile-dialog';
 import type { StudentWithDetails } from '@/lib/types';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+
 
 export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<StudentWithDetails | null>(null);
   const [processedStudents, setProcessedStudents] = useState<StudentWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // TODO: This logic needs to be revisited once booking functionality is implemented.
+  // For now, it will result in an empty list, which is the desired state after removing demo data.
   useEffect(() => {
-    // Perform calculations on the client-side to avoid hydration mismatch
-    const now = new Date();
-    const studentsWithDetails = studentData.map(student => {
-      const totalBookings = student.bookings.length;
-      
-      const lastBooking = student.bookings.reduce((latest, booking) => {
-        const latestDate = latest ? parseISO(latest.date) : new Date(0);
-        const bookingDate = parseISO(booking.date);
-        return bookingDate > latestDate ? booking : latest;
-      }, null as typeof student.bookings[0] | null);
-
-      let lastAttendance = 'Nunca';
-      let status: 'Activo' | 'Inactivo' | 'Nuevo' = 'Nuevo';
-
-      if (lastBooking) {
-        const lastDate = parseISO(lastBooking.date);
-        const daysSinceLastBooking = differenceInDays(now, lastDate);
-        lastAttendance = lastDate.toLocaleDateString('es-CL');
-
-        if (daysSinceLastBooking <= 30) {
-          status = 'Activo';
-        } else {
-          status = 'Inactivo';
-        }
-      }
-
-      const attendedCount = student.bookings.filter(b => b.attendance === 'Presente').length;
-      const attendanceRate = totalBookings > 0 ? Math.round((attendedCount / totalBookings) * 100) : 0;
-
-      return {
-        ...student,
-        totalBookings,
-        lastAttendance,
-        status,
-        attendanceRate,
-      };
-    });
-    setProcessedStudents(studentsWithDetails);
+    // This is a placeholder for the logic that will fetch real student data
+    // based on bookings. Since there's no booking system yet, we'll just
+    // show an empty state.
+    setProcessedStudents([]);
     setIsLoading(false);
   }, []);
 
@@ -106,38 +76,50 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {processedStudents.map((student) => (
-                <TableRow key={student.studentId}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                       <Avatar>
-                          <AvatarImage src={`https://picsum.photos/seed/${student.studentId}/100/100`} />
-                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      {student.name}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        student.status === 'Activo' ? 'default' : 
-                        student.status === 'Inactivo' ? 'destructive' : 'secondary'
-                      }
-                      className={cn(student.status === 'Activo' && 'bg-green-600/80')}
-                    >
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">{student.totalBookings}</TableCell>
-                  <TableCell className="text-muted-foreground">{student.lastAttendance}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(student)}>
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">Ver detalles</span>
-                    </Button>
-                  </TableCell>
+              {processedStudents.length > 0 ? (
+                processedStudents.map((student) => (
+                  <TableRow key={student.studentId}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                            <AvatarImage src={`https://picsum.photos/seed/${student.studentId}/100/100`} />
+                            <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {student.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          student.status === 'Activo' ? 'default' : 
+                          student.status === 'Inactivo' ? 'destructive' : 'secondary'
+                        }
+                        className={cn(student.status === 'Activo' && 'bg-green-600/80')}
+                      >
+                        {student.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">{student.totalBookings}</TableCell>
+                    <TableCell className="text-muted-foreground">{student.lastAttendance}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(student)}>
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">Ver detalles</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                           <Users className="h-10 w-10 text-muted-foreground" />
+                           <h3 className="font-semibold">Aún no tienes estudiantes</h3>
+                           <p className="text-muted-foreground text-sm">Los estudiantes que agenden tus clases aparecerán aquí.</p>
+                        </div>
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

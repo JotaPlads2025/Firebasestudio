@@ -1,4 +1,6 @@
 
+// This file is now deprecated and will be removed in a future step.
+// Student data will be derived from Firestore bookings.
 export type Booking = {
     classId: string;
     planType: 'suelta' | 'pack';
@@ -15,110 +17,4 @@ export type Student = {
     bookings: Booking[];
 };
   
-export const studentData: Student[] = [
-    // Students who joined in January
-    {
-      studentId: 'user-001',
-      name: 'Ana García',
-      joinDate: '2024-01-10',
-      bookings: [
-        { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-        { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-        { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-        { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'No registrado', paymentMethod: 'Plads' },
-      ],
-    },
-    {
-      studentId: 'user-002',
-      name: 'Benjamín Soto',
-      joinDate: '2024-01-12',
-      bookings: [
-        { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pendiente', attendance: 'Presente', paymentMethod: 'Efectivo' },
-        // Did not return
-      ],
-    },
-    {
-        studentId: 'user-003',
-        name: 'Camila Díaz',
-        joinDate: '2024-01-18',
-        bookings: [
-          { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Transferencia' },
-          { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-        ],
-    },
-    // Students who joined in February
-    {
-        studentId: 'user-004',
-        name: 'Diego Pérez',
-        joinDate: '2024-02-05',
-        bookings: [
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-          { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-          { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
-          { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pendiente', attendance: 'Ausente', paymentMethod: 'Efectivo' },
-        ],
-    },
-    {
-        studentId: 'user-005',
-        name: 'Elena Castillo',
-        joinDate: '2024-02-10',
-        bookings: [
-          { classId: 'demo-cls-004', planType: 'suelta', date: '2024-08-01', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-          { classId: 'demo-cls-001', planType: 'suelta', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente', paymentMethod: 'Plads' },
-        ],
-    },
-    // Students who joined in March
-    {
-        studentId: 'user-006',
-        name: 'Felipe Morales',
-        joinDate: '2024-03-01',
-        bookings: [
-          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-02', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Transferencia' },
-          { classId: 'demo-cls-005', planType: 'pack', date: '2024-08-09', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-          { classId: 'demo-cls-001', planType: 'suelta', date: '2024-08-05', paymentStatus: 'Pendiente', attendance: 'No registrado' },
-        ],
-    },
-    //... More students to make data richer
-    {
-        studentId: 'user-007',
-        name: 'Gabriela Rojas',
-        joinDate: '2024-01-25',
-        bookings: [
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-        ],
-    },
-    {
-        studentId: 'user-008',
-        name: 'Hugo Silva',
-        joinDate: '2024-04-02',
-        bookings: [
-            { classId: 'demo-cls-003', planType: 'suelta', date: '2024-07-31', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-003', planType: 'pack', date: '2024-08-07', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-001', planType: 'pack', date: '2024-08-05', paymentStatus: 'Pagado', attendance: 'Ausente', paymentMethod: 'Efectivo' },
-        ],
-    },
-    {
-        studentId: 'user-009',
-        name: 'Isidora Flores',
-        joinDate: '2024-05-15',
-        bookings: [
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-07-30', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-06', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Plads' },
-            { classId: 'demo-cls-002', planType: 'pack', date: '2024-08-13', paymentStatus: 'Pendiente', attendance: 'No registrado', paymentMethod: 'Plads' },
-        ],
-    },
-    {
-        studentId: 'user-010',
-        name: 'Joaquín Núñez',
-        joinDate: '2024-06-01',
-        bookings: [
-            { classId: 'demo-cls-001', planType: 'suelta', date: '2024-07-29', paymentStatus: 'Pagado', attendance: 'Presente', paymentMethod: 'Efectivo' },
-        ],
-    },
-];
+export const studentData: Student[] = [];
