@@ -80,11 +80,6 @@ const navItems = [
     label: 'Configuraciones',
   },
    {
-    href: '/test-firebase',
-    icon: Beaker,
-    label: 'Test Firebase',
-  },
-   {
     href: '/privacy',
     icon: ShieldCheck,
     label: 'Políticas',
