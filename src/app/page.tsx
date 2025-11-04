@@ -18,7 +18,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  BarChart,
   LineChart,
   ResponsiveContainer,
   XAxis,
@@ -27,17 +26,12 @@ import {
   Legend,
   CartesianGrid,
   Line,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Mail, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, Loader2 } from 'lucide-react';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
-import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { venues as initialVenues } from '@/lib/venues-data';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
@@ -75,34 +69,6 @@ const venueOptions: Option[] = [
     { value: 'all', label: 'Todas las Sedes' },
     ...initialVenues.map(v => ({ value: v.id, label: v.name })),
   ];
-
-const chartConfig = {
-  revenue: {
-    label: "Ingresos",
-  },
-  'Bachata Básico': {
-    label: 'Bachata Básico',
-    color: "hsl(var(--chart-1))",
-  },
-  'Bachata Open Lady': {
-    label: 'Bachata Open Lady',
-    color: "hsl(var(--chart-2))",
-  },
-  'Bachata Amateur': {
-    label: 'Bachata Amateur',
-    color: "hsl(var(--chart-3))",
-  },
-  'Bachata Alumna': {
-    label: 'Bachata Alumna',
-    color: "hsl(var(--chart-4))",
-  },
-  'Bachata Intermedio': {
-    label: 'Bachata Intermedio',
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
-
-const classPerformanceData: any[] = [];
 
 export default function Dashboard() {
   const [selectedMonths, setSelectedMonths] = useState<string[]>(['all']);
@@ -271,6 +237,18 @@ export default function Dashboard() {
         )}
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Asistente de IA</CardTitle>
+          <CardDescription>
+            Haz preguntas en lenguaje natural sobre tus datos de rendimiento (Datos de demo).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AiAssistantForm />
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <Card className="lg:col-span-3">
           <CardHeader>
@@ -425,18 +403,6 @@ export default function Dashboard() {
             lastClass={selectedStudent.lastClass}
         />
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Asistente de IA</CardTitle>
-          <CardDescription>
-            Haz preguntas en lenguaje natural sobre tus datos de rendimiento (Datos de demo).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AiAssistantForm />
-        </CardContent>
-      </Card>
     </div>
   );
 }
