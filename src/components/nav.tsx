@@ -79,16 +79,6 @@ const navItems = [
     icon: Settings,
     label: 'Configuraciones',
   },
-   {
-    href: '/privacy',
-    icon: ShieldCheck,
-    label: 'Políticas',
-   },
-   {
-    href: '/terms',
-    icon: FileText,
-    label: 'Términos',
-   }
 ];
 
 export default function Nav() {
