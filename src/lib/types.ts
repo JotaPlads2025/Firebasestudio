@@ -41,6 +41,8 @@ export type Class = {
   // --- Fields from Firestore ---
   instructorId?: string; 
   venueId: string;
+  level?: string;
+  subCategory?: string;
 };
 
 export type Review = {
@@ -86,3 +88,12 @@ export interface StudentWithDetails extends Student {
   status: 'Activo' | 'Inactivo' | 'Nuevo';
   attendanceRate: number;
 }
+
+export type InstructorProfile = {
+    id: string;
+    userId: string;
+    name: string;
+    bio: string;
+    expertise?: string;
+    contactEmail?: string;
+};

@@ -88,6 +88,12 @@
         "isActive": {
           "type": "boolean",
           "description": "Indicates whether the class is currently active."
+        },
+        "level": {
+            "type": "string"
+        },
+        "subCategory": {
+            "type": "string"
         }
       },
       "required": [
@@ -254,17 +260,21 @@
         }
       },
       {
-        "path": "/users/{userId}/instructorProfile",
+        "path": "/users/{userId}/instructorProfile/{profileId}",
         "definition": {
           "entityName": "InstructorProfile",
           "schema": {
             "$ref": "#/backend/entities/InstructorProfile"
           },
-          "description": "Stores the instructor profile information, linked 1:1 with the User entity. Accessible only to the user.",
+          "description": "Stores the instructor profile information, as a subcollection under the user. Using a fixed document ID like 'profile' is recommended for a 1:1 relationship.",
           "params": [
             {
               "name": "userId",
               "description": "Unique identifier for the user (also the instructor)."
+            },
+            {
+              "name": "profileId",
+              "description": "Unique identifier for the profile document (e.g., a fixed string 'profile')."
             }
           ]
         }

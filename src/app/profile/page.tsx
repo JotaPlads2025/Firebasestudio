@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -10,24 +9,34 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Instagram, Rocket, MessageSquare } from 'lucide-react';
+import { Edit, Instagram, Rocket } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
-import { Separator } from '@/components/ui/separator';
-import type { Academy } from '@/lib/types';
-import { useUser } from '@/firebase';
+import type { Academy, InstructorProfile } from '@/lib/types';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import EditProfileForm from '@/components/edit-profile-form';
 
 export default function ProfilePage() {
   const { user } = useUser();
+  const firestore = useFirestore();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   const [academy, setAcademy] = useState<Academy | null>(null);
 
+  const profileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(firestore!, 'users', user.uid, 'instructorProfile', 'profile');
+  }, [user, firestore]);
+
+  const { data: profile, isLoading: isLoadingProfile } = useDoc<InstructorProfile>(profileRef);
+
   useEffect(() => {
-    // This code runs only on the client
     const storedAcademy = localStorage.getItem('plads-pro-academy');
     if (storedAcademy) {
       setAcademy(JSON.parse(storedAcademy));
@@ -56,10 +65,26 @@ export default function ProfilePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">
-                <Edit className="mr-2 h-4 w-4" />
-                Editar Perfil
-              </Button>
+               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar Perfil
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                    <DialogTitle>Editar Perfil Profesional</DialogTitle>
+                    <DialogDescription>
+                        Esta es la información que verán los estudiantes sobre ti.
+                    </DialogDescription>
+                    </DialogHeader>
+                    <EditProfileForm 
+                        currentProfile={profile} 
+                        onSave={() => setIsEditDialogOpen(false)} 
+                    />
+                </DialogContent>
+               </Dialog>
             </CardContent>
           </Card>
            <Card>
@@ -119,9 +144,15 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
-              <p>
-                Aún no has añadido una biografía. Edita tu perfil para contarle a los estudiantes sobre ti, tu experiencia y tu estilo de enseñanza.
-              </p>
+              {isLoadingProfile ? (
+                 <p>Cargando perfil...</p>
+              ) : profile?.bio ? (
+                <p className="whitespace-pre-wrap">{profile.bio}</p>
+              ) : (
+                <p>
+                  Aún no has añadido una biografía. Edita tu perfil para contarle a los estudiantes sobre ti, tu experiencia y tu estilo de enseñanza.
+                </p>
+              )}
             </CardContent>
           </Card>
            <Card>
