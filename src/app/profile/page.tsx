@@ -10,8 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Edit, Instagram, Rocket, Globe } from 'lucide-react';
-import ProfileForm from '@/components/profile-form';
+import { Edit, Instagram, Rocket, Globe, User, Star, PlusCircle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
 import { TikTokIcon, FacebookIcon, LinkedinIcon } from '@/components/ui/icons';
@@ -22,6 +21,9 @@ import { doc } from 'firebase/firestore';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import EditProfileForm from '@/components/edit-profile-form';
 import EditSocialsForm from '@/components/edit-socials-form';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import ProfileForm from '@/components/profile-form';
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -35,6 +37,9 @@ export default function ProfilePage() {
   }, [user, firestore]);
 
   const { data: profile, isLoading: isLoadingProfile } = useDoc<InstructorProfile>(profileRef);
+  
+  const displayName = profile?.name || user?.displayName || 'Nombre de Usuario';
+  const displayCategory = profile?.category || 'Sin categoría';
 
   return (
     <div className="flex flex-col gap-8">
@@ -45,12 +50,12 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                 {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User Avatar'} />}
-                <AvatarFallback className="text-3xl">{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                 {user?.photoURL && <AvatarImage src={user.photoURL} alt={displayName} />}
+                <AvatarFallback className="text-3xl">{displayName.charAt(0) || 'U'}</AvatarFallback>
               </Avatar>
-              <CardTitle className="font-headline text-2xl">{user?.displayName || 'Nombre de Usuario'}</CardTitle>
+              <CardTitle className="font-headline text-2xl">{displayName}</CardTitle>
               <CardDescription>
-                Instructor/a
+                Instructor/a de {displayCategory}
               </CardDescription>
               <div className="flex items-center gap-2 pt-2">
                 <StarRating rating={0} />
@@ -65,7 +70,7 @@ export default function ProfilePage() {
                         Editar Perfil
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
                     <DialogTitle>Editar Perfil Profesional</DialogTitle>
                     <DialogDescription>
@@ -144,16 +149,50 @@ export default function ProfilePage() {
         <div className="lg:col-span-2 flex flex-col gap-8">
            <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Galería de Videos</CardTitle>
+              <CardTitle className="font-headline">Especialidades</CardTitle>
               <CardDescription>
-                Sube hasta 5 videos para mostrar tu talento a potenciales estudiantes.
+                Las categorías, estilos y públicos que defines en tu perfil.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-                <VideoGallery />
+            <CardContent className="space-y-4">
+                 <div>
+                    <h4 className="font-semibold text-sm mb-2">Estilos</h4>
+                     <div className="flex flex-wrap gap-2">
+                        {profile?.styles && profile.styles.length > 0 ? (
+                            profile.styles.map(style => <Badge key={style} variant="secondary">{style}</Badge>)
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Aún no has definido tus estilos.</p>
+                        )}
+                    </div>
+                </div>
+                <Separator />
+                <div>
+                    <h4 className="font-semibold text-sm mb-2">Público</h4>
+                     <div className="flex flex-wrap gap-2">
+                        {profile?.audiences && profile.audiences.length > 0 ? (
+                           profile.audiences.map(audience => <Badge key={audience} variant="outline">{audience}</Badge>)
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Aún no has definido tu público.</p>
+                        )}
+                    </div>
+                </div>
+                 <Separator />
+                <div>
+                    <h4 className="font-semibold text-sm mb-2">Coaching</h4>
+                    <div className="flex items-center gap-2">
+                        {profile?.isCoaching ? (
+                            <Badge className='bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300'>
+                                <CheckCircle className="mr-1 h-3 w-3" />
+                                Ofrece Coaching
+                            </Badge>
+                        ) : (
+                             <p className="text-sm text-muted-foreground">No ofreces coaching actualmente.</p>
+                        )}
+                    </div>
+                </div>
             </CardContent>
           </Card>
-          <Card>
+           <Card>
             <CardHeader>
               <CardTitle className="font-headline">Sobre Mí</CardTitle>
               <CardDescription>
@@ -173,6 +212,17 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
            <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Galería de Videos</CardTitle>
+              <CardDescription>
+                Sube hasta 5 videos para mostrar tu talento a potenciales estudiantes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <VideoGallery />
+            </CardContent>
+          </Card>
+          <Card>
             <CardHeader>
               <CardTitle className="font-headline">Reseñas de Estudiantes</CardTitle>
               <CardDescription>

@@ -4,8 +4,6 @@ export const categories = [
     { value: 'Baile', label: 'Baile' },
     { value: 'Arte', label: 'Arte' },
     { value: 'Salud', label: 'Salud' },
-    { value: 'Bootcamp', label: 'Bootcamp' },
-    { value: 'Coaching', label: 'Coaching' },
 ];
 
 export const subCategories: Record<string, { value: string; label: string }[]> = {
@@ -18,6 +16,12 @@ export const subCategories: Record<string, { value: string; label: string }[]> =
         { value: 'Dancehall', label: 'Dancehall' },
         { value: 'Ballet', label: 'Ballet' },
         { value: 'Kizomba', label: 'Kizomba' },
+        { value: 'Heels', label: 'Heels' },
+        { value: 'Pole Dance', label: 'Pole Dance' },
+        { value: 'K-Pop', label: 'K-Pop' },
+        { value: 'Twerk', label: 'Twerk' },
+        { value: 'Hip-Hop', label: 'Hip-Hop' },
+        { value: 'Urbano', label: 'Urbano' },
     ],
     Deporte: [
         { value: 'Calistenia', label: 'Calistenia' },
@@ -28,4 +32,9 @@ export const subCategories: Record<string, { value: string; label: string }[]> =
     ],
 };
 
+export const audienceTypes = [
+    { id: 'mixto', label: 'Mixto' },
+    { id: 'lady', label: 'Lady Style' },
+    { id: 'men', label: 'Men Style' },
+];
     

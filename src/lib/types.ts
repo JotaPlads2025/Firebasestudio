@@ -93,8 +93,12 @@ export type InstructorProfile = {
     id: string;
     userId: string;
     name: string;
-    bio: string;
+    bio?: string;
     expertise?: string;
+    category?: string;
+    styles?: string[];
+    audiences?: string[];
+    isCoaching?: boolean;
     contactEmail?: string;
     instagramUrl?: string;
     tiktokUrl?: string;

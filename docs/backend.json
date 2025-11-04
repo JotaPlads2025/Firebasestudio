@@ -17,22 +17,33 @@
         },
         "name": {
           "type": "string",
-          "description": "Instructor's full name."
+          "description": "Instructor's professional or full name."
         },
         "bio": {
           "type": "string",
           "description": "A short biography of the instructor."
         },
-        "expertise": {
-          "type": "string",
-          "description": "Instructor's area of expertise."
+        "category": {
+            "type": "string",
+            "description": "The main category of expertise (e.g., Baile, Deporte)."
         },
-        "certifications": {
-          "type": "array",
-          "description": "List of certifications held by the instructor.",
-          "items": {
-            "type": "string"
-          }
+        "styles": {
+            "type": "array",
+            "description": "A list of specific styles the instructor teaches.",
+            "items": {
+                "type": "string"
+            }
+        },
+        "audiences": {
+            "type": "array",
+            "description": "The target audiences for the classes (e.g., Lady Style, Mixto).",
+            "items": {
+                "type": "string"
+            }
+        },
+        "isCoaching": {
+            "type": "boolean",
+            "description": "Indicates if the instructor offers private coaching."
         },
         "profilePictureUrl": {
           "type": "string",
@@ -43,6 +54,31 @@
           "type": "string",
           "description": "Instructor's contact email address.",
           "format": "email"
+        },
+        "instagramUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the instructor's Instagram profile."
+        },
+        "tiktokUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the instructor's TikTok profile."
+        },
+        "facebookUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the instructor's Facebook profile."
+        },
+        "linkedinUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the instructor's LinkedIn profile."
+        },
+        "websiteUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the instructor's personal or professional website."
         }
       },
       "required": [
