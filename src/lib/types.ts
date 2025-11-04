@@ -96,4 +96,9 @@ export type InstructorProfile = {
     bio: string;
     expertise?: string;
     contactEmail?: string;
+    instagramUrl?: string;
+    tiktokUrl?: string;
+    facebookUrl?: string;
+    linkedinUrl?: string;
+    websiteUrl?: string;
 };

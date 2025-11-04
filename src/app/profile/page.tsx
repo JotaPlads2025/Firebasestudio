@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -10,24 +10,24 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Edit, Instagram, Rocket } from 'lucide-react';
+import { Edit, Instagram, Rocket, Globe } from 'lucide-react';
 import ProfileForm from '@/components/profile-form';
 import Link from 'next/link';
 import VideoGallery from '@/components/video-gallery';
-import { TikTokIcon } from '@/components/ui/icons';
+import { TikTokIcon, FacebookIcon, LinkedinIcon } from '@/components/ui/icons';
 import { StarRating } from '@/components/ui/star-rating';
-import type { Academy, InstructorProfile } from '@/lib/types';
+import type { InstructorProfile } from '@/lib/types';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import EditProfileForm from '@/components/edit-profile-form';
+import EditSocialsForm from '@/components/edit-socials-form';
 
 export default function ProfilePage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  const [academy, setAcademy] = useState<Academy | null>(null);
+  const [isSocialsDialogOpen, setIsSocialsDialogOpen] = useState(false);
 
   const profileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -35,13 +35,6 @@ export default function ProfilePage() {
   }, [user, firestore]);
 
   const { data: profile, isLoading: isLoadingProfile } = useDoc<InstructorProfile>(profileRef);
-
-  useEffect(() => {
-    const storedAcademy = localStorage.getItem('plads-pro-academy');
-    if (storedAcademy) {
-      setAcademy(JSON.parse(storedAcademy));
-    }
-  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -57,7 +50,7 @@ export default function ProfilePage() {
               </Avatar>
               <CardTitle className="font-headline text-2xl">{user?.displayName || 'Nombre de Usuario'}</CardTitle>
               <CardDescription>
-                {academy ? `Director(a) de ${academy.name}` : 'Instructor/a'}
+                Instructor/a
               </CardDescription>
               <div className="flex items-center gap-2 pt-2">
                 <StarRating rating={0} />
@@ -92,21 +85,45 @@ export default function ProfilePage() {
               <CardTitle className="font-headline text-lg">Redes Sociales</CardTitle>
               <CardDescription>Conecta con tus estudiantes.</CardDescription>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <Link href="#" aria-label="Instagram">
-                <Button variant="outline" size="icon">
-                  <Instagram className="h-5 w-5" />
+            <CardContent className="space-y-4">
+              <div className='flex items-center gap-2'>
+                <Button asChild variant="outline" size="icon" disabled={!profile?.instagramUrl} className="disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Link href={profile?.instagramUrl || '#'} target="_blank" aria-label="Instagram"><Instagram className="h-5 w-5" /></Link>
                 </Button>
-              </Link>
-              <Link href="#" aria-label="TikTok">
-                 <Button variant="outline" size="icon">
-                  <TikTokIcon className="h-5 w-5" />
+                <Button asChild variant="outline" size="icon" disabled={!profile?.tiktokUrl} className="disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Link href={profile?.tiktokUrl || '#'} target="_blank" aria-label="TikTok"><TikTokIcon className="h-5 w-5" /></Link>
                 </Button>
-              </Link>
-               <Button variant="outline" size="sm" className="flex-1">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
+                <Button asChild variant="outline" size="icon" disabled={!profile?.facebookUrl} className="disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Link href={profile?.facebookUrl || '#'} target="_blank" aria-label="Facebook"><FacebookIcon className="h-5 w-5" /></Link>
                 </Button>
+                <Button asChild variant="outline" size="icon" disabled={!profile?.linkedinUrl} className="disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Link href={profile?.linkedinUrl || '#'} target="_blank" aria-label="LinkedIn"><LinkedinIcon className="h-5 w-5" /></Link>
+                </Button>
+                 <Button asChild variant="outline" size="icon" disabled={!profile?.websiteUrl} className="disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Link href={profile?.websiteUrl || '#'} target="_blank" aria-label="Website"><Globe className="h-5 w-5" /></Link>
+                </Button>
+              </div>
+
+               <Dialog open={isSocialsDialogOpen} onOpenChange={setIsSocialsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar Redes
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Editar Redes Sociales</DialogTitle>
+                        <DialogDescription>
+                            Añade tus enlaces para que los estudiantes puedan encontrarte.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <EditSocialsForm
+                        currentProfile={profile}
+                        onSave={() => setIsSocialsDialogOpen(false)}
+                    />
+                </DialogContent>
+               </Dialog>
             </CardContent>
           </Card>
           <Card>
