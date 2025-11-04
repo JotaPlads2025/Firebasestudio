@@ -28,6 +28,8 @@ import {
   Calendar,
   Users,
   Beaker,
+  ShieldCheck,
+  FileText,
 } from 'lucide-react';
 import React from 'react';
 
@@ -82,6 +84,16 @@ const navItems = [
     icon: Beaker,
     label: 'Test Firebase',
   },
+   {
+    href: '/privacy',
+    icon: ShieldCheck,
+    label: 'Políticas',
+   },
+   {
+    href: '/terms',
+    icon: FileText,
+    label: 'Términos',
+   }
 ];
 
 export default function Nav() {

@@ -70,7 +70,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
 
   const pathname = usePathname();
-  const isPublicPage = pathname === '/login' || pathname.startsWith('/search-classes/');
+  const publicPages = ['/login', '/privacy', '/terms'];
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/search-classes/');
 
   useEffect(() => {
     if (!USE_FIREBASE || isUserLoading) return;
@@ -97,7 +98,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
       });
     }
-  }, [user, isUserLoading, router, isPublicPage, firestore]);
+  }, [user, isUserLoading, router, isPublicPage, firestore, pathname]);
   
   const handleLogout = () => {
     if (auth) {
@@ -112,11 +113,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const shouldShowLogin = USE_FIREBASE && (isUserLoading || !user);
 
-  if (isPublicPage) {
+  if (isPublicPage && !user) {
+     // For public pages like privacy/terms, we don't need the full app shell if the user isn't logged in.
+     // We can just show the content. A more advanced implementation could have a separate public layout.
+     if (pathname === '/privacy' || pathname === '/terms') {
+       return <main className="flex-1 p-4 md:p-8">{children}</main>;
+     }
     return <>{children}</>;
   }
   
-  if (shouldShowLogin) {
+  if (shouldShowLogin && !isPublicPage) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -141,26 +147,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent className="p-2">
           <Nav />
         </SidebarContent>
-        <SidebarFooter className="mt-auto p-2 text-center space-y-1">
-          <SidebarSeparator className="mb-1" />
-          <div className="flex items-center justify-center gap-1 group-data-[collapsible=icon]:hidden">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="#" target="_blank">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-sidebar-foreground/60 hover:text-sidebar-foreground">
-                    <Instagram className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>Instagram</TooltipContent>
-            </Tooltip>
+        <SidebarFooter className="mt-auto p-2 space-y-2">
+          <SidebarSeparator />
+          <div className="flex flex-col gap-2 group-data-[collapsible=icon]:hidden text-center">
+             <Link href="/privacy" className="text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground/80">
+                Política de Privacidad
+              </Link>
+              <Link href="/terms" className="text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground/80">
+                Términos y Condiciones
+              </Link>
           </div>
-          <Link
-            href="#"
-            className="group-data-[collapsible=icon]:hidden text-[10px] text-sidebar-foreground/50 hover:text-sidebar-foreground/70"
-          >
-            Términos y Condiciones
-          </Link>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
