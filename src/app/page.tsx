@@ -33,14 +33,17 @@ import {
   Cell,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Mail, TrendingUp, Users, DollarSign, Target, Activity, Dumbbell, Briefcase, Download, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { revenueData, classPerformanceData } from '@/lib/class-data';
 import AiAssistantForm from '@/components/ai-assistant-form';
 import RecoveryEmailDialog from '@/components/recovery-email-dialog';
 import { cn } from '@/lib/utils';
 import { MultiSelectFilter, type Option } from '@/components/ui/multi-select-filter';
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { venues } from '@/lib/venues-data';
+import { venues as initialVenues } from '@/lib/venues-data';
+import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { Class } from '@/lib/types';
 
 
 const inactiveStudents = [
@@ -87,7 +90,7 @@ const classTypeOptions: Option[] = [
 
 const venueOptions: Option[] = [
     { value: 'all', label: 'Todas las Sedes' },
-    ...venues.map(v => ({ value: v.id, label: v.name })),
+    ...initialVenues.map(v => ({ value: v.id, label: v.name })),
   ];
 
 const chartConfig = {
@@ -125,70 +128,41 @@ export default function Dashboard() {
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>(['all']);
   const [selectedVenues, setSelectedVenues] = useState<string[]>(['all']);
 
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const classesRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'instructors', user.uid, 'classes');
+  }, [user, firestore]);
+  
+  const { data: classes, isLoading: isLoadingClasses } = useCollection<Class>(classesRef);
+
+
   const filteredData = useMemo(() => {
-    // Start with all months from the base data to ensure the chart has a consistent axis
-    const fullMonthData = revenueData.map(d => ({ month: d.month, revenue: 0, newStudents: 0, activeClasses: 0, retention: 0 }));
-
-    const dataToFilter = revenueData.filter(d => {
-      const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
-      const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
-      const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
-      const venueMatch = selectedVenues.includes('all') || selectedVenues.includes(d.venueId);
-      return monthMatch && dayMatch && typeMatch && venueMatch;
-    });
-
-    // If filters are applied, populate the fullMonthData with filtered values
-    if (dataToFilter.length < revenueData.length) {
-        dataToFilter.forEach(filteredItem => {
-            const index = fullMonthData.findIndex(item => item.month === filteredItem.month);
-            if (index !== -1) {
-                fullMonthData[index] = {
-                    ...fullMonthData[index],
-                    revenue: filteredItem.revenue,
-                    newStudents: filteredItem.newStudents,
-                    activeClasses: filteredItem.activeClasses,
-                    retention: filteredItem.retention
-                };
-            }
-        });
-        return fullMonthData;
-    }
-    
-    return revenueData; // Return original data if 'all' is selected or no specific filters are applied that reduce the dataset
-  }, [selectedMonths, selectedDays, selectedClassTypes, selectedVenues]);
+    if (!classes) return [];
+    // This is a placeholder. Real filtering would be more complex.
+    return classes;
+  }, [classes, selectedMonths, selectedDays, selectedClassTypes, selectedVenues]);
 
   const aggregatedKpis = useMemo(() => {
-    const dataToFilter = revenueData.filter(d => {
-      const monthMatch = selectedMonths.includes('all') || selectedMonths.includes(d.month);
-      const dayMatch = selectedDays.includes('all') || selectedDays.includes(d.dayOfWeek);
-      const typeMatch = selectedClassTypes.includes('all') || selectedClassTypes.includes(d.classType);
-      const venueMatch = selectedVenues.includes('all') || selectedVenues.includes(d.venueId);
-      return monthMatch && dayMatch && typeMatch && venueMatch;
-    });
+    if (!classes) {
+        return { revenue: 0, newStudents: 0, retention: 0, activeClasses: 0, coaching: 0, bootcamps: 0 };
+    }
     
-    const dataToAggregate = dataToFilter.length > 0 ? dataToFilter : revenueData;
-
-    const totals = dataToAggregate.reduce((acc, item) => {
-        acc.revenue += item.revenue;
-        acc.newStudents += item.newStudents;
-        acc.activeClasses += item.activeClasses;
-        // Mock data for coaching and bootcamps as it is not in revenueData
-        acc.coaching = Math.round(item.activeClasses / 2);
-        acc.bootcamps = Math.round(item.activeClasses / 8);
-        return acc;
-    }, { revenue: 0, newStudents: 0, activeClasses: 0, coaching: 0, bootcamps: 0 });
-
-    const totalMonths = dataToAggregate.length > 0 ? new Set(dataToAggregate.map(d => d.month)).size : 1;
+    const activeClasses = classes.filter(c => c.status === 'Active');
+    const coaching = activeClasses.filter(c => c.category === 'Coaching').length;
+    const bootcamps = activeClasses.filter(c => c.category === 'Bootcamp').length;
 
     return {
-      revenue: totals.revenue,
-      newStudents: totals.newStudents,
-      retention: dataToAggregate.length > 0 ? Math.round(dataToAggregate.reduce((acc, item) => acc + item.retention, 0) / dataToAggregate.length) : 86, // Average retention
-      activeClasses: Math.round(totals.activeClasses / totalMonths),
-      coaching: Math.round(totals.coaching / totalMonths),
-      bootcamps: Math.round(totals.bootcamps / totalMonths),
+      revenue: classes.reduce((acc, cls) => acc + (cls.revenue || 0), 0),
+      newStudents: 0, // Placeholder
+      retention: 0, // Placeholder
+      activeClasses: activeClasses.length,
+      coaching: coaching,
+      bootcamps: bootcamps,
     };
-  }, [selectedMonths, selectedDays, selectedClassTypes, selectedVenues]);
+  }, [classes]);
 
     const { paginatedInactiveStudents, totalInactivePages } = useMemo(() => {
         const totalPages = Math.ceil(inactiveStudents.length / STUDENTS_PER_PAGE);
@@ -205,37 +179,37 @@ export default function Dashboard() {
     {
       title: 'Ingresos Totales',
       value: `$${aggregatedKpis.revenue.toLocaleString('es-CL')}`,
-      change: '+12.5%', // Static change for demo
+      change: 'N/A',
       icon: DollarSign,
     },
     {
       title: 'Nuevos Alumnos',
       value: aggregatedKpis.newStudents.toString(),
-      change: '+8.7%', // Static change for demo
+      change: 'N/A',
       icon: Users,
     },
     {
       title: 'Tasa de Retención',
       value: `${aggregatedKpis.retention}%`,
-      change: '-1.5%', // Static change for demo
+      change: 'N/A',
       icon: Target,
     },
      {
       title: 'Clases Activas',
       value: aggregatedKpis.activeClasses.toString(),
-      change: '+1', // Static change for demo
+      change: '', 
       icon: Activity,
     },
     {
       title: 'Coaching Activos',
       value: aggregatedKpis.coaching.toString(),
-      change: '+2', // Static change for demo
+      change: '',
       icon: Dumbbell,
     },
     {
       title: 'Bootcamps Activos',
       value: aggregatedKpis.bootcamps.toString(),
-      change: '0', // Static change for demo
+      change: '',
       icon: Briefcase,
     },
   ];
@@ -250,10 +224,10 @@ export default function Dashboard() {
                     <div>
                         <CardTitle>Filtros</CardTitle>
                         <CardDescription>
-                            Selecciona uno o más filtros para visualizar tus datos.
+                            Selecciona uno o más filtros para visualizar tus datos (funcionalidad en desarrollo).
                         </CardDescription>
                     </div>
-                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" disabled>
                         <Download className="mr-2 h-4 w-4" />
                         Descargar Excel
                     </Button>
@@ -289,23 +263,39 @@ export default function Dashboard() {
 
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {kpiData.map((kpi) => (
-          <Card key={kpi.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-bold text-primary">{kpi.title}</CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className={cn(
-                  "text-xs font-bold",
-                  kpi.change.startsWith('+') ? 'text-green-600' : 'text-destructive'
-              )}>
-                {kpi.change !== '0' ? `${kpi.change} desde el mes pasado` : 'sin cambios'}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {isLoadingClasses ? (
+            Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-6 w-1/2 rounded-md bg-muted animate-pulse" />
+                    </CardContent>
+                </Card>
+            ))
+        ) : (
+            kpiData.map((kpi) => (
+            <Card key={kpi.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-base font-bold text-primary">{kpi.title}</CardTitle>
+                <kpi.icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                <div className="text-2xl font-bold">{kpi.value}</div>
+                {kpi.change !== '' && (
+                    <p className={cn(
+                        "text-xs font-bold",
+                        kpi.change.startsWith('+') ? 'text-green-600' : 
+                        kpi.change === 'N/A' ? 'text-muted-foreground' : 'text-destructive'
+                    )}>
+                        {kpi.change !== 'N/A' ? `${kpi.change} desde el mes pasado` : 'Datos no disponibles'}
+                    </p>
+                )}
+                </CardContent>
+            </Card>
+            ))
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -313,12 +303,12 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Rendimiento General</CardTitle>
             <CardDescription>
-              Una vista general de tus ingresos y crecimiento de alumnos.
+              Una vista general de tus ingresos y crecimiento de alumnos (Gráfico en desarrollo).
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={filteredData}>
+              <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
@@ -360,7 +350,7 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle>Asistente de IA</CardTitle>
           <CardDescription>
-            Haz preguntas en lenguaje natural sobre tus datos de rendimiento.
+            Haz preguntas en lenguaje natural sobre tus datos de rendimiento (Datos de demo).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -372,7 +362,7 @@ export default function Dashboard() {
          <Card>
           <CardHeader>
             <CardTitle>Rendimiento por Clase</CardTitle>
-            <CardDescription>Ingresos generados por cada clase.</CardDescription>
+            <CardDescription>Ingresos generados por cada clase (Datos de demo).</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -407,7 +397,7 @@ export default function Dashboard() {
         <Card>
             <CardHeader>
               <CardTitle>% Ingreso por Clase</CardTitle>
-              <CardDescription>Distribución porcentual de los ingresos por cada clase.</CardDescription>
+              <CardDescription>Distribución porcentual de los ingresos por cada clase (Datos de demo).</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
@@ -446,26 +436,40 @@ export default function Dashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Clase</TableHead>
-                <TableHead className="text-right">Ingresos</TableHead>
-                <TableHead className="text-right">Cupos</TableHead>
-                <TableHead className="text-right">% Retención</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {classPerformanceData.map((cls) => (
-                <TableRow key={cls.id}>
-                  <TableCell className="font-medium">{cls.name}</TableCell>
-                  <TableCell className="text-right">${cls.revenue.toLocaleString('es-CL')}</TableCell>
-                  <TableCell className="text-right">{cls.bookings}</TableCell>
-                  <TableCell className="text-right">{cls.retention}%</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            {isLoadingClasses ? (
+                <div className="flex h-48 items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            ) : (
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Clase</TableHead>
+                        <TableHead className="text-right">Ingresos</TableHead>
+                        <TableHead className="text-right">Cupos</TableHead>
+                        <TableHead className="text-right">% Retención</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {filteredData.length > 0 ? (
+                        filteredData.map((cls) => (
+                            <TableRow key={cls.id}>
+                            <TableCell className="font-medium">{cls.name}</TableCell>
+                            <TableCell className="text-right">${(cls.revenue || 0).toLocaleString('es-CL')}</TableCell>
+                            <TableCell className="text-right">{cls.availability}</TableCell>
+                            <TableCell className="text-right">N/A</TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center h-24">
+                                No tienes clases creadas.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    </TableBody>
+                </Table>
+            )}
         </CardContent>
       </Card>
 
@@ -473,7 +477,7 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><TrendingUp /> Recupera Alumnos Inactivos</CardTitle>
           <CardDescription>
-            Contacta a estudiantes que no han vuelto a agendar para motivarlos a regresar.
+            Contacta a estudiantes que no han vuelto a agendar para motivarlos a regresar (funcionalidad en desarrollo).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -540,7 +544,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-    
-
-    
