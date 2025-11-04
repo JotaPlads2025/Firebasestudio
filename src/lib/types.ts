@@ -20,6 +20,7 @@ export type Venue = {
   address: string;
   region: string;
   commune: string;
+  ownerId?: string;
 };
 
 export type Class = {

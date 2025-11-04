@@ -213,6 +213,21 @@
         "lastName",
         "role"
       ]
+    },
+    "Venue": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Venue",
+        "type": "object",
+        "description": "Represents a physical location where classes are held.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the venue." },
+            "ownerId": { "type": "string", "description": "The user ID of the instructor who owns this venue." },
+            "name": { "type": "string", "description": "The name of the venue." },
+            "address": { "type": "string", "description": "The street address of the venue." },
+            "region": { "type": "string", "description": "The region where the venue is located." },
+            "commune": { "type": "string", "description": "The commune where the venue is located." }
+        },
+        "required": ["id", "ownerId", "name", "address", "region", "commune"]
     }
   },
   "auth": {
@@ -313,8 +328,20 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/venues/{venueId}",
+        "definition": {
+            "entityName": "Venue",
+            "schema": { "$ref": "#/backend/entities/Venue" },
+            "description": "Stores venues created by instructors. Each instructor can manage their own list of venues.",
+            "params": [
+                { "name": "userId", "description": "Unique identifier for the user (instructor)." },
+                { "name": "venueId", "description": "Unique identifier for the venue." }
+            ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the Plads Pro application. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership, ensuring only the user can access their own profile. Classes are stored under `/instructors/{instructorId}/classes/{classId}`, allowing instructors to manage their classes, with the instructorId also stored in the Class document for authorization independence. Bookings are stored under `/classes/{classId}/bookings/{bookingId}` and contain the `studentId` to enable rules to verify user booking and attendance. Notifications are structured under `/users/{userId}/notifications/{notificationId}`, providing a clear path for delivering notifications to specific users.\n\n**Authorization Independence:** The design emphasizes denormalization. For example, the `Class` entity includes `instructorId`, even though the path includes it as well, allowing security rules to validate instructor ownership without additional `get()` calls. The `Booking` document includes `studentId` and is located under `/classes/{classId}`, denormalizing the `classId` from the path so the security rules can validate the request.\n\n**QAPs (Rules are not Filters):** The segregation of data into instructor-owned classes and user-owned notifications supports secure list operations. Listing classes under `/instructors/{instructorId}/classes` is secure because the instructor ID is part of the path. Similarly, listing notifications under `/users/{userId}/notifications` is secure because the user ID is part of the path. The structure avoids mixing data with different access needs within the same collection."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership. Classes are under `/instructors/{instructorId}/classes/{classId}` for clear ownership. Bookings are under `/classes/{classId}/bookings/{bookingId}` for easy querying per class. Notifications and Venues are stored as subcollections under the `/users/{userId}` path, ensuring that each user can only access their own data, which is a secure and scalable pattern."
   }
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -19,17 +18,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Rocket, PlusCircle, MapPin, Trash2 } from 'lucide-react';
+import { Rocket, PlusCircle, MapPin, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { regions, communesByRegion } from '@/lib/locations';
-import { useState } from 'react';
-import { venues as initialVenues } from '@/lib/venues-data';
+import { useState, useMemo } from 'react';
 import type { Venue } from '@/lib/types';
-
+import { useFirestore, useUser, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 const venueSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres.'),
@@ -38,14 +38,20 @@ const venueSchema = z.object({
   commune: z.string().min(1, 'Debes seleccionar una comuna.'),
 });
 
-const settingsSchema = z.object({
-  venues: z.array(venueSchema),
-});
-
 
 export default function SettingsPage() {
-  const [venues, setVenues] = useState<Venue[]>(initialVenues);
   const [isAddingVenue, setIsAddingVenue] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const firestore = useFirestore();
+  const { user } = useUser();
+
+  const venuesCollectionRef = useMemoFirebase(() => {
+      if (!firestore || !user) return null;
+      return collection(firestore, 'users', user.uid, 'venues');
+  }, [firestore, user]);
+
+  const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
   // States for notification settings
   const [newBookingsEnabled, setNewBookingsEnabled] = useState(true);
@@ -65,18 +71,43 @@ export default function SettingsPage() {
 
   const selectedRegion = form.watch('region');
 
-  const onSubmit = (data: z.infer<typeof venueSchema>) => {
-    const newVenue: Venue = {
-      id: `venue-${Date.now()}`,
+  const onSubmit = async (data: z.infer<typeof venueSchema>) => {
+    if (!firestore || !venuesCollectionRef) return;
+    setIsSubmitting(true);
+    
+    const newVenue: Omit<Venue, 'id'> = {
       ...data,
+      ownerId: user!.uid,
     };
-    setVenues(prev => [...prev, newVenue]);
-    setIsAddingVenue(false);
-    form.reset();
+
+    try {
+        await addDocumentNonBlocking(firestore, venuesCollectionRef, newVenue);
+        toast({
+            title: '¡Sede Añadida!',
+            description: `La sede "${data.name}" ha sido guardada.`,
+        });
+        setIsAddingVenue(false);
+        form.reset();
+    } catch (error) {
+        console.error("Error adding venue:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error al añadir sede',
+            description: 'Hubo un problema al guardar la sede en la base de datos.',
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const removeVenue = (id: string) => {
-    setVenues(venues.filter(v => v.id !== id));
+    if (!firestore || !user) return;
+    const venueDocRef = doc(firestore, 'users', user.uid, 'venues', id);
+    deleteDocumentNonBlocking(firestore, venueDocRef);
+    toast({
+      title: 'Sede eliminada',
+      description: 'La sede ha sido eliminada correctamente.',
+    })
   }
 
   return (
@@ -109,21 +140,29 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            {venues.map((venue, index) => (
-              <div key={venue.id} className="flex items-center justify-between space-x-4 rounded-lg border p-4">
-                <div className="flex items-center gap-4">
-                  <MapPin className="h-6 w-6 text-primary" />
-                  <div className="space-y-0.5">
-                    <p className="font-semibold">{venue.name}</p>
-                    <p className="text-sm text-muted-foreground">{venue.address}, {venue.commune}</p>
-                  </div>
+            {isLoadingVenues ? (
+                <div className="flex justify-center items-center h-24">
+                    <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => removeVenue(venue.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                    <span className="sr-only">Eliminar Sede</span>
-                </Button>
-              </div>
-            ))}
+            ) : venues && venues.length > 0 ? (
+                venues.map((venue) => (
+                    <div key={venue.id} className="flex items-center justify-between space-x-4 rounded-lg border p-4">
+                        <div className="flex items-center gap-4">
+                        <MapPin className="h-6 w-6 text-primary" />
+                        <div className="space-y-0.5">
+                            <p className="font-semibold">{venue.name}</p>
+                            <p className="text-sm text-muted-foreground">{venue.address}, {venue.commune}</p>
+                        </div>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => removeVenue(venue.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Eliminar Sede</span>
+                        </Button>
+                    </div>
+                ))
+            ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No has añadido ninguna sede todavía.</p>
+            )}
           </div>
 
           {isAddingVenue ? (
@@ -198,8 +237,11 @@ export default function SettingsPage() {
                         />
                     </div>
                     <div className="flex justify-end gap-2">
-                         <Button variant="ghost" onClick={() => setIsAddingVenue(false)}>Cancelar</Button>
-                         <Button type="submit">Guardar Sede</Button>
+                         <Button variant="ghost" type="button" onClick={() => setIsAddingVenue(false)} disabled={isSubmitting}>Cancelar</Button>
+                         <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Guardar Sede
+                         </Button>
                     </div>
                 </form>
             </Form>

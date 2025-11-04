@@ -3,21 +3,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    //
-    // For more details, see the `security-rules.md` file in the `docs` folder.
-    //
+    
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
     match /users/{userId} {
-      // https://firebase.google.com/docs/firestore/security/rules-conditions
-      //
-      // `get`, `list`
-      allow get: if isOwner(userId);
-      //
-      // `create`, `update`, `delete`
-      allow write: if isOwner(userId);
+      allow read, write: if isOwner(userId);
+      
+      match /venues/{venueId} {
+        allow read, write: if isOwner(userId);
+      }
     }
+    
+    match /instructors/{instructorId}/classes/{classId} {
+      allow read: if true; // Publicly readable
+      allow write: if isOwner(instructorId);
+    }
+
   }
 }

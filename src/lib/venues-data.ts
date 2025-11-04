@@ -1,5 +1,7 @@
 import type { Venue } from './types';
 
+// This file now contains only initial demo data.
+// The main source of truth will be Firestore.
 export const venues: Venue[] = [
     {
         id: 'venue-001',

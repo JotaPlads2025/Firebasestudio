@@ -10,14 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { categories, subCategories } from '@/lib/categories';
-import { venues } from '@/lib/venues-data';
 import { PlusCircle, Trash2, Clock, CalendarDays, Loader2, Users } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { useAuth, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { useState, useMemo } from 'react';
+import { useAuth, useFirestore, useUser, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import type { Venue } from '@/lib/types';
 
 
 const scheduleSchema = z.object({
@@ -64,8 +64,16 @@ export default function CreateClassForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const auth = useAuth();
+  const { user } = useUser();
   const firestore = useFirestore();
+
+  const venuesCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, 'users', user.uid, 'venues');
+  }, [firestore, user]);
+
+  const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
+
 
   const form = useForm<ClassFormValues>({
     resolver: zodResolver(classFormSchema),
@@ -100,7 +108,7 @@ export default function CreateClassForm() {
   async function onSubmit(data: ClassFormValues) {
     setIsSubmitting(true);
     
-    if (!auth?.currentUser || !firestore) {
+    if (!user || !firestore) {
       toast({
           variant: 'destructive',
           title: 'Error de autenticación',
@@ -110,7 +118,7 @@ export default function CreateClassForm() {
       return;
     }
 
-    const instructorId = auth.currentUser.uid;
+    const instructorId = user.uid;
     const classesCollectionRef = collection(firestore, `instructors/${instructorId}/classes`);
     
     const newClassData = {
@@ -242,24 +250,29 @@ export default function CreateClassForm() {
             )}
             />
             <FormField
-            control={form.control}
-            name="venueId"
-            render={({ field }) => (
+              control={form.control}
+              name="venueId"
+              render={({ field }) => (
                 <FormItem>
-                <FormLabel>Sede</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Sede</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingVenues}>
                     <FormControl>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Selecciona la ubicación de la clase" />
-                    </SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder={isLoadingVenues ? "Cargando sedes..." : "Selecciona la ubicación de la clase"} />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                    {venues.map(v => <SelectItem key={v.id} value={v.id}>{v.name} - {v.commune}</SelectItem>)}
+                      {venues && venues.map(v => <SelectItem key={v.id} value={v.id}>{v.name} - {v.commune}</SelectItem>)}
                     </SelectContent>
-                </Select>
-                <FormMessage />
+                  </Select>
+                  {venues && venues.length === 0 && !isLoadingVenues && (
+                     <FormDescription>
+                        No tienes sedes. <Link href="/settings" className="text-primary underline">Añade una sede</Link> primero.
+                    </FormDescription>
+                  )}
+                  <FormMessage />
                 </FormItem>
-            )}
+              )}
             />
         </div>
         
