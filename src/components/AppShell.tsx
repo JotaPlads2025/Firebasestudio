@@ -102,8 +102,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [user, isUserLoading, router, isPublicPage, firestore, pathname]);
   
   const handleLogout = () => {
-    if (auth) {
+    if (auth && USE_FIREBASE) {
       auth.signOut();
+    } else {
+        // In demo mode, we can just reload or redirect to login
+        router.push('/login');
     }
   };
 
