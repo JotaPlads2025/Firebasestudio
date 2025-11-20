@@ -79,6 +79,15 @@
           "type": "string",
           "format": "uri",
           "description": "URL to the instructor's personal or professional website."
+        },
+        "stats": {
+            "type": "object",
+            "description": "Aggregated statistics for the instructor.",
+            "properties": {
+                "totalStudents": { "type": "number" },
+                "totalRevenue": { "type": "number" },
+                "totalBookings": { "type": "number" }
+            }
         }
       },
       "required": [
@@ -139,6 +148,15 @@
         },
         "subCategory": {
           "type": "string"
+        },
+        "stats": {
+            "type": "object",
+            "description": "Aggregated statistics for the class.",
+            "properties": {
+                "totalBookings": { "type": "number" },
+                "totalRevenue": { "type": "number" },
+                "occupancyRate": { "type": "number" }
+            }
         }
       },
       "required": [
@@ -169,6 +187,10 @@
         "className": {
             "type": "string",
             "description": "Denormalized name of the class for quick display."
+        },
+        "classLevel": {
+            "type": "string",
+            "description": "Denormalized level of the class."
         },
         "instructorId": {
             "type": "string",
@@ -370,18 +392,14 @@
         }
       },
       {
-        "path": "/instructors/{instructorId}/classes/{classId}",
+        "path": "/classes/{classId}",
         "definition": {
           "entityName": "Class",
           "schema": {
             "$ref": "#/backend/entities/Class"
           },
-          "description": "Stores classes created by instructors. Includes denormalized 'instructorId' for authorization independence.",
+          "description": "Root collection for all classes. This allows for efficient global queries and filtering. Each class document contains a reference to its instructor via 'instructorId'.",
           "params": [
-            {
-              "name": "instructorId",
-              "description": "Unique identifier for the instructor."
-            },
             {
               "name": "classId",
               "description": "Unique identifier for the class."
@@ -390,22 +408,14 @@
         }
       },
       {
-        "path": "/instructors/{instructorId}/classes/{classId}/bookings/{bookingId}",
+        "path": "/bookings/{bookingId}",
         "definition": {
           "entityName": "Booking",
           "schema": {
             "$ref": "#/backend/entities/Booking"
           },
-          "description": "Stores bookings for each class as a subcollection. This structure ensures that bookings are tightly coupled to the class they belong to, simplifying queries and security rules.",
+          "description": "Root collection for all bookings. This flat structure simplifies querying bookings by user, instructor, or class. Each document contains denormalized data for performance.",
           "params": [
-            {
-              "name": "instructorId",
-              "description": "Unique identifier for the instructor who owns the class."
-            },
-            {
-              "name": "classId",
-              "description": "Unique identifier for the class."
-            },
             {
               "name": "bookingId",
               "description": "Unique identifier for the booking."
@@ -454,7 +464,7 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership. Classes and their corresponding bookings are nested under `/instructors/{instructorId}/classes/{classId}` for clear ownership and to simplify security rules. Notifications and Venues are stored as subcollections under the `/users/{userId}` path, ensuring that each user can only access their own data, which is a secure and scalable pattern."
+    "reasoning": "The Firestore structure is designed with a flat hierarchy for scalability and query efficiency. '/classes' and '/bookings' are root collections, enabling global searches and filters without deep nesting. Data is strategically denormalized (e.g., instructorName in Class, className in Booking) to reduce the need for complex joins and improve read performance. Subcollections are used only for data strictly owned by a user, such as notifications, venues, and instructor-specific profiles, simplifying security rules."
   }
 }
 
