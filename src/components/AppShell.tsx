@@ -226,6 +226,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </Popover>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeSwitcher />
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
@@ -262,8 +263,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       <span>Configuraciones</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                   <ThemeSwitcher />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
