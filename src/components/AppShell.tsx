@@ -75,6 +75,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/search-classes/');
 
   useEffect(() => {
+    // This effect handles redirection and user data creation in real Firebase mode.
     if (!USE_FIREBASE || isUserLoading) return;
 
     if (!user && !isPublicPage) {
@@ -86,15 +87,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       const userRef = doc(firestore, 'users', user.uid);
       getDoc(userRef).then(userDoc => {
         if (!userDoc.exists()) {
-          // User document doesn't exist, create it.
           const newUser = {
             id: user.uid,
             email: user.email,
             firstName: user.displayName?.split(' ')[0] || '',
             lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-            role: 'instructor', // Default role
+            role: 'instructor',
           };
-          // Using a non-blocking write operation
           setDocumentNonBlocking(firestore, userRef, newUser);
         }
       });
@@ -105,7 +104,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     if (auth && USE_FIREBASE) {
       auth.signOut();
     } else {
-        // In demo mode, we can just reload or redirect to login
+        // In demo mode, simulate logout by redirecting to login.
         router.push('/login');
     }
   };
@@ -114,29 +113,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setIsCommandPaletteOpen(false);
     command();
   }, []);
-
-  const shouldShowLogin = USE_FIREBASE && (isUserLoading || !user);
-
-  if (isPublicPage && !user && USE_FIREBASE) {
-     if (pathname === '/login') {
-        return <>{children}</>;
-     }
-     // For public pages like privacy/terms, we don't need the full app shell if the user isn't logged in.
-     // We can just show the content. A more advanced implementation could have a separate public layout.
-     if (pathname === '/privacy' || pathname === '/terms' || pathname.startsWith('/search-classes')) {
-       return <main className="flex-1 p-4 md:p-8">{children}</main>;
-     }
-    return <>{children}</>;
-  }
   
-  if (shouldShowLogin && !isPublicPage) {
+  const shouldShowAppShell = !isPublicPage || (isPublicPage && user);
+
+  // In demo mode, if we are on a "public" page, we still want to show the shell
+  // as if the user is logged in. But in real mode, we don't.
+  if (!USE_FIREBASE && isPublicPage) {
+    // In demo mode, we always want the full experience.
+  } else if (isPublicPage && !user) {
+    if (pathname === '/login') return <>{children}</>;
+    return <main className="flex-1 p-4 md:p-8">{children}</main>;
+  }
+
+  if (isUserLoading && !isPublicPage) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
-
+  
   return (
     <SidebarProvider>
       <Sidebar
@@ -237,7 +233,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {isUserLoading ? (
+            {isUserLoading && USE_FIREBASE ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : user ? (
               <DropdownMenu>
@@ -300,3 +296,5 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    
