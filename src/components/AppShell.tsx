@@ -34,8 +34,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from './ui/badge';
 import { ThemeSwitcher } from './theme-switcher';
-
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+import { IS_DEMO_MODE } from '@/lib/config';
 
 const PladsProLogo = () => {
   return (
@@ -76,7 +75,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // This effect handles redirection and user data creation in real Firebase mode.
-    if (!USE_FIREBASE || isUserLoading) return;
+    if (IS_DEMO_MODE || isUserLoading) return;
 
     if (!user && !isPublicPage) {
       router.replace('/login');
@@ -101,7 +100,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [user, isUserLoading, router, isPublicPage, firestore, pathname]);
   
   const handleLogout = () => {
-    if (auth && USE_FIREBASE) {
+    if (auth && !IS_DEMO_MODE) {
       auth.signOut();
     } else {
         // In demo mode, simulate logout by redirecting to login.
@@ -118,7 +117,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // In demo mode, if we are on a "public" page, we still want to show the shell
   // as if the user is logged in. But in real mode, we don't.
-  if (!USE_FIREBASE && isPublicPage) {
+  if (IS_DEMO_MODE && isPublicPage) {
     // In demo mode, we always want the full experience.
   } else if (isPublicPage && !user) {
     if (pathname === '/login') return <>{children}</>;
@@ -143,7 +142,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="flex items-center justify-between relative">
           <div className="flex items-center gap-2">
             <PladsProLogo />
-            {!USE_FIREBASE && <Badge variant="destructive" className="animate-pulse">DEMO</Badge>}
+            {IS_DEMO_MODE && <Badge variant="destructive" className="animate-pulse">DEMO</Badge>}
           </div>
           <SidebarTrigger className="hidden md:flex" />
         </SidebarHeader>
@@ -233,7 +232,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {isUserLoading && USE_FIREBASE ? (
+            {isUserLoading && !IS_DEMO_MODE ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : user ? (
               <DropdownMenu>
@@ -296,5 +295,3 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    

@@ -5,8 +5,8 @@ import {
   GoogleAuthProvider,
   signInWithRedirect,
 } from 'firebase/auth';
+import { IS_DEMO_MODE } from '@/lib/config';
 
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 /**
  * Initiates Google Sign-In using a redirect.
@@ -15,7 +15,7 @@ const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
  * @param authInstance The Firebase Auth instance.
  */
 export function initiateGoogleSignIn(authInstance: Auth): void {
-  if (!USE_FIREBASE) {
+  if (IS_DEMO_MODE) {
     console.log("Modo de demostración: El inicio de sesión con Google está desactivado.");
     return;
   }

@@ -6,8 +6,7 @@ import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
-
-const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+import { IS_DEMO_MODE } from '@/lib/config';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -72,7 +71,12 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth || !USE_FIREBASE) { // If no Auth service instance, cannot determine user state
+    if (IS_DEMO_MODE) {
+      setUserAuthState({ user: null, isUserLoading: false, userError: null });
+      return;
+    }
+    
+    if (!auth) { // If no Auth service instance, cannot determine user state
       setUserAuthState({ user: null, isUserLoading: false, userError: null });
       return;
     }
@@ -197,7 +201,7 @@ const mockUser = {
  * @returns {UserHookResult} Object with user, isUserLoading, userError.
  */
 export const useUser = (): UserHookResult => {
-  if (!USE_FIREBASE) {
+  if (IS_DEMO_MODE) {
       return {
           user: mockUser,
           isUserLoading: false,
