@@ -114,10 +114,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const shouldShowLogin = USE_FIREBASE && (isUserLoading || !user);
 
-  if (isPublicPage && !user) {
+  if (isPublicPage && !user && USE_FIREBASE) {
+     if (pathname === '/login') {
+        return <>{children}</>;
+     }
      // For public pages like privacy/terms, we don't need the full app shell if the user isn't logged in.
      // We can just show the content. A more advanced implementation could have a separate public layout.
-     if (pathname === '/privacy' || pathname === '/terms') {
+     if (pathname === '/privacy' || pathname === '/terms' || pathname.startsWith('/search-classes')) {
        return <main className="flex-1 p-4 md:p-8">{children}</main>;
      }
     return <>{children}</>;

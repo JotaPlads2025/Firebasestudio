@@ -7,6 +7,8 @@ import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 
+const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
+
 interface FirebaseProviderProps {
   children: ReactNode;
   firebaseApp: FirebaseApp;
@@ -70,8 +72,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) { // If no Auth service instance, cannot determine user state
-      setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
+    if (!auth || !USE_FIREBASE) { // If no Auth service instance, cannot determine user state
+      setUserAuthState({ user: null, isUserLoading: false, userError: null });
       return;
     }
 
@@ -143,7 +145,7 @@ export const useAuth = (): Auth | null => {
   if (context === undefined) {
     throw new Error('useAuth must be used within a FirebaseProvider.');
   }
-  return context.auth;
+  return USE_FIREBASE ? context.auth : null;
 };
 
 
@@ -153,14 +155,14 @@ export const useFirestore = (): Firestore | null => {
   if (context === undefined) {
     throw new Error('useFirestore must be used within a FirebaseProvider.');
   }
-  return context.firestore;
+  return USE_FIREBASE ? context.firestore : null;
 };
 
 
 /** Hook to access Firebase App instance. */
-export const useFirebaseApp = (): FirebaseApp => {
+export const useFirebaseApp = (): FirebaseApp | null => {
   const { firebaseApp } = useFirebase();
-  return firebaseApp;
+  return USE_FIREBASE ? firebaseApp : null;
 };
 
 type MemoFirebase <T> = T & {__memo?: boolean};
@@ -174,12 +176,31 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   return memoized;
 }
 
+const mockUser = {
+    uid: 'dev-user-123',
+    email: 'dev@plads.com',
+    displayName: 'Dev Instructor',
+    photoURL: 'https://i.imgur.com/A6j4VzT.jpeg',
+    emailVerified: true,
+    isAnonymous: false,
+    metadata: {},
+    providerData: [],
+    // Add other User properties as needed, but keep them simple
+} as unknown as User;
+
 /**
  * Hook specifically for accessing the authenticated user's state.
  * This provides the User object, loading status, and any auth errors.
  * @returns {UserHookResult} Object with user, isUserLoading, userError.
  */
-export const useUser = (): UserHookResult => { // Renamed from useAuthUser
+export const useUser = (): UserHookResult => {
+  if (!USE_FIREBASE) {
+      return {
+          user: mockUser,
+          isUserLoading: false,
+          userError: null,
+      }
+  }
   const context = useContext(FirebaseContext);
    if (context === undefined) {
     throw new Error('useUser must be used within a FirebaseProvider.');
