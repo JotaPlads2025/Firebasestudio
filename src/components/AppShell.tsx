@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from './ui/badge';
+import { ThemeSwitcher } from './theme-switcher';
 
 const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
@@ -261,6 +262,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       <span>Configuraciones</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                   <ThemeSwitcher />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />

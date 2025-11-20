@@ -3,11 +3,19 @@
 
 import { FirebaseClientProvider } from '@/firebase';
 import AppShell from '@/components/AppShell';
+import { ThemeProvider } from 'next-themes';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <FirebaseClientProvider>
-      <AppShell>{children}</AppShell>
-    </FirebaseClientProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <FirebaseClientProvider>
+        <AppShell>{children}</AppShell>
+      </FirebaseClientProvider>
+    </ThemeProvider>
   );
 }
