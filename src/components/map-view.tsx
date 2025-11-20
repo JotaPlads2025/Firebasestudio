@@ -1,7 +1,8 @@
+
 'use client';
 
+import React, { useState, useMemo, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
-import { useState, useMemo, useCallback } from 'react';
 import { Card } from './ui/card';
 import { Loader2 } from 'lucide-react';
 import type { Class, Venue } from '@/lib/types';
@@ -70,19 +71,29 @@ export default function MapView({ classes, venues }: MapViewProps) {
       
       const geocodePromises = uniqueVenueIds.map(async (venueId) => {
         const venue = venues.find(v => v.id === venueId);
-        if (venue && !geocodedVenues[venueId] && !geocodeCache.has(venue.address)) {
+        if (venue && !geocodedVenues[venueId]) {
           const fullAddress = `${venue.address}, ${venue.commune}, Chile`;
-          const location = await geocodeAddress(fullAddress);
-          if (location) {
-            newGeocodes[venueId] = location;
+          if (!geocodeCache.has(fullAddress)) {
+              const location = await geocodeAddress(fullAddress);
+              if (location) {
+                newGeocodes[venueId] = location;
+              }
           }
-        } else if (geocodeCache.has(venue?.address || '')) {
-            newGeocodes[venueId] = geocodeCache.get(venue!.address)!;
         }
       });
 
       Promise.all(geocodePromises).then(() => {
-        setGeocodedVenues(prev => ({...prev, ...newGeocodes}));
+        const cachedGeocodes: Record<string, { lat: number; lng: number }> = {};
+        uniqueVenueIds.forEach(venueId => {
+            const venue = venues.find(v => v.id === venueId);
+            if (venue) {
+                const fullAddress = `${venue.address}, ${venue.commune}, Chile`;
+                if(geocodeCache.has(fullAddress)) {
+                    cachedGeocodes[venueId] = geocodeCache.get(fullAddress)!;
+                }
+            }
+        });
+        setGeocodedVenues(prev => ({...prev, ...newGeocodes, ...cachedGeocodes}));
         setLoadingGeocodes(false);
       });
     }
@@ -114,7 +125,7 @@ export default function MapView({ classes, venues }: MapViewProps) {
     );
   }
 
-  if (!isLoaded) {
+  if (!isLoaded || loadingGeocodes) {
     return (
       <Card className="h-[600px] flex items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin" />
