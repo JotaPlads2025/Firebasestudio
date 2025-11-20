@@ -16,18 +16,21 @@ import { venues as initialVenues } from '@/lib/venues-data';
 import { regions } from '@/lib/locations';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import type { Class, Venue } from '@/lib/types';
-import { doc, getDoc, collectionGroup, query, where, getDocs } from 'firebase/firestore';
+import { useFirestore, useUser, addDocumentNonBlocking } from '@/firebase';
+import type { Class, Venue, Booking } from '@/lib/types';
+import { doc, getDoc, collection, collectionGroup, query, where, getDocs } from 'firebase/firestore';
 
 
 export default function ClassDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [classData, setClassData] = useState<Class | null>(null);
+  const [classData, setClassData] = useState<(Class & { instructorId?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBooking, setIsBooking] = useState(false);
+
   const firestore = useFirestore();
+  const { user } = useUser();
 
   useEffect(() => {
     if (!firestore || !params.id) return;
@@ -39,22 +42,24 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
         
         const instructorsQuery = await getDocs(collection(firestore, 'instructors'));
         let foundDoc = null;
+        let instructorId = '';
 
         for (const instructorDoc of instructorsQuery.docs) {
             const classDocRef = doc(firestore, 'instructors', instructorDoc.id, 'classes', params.id);
             const classDoc = await getDoc(classDocRef);
             if (classDoc.exists()) {
                 foundDoc = classDoc;
+                instructorId = instructorDoc.id;
                 break;
             }
         }
         
         if (foundDoc) {
           const data = foundDoc.data() as Class;
-          // Placeholder data for instructor details
           setClassData({
             ...data,
             id: foundDoc.id,
+            instructorId: instructorId,
             instructorName: 'Instructor Name',
             instructorAvatar: 'https://picsum.photos/seed/instructor/100/100',
             rating: 4.8,
@@ -73,6 +78,53 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
 
     findClass();
   }, [firestore, params.id]);
+
+  const handleBooking = async () => {
+    if (!user) {
+        router.push(`/login?redirect=/search-classes/${params.id}`);
+        return;
+    }
+    if (!firestore || !classData || !classData.instructorId) return;
+
+    setIsBooking(true);
+
+    const nextClassDate = new Date(); // Placeholder for actual next class date logic
+    
+    const newBooking: Omit<Booking, 'id'> = {
+        classId: classData.id,
+        className: classData.name,
+        classLevel: classData.level || 'No especificado',
+        instructorId: classData.instructorId,
+        studentId: user.uid,
+        studentName: user.displayName || 'Estudiante Anónimo',
+        bookingDate: new Date().toISOString(),
+        classDate: nextClassDate.toISOString(),
+        attendanceStatus: 'Confirmada',
+    };
+
+    try {
+        const bookingsCollection = collection(firestore, 'bookings');
+        await addDocumentNonBlocking(firestore, bookingsCollection, newBooking);
+        
+        toast({
+            title: '¡Reserva exitosa!',
+            description: `Tu cupo para "${classData.name}" ha sido confirmado.`,
+        });
+
+        // Here we would ideally update the class availability
+        // setDoc(doc(firestore, 'classes', classData.id), { availability: classData.availability - 1 }, { merge: true });
+
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error al reservar',
+            description: 'No se pudo completar la reserva. Inténtalo de nuevo.',
+        });
+    } finally {
+        setIsBooking(false);
+    }
+  };
 
 
   if (loading) {
@@ -93,8 +145,6 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
   const isFull = classData.availability === 0;
   const hasPacks = classData.pricePlans && classData.pricePlans.length > 1;
 
-  // For demonstration, we'll filter reviews that might match this class or instructor.
-  // In a real app, reviews would be linked directly to the class or instructor.
   const classReviews = reviewsData.slice(0, 3); 
 
   const handleSubscription = () => {
@@ -198,7 +248,7 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
                     </Avatar>
                     <div>
                         <h3 className="font-semibold">{classData.instructorName}</h3>
-                        <Link href="/profile" className="text-sm text-primary hover:underline">
+                        <Link href={`/profile/${classData.instructorId}`} className="text-sm text-primary hover:underline">
                             Ver perfil
                         </Link>
                     </div>
@@ -223,8 +273,14 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <Button size="lg" className="w-full" disabled={isFull}>
-                    {isFull ? 'Clase Completa' : 'Agendar Cupo'}
+                <Button size="lg" className="w-full" disabled={isFull || isBooking} onClick={handleBooking}>
+                    {isBooking ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : isFull ? (
+                        'Clase Completa'
+                    ) : (
+                        'Agendar Cupo'
+                    )}
                 </Button>
                 {hasPacks && (
                     <div className="space-y-2 pt-2">
@@ -274,5 +330,3 @@ export default function ClassDetailPage({ params }: { params: { id: string } }) 
     </div>
   );
 }
-
-    

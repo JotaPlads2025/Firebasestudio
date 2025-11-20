@@ -1,0 +1,35 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /venues/{venueId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /instructorProfile/{profileId} {
+        allow read: if true; // Publicly readable for profile pages
+        allow write: if isOwner(userId);
+      }
+    }
+    
+    match /classes/{classId} {
+      allow read: if true; // Publicly readable
+      allow write: if isOwner(request.resource.data.instructorId);
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if request.auth.uid == request.resource.data.studentId;
+      allow read, write: if request.auth.uid == resource.data.instructorId || request.auth.uid == resource.data.studentId;
+    }
+
+  }
+}
