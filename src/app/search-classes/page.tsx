@@ -18,11 +18,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Link from 'next/link';
-import { venues } from '@/lib/venues-data';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import type { Class, Venue } from '@/lib/types';
-import { collectionGroup, getDocs, query } from 'firebase/firestore';
+import { collectionGroup, getDocs, query, collection } from 'firebase/firestore';
 import MapView from '@/components/map-view';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado', 'Todos los niveles'];
@@ -54,6 +53,7 @@ export default function SearchClassesPage() {
   const [selectedTime, setSelectedTime] = useState('all');
   
   const [allClasses, setAllClasses] = useState<FetchedClass[]>([]);
+  const [allVenues, setAllVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const firestore = useFirestore();
@@ -62,15 +62,21 @@ export default function SearchClassesPage() {
     if (!firestore) return;
     setIsLoading(true);
 
-    const fetchAllClasses = async () => {
+    const fetchAllData = async () => {
         try {
+            // Fetch all venues first
+            const venuesQuery = query(collectionGroup(firestore, 'venues'));
+            const venuesSnapshot = await getDocs(venuesQuery);
+            const venuesData: Venue[] = venuesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Venue));
+            setAllVenues(venuesData);
+
+            // Fetch all classes
             const classesQuery = query(collectionGroup(firestore, 'classes'));
-            const querySnapshot = await getDocs(classesQuery);
-            const classes: FetchedClass[] = [];
-            querySnapshot.forEach(doc => {
-                // Here we might need to fetch instructor details, but for now we'll use placeholder
+            const classesSnapshot = await getDocs(classesQuery);
+            const classesData: FetchedClass[] = [];
+            classesSnapshot.forEach(doc => {
                 const data = doc.data() as Class;
-                classes.push({
+                classesData.push({
                     ...data,
                     id: doc.id,
                     instructorName: 'Instructor', // Placeholder
@@ -78,15 +84,15 @@ export default function SearchClassesPage() {
                     reviewCount: 30, // Placeholder
                 });
             });
-            setAllClasses(classes);
+            setAllClasses(classesData);
         } catch (error) {
-            console.error("Error fetching all classes:", error);
+            console.error("Error fetching data:", error);
         } finally {
             setIsLoading(false);
         }
     };
     
-    fetchAllClasses();
+    fetchAllData();
 
   }, [firestore]);
 
@@ -114,7 +120,7 @@ export default function SearchClassesPage() {
 
   const filteredClasses = useMemo(() => {
     let classes = allClasses.filter(c => {
-      const venue = venues.find(v => v.id === c.venueId);
+      const venue = allVenues.find(v => v.id === c.venueId);
       if (!venue) return false;
 
       const searchTermMatch = searchTerm === '' || 
@@ -149,12 +155,19 @@ export default function SearchClassesPage() {
     });
 
     return classes;
-  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime, allClasses]);
+  }, [searchTerm, selectedRegion, selectedCommune, selectedCategory, selectedSubCategory, selectedLevel, selectedDay, selectedTime, allClasses, allVenues]);
   
   const getFirstPrice = (pricePlans: Class['pricePlans']) => {
     if (!pricePlans || pricePlans.length === 0) return 0;
     return pricePlans[0].price;
   };
+  
+  const venueOptions: { value: string; label: string }[] = useMemo(() => {
+    return [
+      { value: 'all', label: 'Todas las Sedes' },
+      ...allVenues.map(v => ({ value: v.id, label: v.name })),
+    ];
+  }, [allVenues]);
 
   const ClassCard = ({ cls }: { cls: FetchedClass }) => {
     const { toast } = useToast();
@@ -445,11 +458,9 @@ export default function SearchClassesPage() {
             )}
         </div>
       ) : (
-        <MapView classes={[]} />
+        <MapView classes={filteredClasses} venues={allVenues} />
       )}
 
     </div>
   );
 }
-
-    
