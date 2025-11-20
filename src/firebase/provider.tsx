@@ -11,9 +11,9 @@ const USE_FIREBASE = process.env.NEXT_PUBLIC_USE_FIREBASE === 'true';
 
 interface FirebaseProviderProps {
   children: ReactNode;
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
 }
 
 // Internal state for user authentication
@@ -145,7 +145,7 @@ export const useAuth = (): Auth | null => {
   if (context === undefined) {
     throw new Error('useAuth must be used within a FirebaseProvider.');
   }
-  return USE_FIREBASE ? context.auth : null;
+  return context.auth;
 };
 
 
@@ -155,14 +155,17 @@ export const useFirestore = (): Firestore | null => {
   if (context === undefined) {
     throw new Error('useFirestore must be used within a FirebaseProvider.');
   }
-  return USE_FIREBASE ? context.firestore : null;
+  return context.firestore;
 };
 
 
 /** Hook to access Firebase App instance. */
 export const useFirebaseApp = (): FirebaseApp | null => {
-  const { firebaseApp } = useFirebase();
-  return USE_FIREBASE ? firebaseApp : null;
+  const context = useContext(FirebaseContext);
+    if (context === undefined) {
+        throw new Error('useFirebaseApp must be used within a FirebaseProvider.');
+    }
+  return context.firebaseApp;
 };
 
 type MemoFirebase <T> = T & {__memo?: boolean};
