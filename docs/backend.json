@@ -24,26 +24,26 @@
           "description": "A short biography of the instructor."
         },
         "category": {
-            "type": "string",
-            "description": "The main category of expertise (e.g., Baile, Deporte)."
+          "type": "string",
+          "description": "The main category of expertise (e.g., Baile, Deporte)."
         },
         "styles": {
-            "type": "array",
-            "description": "A list of specific styles the instructor teaches.",
-            "items": {
-                "type": "string"
-            }
+          "type": "array",
+          "description": "A list of specific styles the instructor teaches.",
+          "items": {
+            "type": "string"
+          }
         },
         "audiences": {
-            "type": "array",
-            "description": "The target audiences for the classes (e.g., Lady Style, Mixto).",
-            "items": {
-                "type": "string"
-            }
+          "type": "array",
+          "description": "The target audiences for the classes (e.g., Lady Style, Mixto).",
+          "items": {
+            "type": "string"
+          }
         },
         "isCoaching": {
-            "type": "boolean",
-            "description": "Indicates if the instructor offers private coaching."
+          "type": "boolean",
+          "description": "Indicates if the instructor offers private coaching."
         },
         "profilePictureUrl": {
           "type": "string",
@@ -56,29 +56,29 @@
           "format": "email"
         },
         "instagramUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL to the instructor's Instagram profile."
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the instructor's Instagram profile."
         },
         "tiktokUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL to the instructor's TikTok profile."
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the instructor's TikTok profile."
         },
         "facebookUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL to the instructor's Facebook profile."
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the instructor's Facebook profile."
         },
         "linkedinUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL to the instructor's LinkedIn profile."
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the instructor's LinkedIn profile."
         },
         "websiteUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL to the instructor's personal or professional website."
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the instructor's personal or professional website."
         }
       },
       "required": [
@@ -100,6 +100,15 @@
         "instructorId": {
           "type": "string",
           "description": "Reference to InstructorProfile. (Relationship: InstructorProfile 1:N Class)"
+        },
+        "instructorName": {
+            "type": "string",
+            "description": "Denormalized name of the instructor for quick display."
+        },
+        "instructorAvatar": {
+            "type": "string",
+            "format": "uri",
+            "description": "Denormalized URL of the instructor's avatar for quick display."
         },
         "name": {
           "type": "string",
@@ -126,10 +135,10 @@
           "description": "Indicates whether the class is currently active."
         },
         "level": {
-            "type": "string"
+          "type": "string"
         },
         "subCategory": {
-            "type": "string"
+          "type": "string"
         }
       },
       "required": [
@@ -155,27 +164,47 @@
         },
         "classId": {
           "type": "string",
-          "description": "Reference to Class. (Relationship: Class 1:N Booking)"
+          "description": "Reference to the Class."
+        },
+        "className": {
+            "type": "string",
+            "description": "Denormalized name of the class for quick display."
+        },
+        "instructorId": {
+            "type": "string",
+            "description": "Reference to the instructor of the class."
         },
         "studentId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Booking)"
+          "description": "Reference to the student (User)."
+        },
+        "studentName": {
+            "type": "string",
+            "description": "Denormalized name of the student for quick display."
         },
         "bookingDate": {
           "type": "string",
           "description": "Date and time when the booking was made.",
           "format": "date-time"
         },
+        "classDate": {
+            "type": "string",
+            "description": "The specific date of the class being booked.",
+            "format": "date-time"
+        },
         "attendanceStatus": {
           "type": "string",
-          "description": "Attendance status of the student for the class (e.g., Attended, Absent)."
+          "description": "Attendance status of the student for the class (e.g., Attended, Absent).",
+          "enum": ["Confirmada", "Asistió", "Ausente", "Cancelada"]
         }
       },
       "required": [
         "id",
         "classId",
+        "instructorId",
         "studentId",
         "bookingDate",
+        "classDate",
         "attendanceStatus"
       ]
     },
@@ -257,19 +286,44 @@
       ]
     },
     "Venue": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Venue",
-        "type": "object",
-        "description": "Represents a physical location where classes are held.",
-        "properties": {
-            "id": { "type": "string", "description": "Unique identifier for the venue." },
-            "ownerId": { "type": "string", "description": "The user ID of the instructor who owns this venue." },
-            "name": { "type": "string", "description": "The name of the venue." },
-            "address": { "type": "string", "description": "The street address of the venue." },
-            "region": { "type": "string", "description": "The region where the venue is located." },
-            "commune": { "type": "string", "description": "The commune where the venue is located." }
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Venue",
+      "type": "object",
+      "description": "Represents a physical location where classes are held.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the venue."
         },
-        "required": ["id", "ownerId", "name", "address", "region", "commune"]
+        "ownerId": {
+          "type": "string",
+          "description": "The user ID of the instructor who owns this venue."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the venue."
+        },
+        "address": {
+          "type": "string",
+          "description": "The street address of the venue."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region where the venue is located."
+        },
+        "commune": {
+          "type": "string",
+          "description": "The commune where the venue is located."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "name",
+        "address",
+        "region",
+        "commune"
+      ]
     }
   },
   "auth": {
@@ -322,7 +376,7 @@
           "schema": {
             "$ref": "#/backend/entities/Class"
           },
-          "description": "Stores classes created by instructors.  Includes denormalized 'instructorId' for authorization independence.",
+          "description": "Stores classes created by instructors. Includes denormalized 'instructorId' for authorization independence.",
           "params": [
             {
               "name": "instructorId",
@@ -336,14 +390,18 @@
         }
       },
       {
-        "path": "/classes/{classId}/bookings/{bookingId}",
+        "path": "/instructors/{instructorId}/classes/{classId}/bookings/{bookingId}",
         "definition": {
           "entityName": "Booking",
           "schema": {
             "$ref": "#/backend/entities/Booking"
           },
-          "description": "Stores bookings for each class. Includes the 'studentId' for authorization independence.",
+          "description": "Stores bookings for each class as a subcollection. This structure ensures that bookings are tightly coupled to the class they belong to, simplifying queries and security rules.",
           "params": [
+            {
+              "name": "instructorId",
+              "description": "Unique identifier for the instructor who owns the class."
+            },
             {
               "name": "classId",
               "description": "Unique identifier for the class."
@@ -378,16 +436,26 @@
       {
         "path": "/users/{userId}/venues/{venueId}",
         "definition": {
-            "entityName": "Venue",
-            "schema": { "$ref": "#/backend/entities/Venue" },
-            "description": "Stores venues created by instructors. Each instructor can manage their own list of venues.",
-            "params": [
-                { "name": "userId", "description": "Unique identifier for the user (instructor)." },
-                { "name": "venueId", "description": "Unique identifier for the venue." }
-            ]
+          "entityName": "Venue",
+          "schema": {
+            "$ref": "#/backend/entities/Venue"
+          },
+          "description": "Stores venues created by instructors. Each instructor can manage their own list of venues.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user (instructor)."
+            },
+            {
+              "name": "venueId",
+              "description": "Unique identifier for the venue."
+            }
+          ]
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership. Classes are under `/instructors/{instructorId}/classes/{classId}` for clear ownership. Bookings are under `/classes/{classId}/bookings/{bookingId}` for easy querying per class. Notifications and Venues are stored as subcollections under the `/users/{userId}` path, ensuring that each user can only access their own data, which is a secure and scalable pattern."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. Instructor profiles are stored under `/users/{userId}/instructorProfile` to leverage path-based ownership. Classes and their corresponding bookings are nested under `/instructors/{instructorId}/classes/{classId}` for clear ownership and to simplify security rules. Notifications and Venues are stored as subcollections under the `/users/{userId}` path, ensuring that each user can only access their own data, which is a secure and scalable pattern."
   }
 }
+
+    
