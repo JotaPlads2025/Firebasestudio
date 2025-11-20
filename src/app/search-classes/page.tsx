@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { Class, Venue } from '@/lib/types';
 import { collectionGroup, getDocs, query } from 'firebase/firestore';
+import MapView from '@/components/map-view';
 
 const levels = ['Todos', 'Básico', 'Intermedio', 'Avanzado', 'Todos los niveles'];
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -444,13 +445,7 @@ export default function SearchClassesPage() {
             )}
         </div>
       ) : (
-        <Card className="h-[600px] flex items-center justify-center bg-muted">
-            <div className="text-center text-muted-foreground">
-                <Map className="h-16 w-16 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold">Vista de Mapa</h3>
-                <p>Esta funcionalidad estará disponible pronto.</p>
-            </div>
-        </Card>
+        <MapView classes={[]} />
       )}
 
     </div>
