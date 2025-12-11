@@ -47,7 +47,6 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const { toast } = useToast();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-    // firestore and user are guaranteed to exist here
     return collection(firestore, 'users', user.uid, 'venues');
   }, [firestore, user.uid]);
 
@@ -374,37 +373,37 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+        <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Plan Actual</CardTitle>
-          <CardDescription>
-            Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/pro-plan">
-            <Button>
-              <Rocket className="mr-2 h-4 w-4" />
-              Mejorar a Pro
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-      
-      {user && firestore ? <SettingsContent user={user} firestore={firestore} /> : (
         <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Mis Sedes</CardTitle>
-          </CardHeader>
-          <CardContent>
-             <div className="flex h-24 items-center justify-center">
-                <p className="text-muted-foreground">Cargando datos de usuario...</p>
-            </div>
-          </CardContent>
+            <CardHeader>
+            <CardTitle className="font-headline">Plan Actual</CardTitle>
+            <CardDescription>
+                Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <Link href="/pro-plan">
+                <Button>
+                <Rocket className="mr-2 h-4 w-4" />
+                Mejorar a Pro
+                </Button>
+            </Link>
+            </CardContent>
         </Card>
-      )}
+        
+        {user && firestore ? <SettingsContent user={user} firestore={firestore} /> : (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Mis Sedes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex h-24 items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                </CardContent>
+            </Card>
+        )}
     </div>
   );
 }
