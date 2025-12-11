@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -25,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { regions, communesByRegion } from '@/lib/locations';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import type { Venue } from '@/lib/types';
 import { useFirestore, useUser, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -47,7 +48,8 @@ export default function SettingsPage() {
   const { user } = useUser();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-      if (!firestore || !user) return null;
+      // Ensure both firestore and user are available before creating the collection reference.
+      if (!firestore || !user?.uid) return null;
       return collection(firestore, 'users', user.uid, 'venues');
   }, [firestore, user]);
 
@@ -72,12 +74,12 @@ export default function SettingsPage() {
   const selectedRegion = form.watch('region');
 
   const onSubmit = async (data: z.infer<typeof venueSchema>) => {
-    if (!firestore || !venuesCollectionRef) return;
+    if (!firestore || !venuesCollectionRef || !user?.uid) return;
     setIsSubmitting(true);
     
     const newVenue: Omit<Venue, 'id'> = {
       ...data,
-      ownerId: user!.uid,
+      ownerId: user.uid,
     };
 
     try {
@@ -101,7 +103,7 @@ export default function SettingsPage() {
   };
 
   const removeVenue = (id: string) => {
-    if (!firestore || !user) return;
+    if (!firestore || !user?.uid) return;
     const venueDocRef = doc(firestore, 'users', user.uid, 'venues', id);
     deleteDocumentNonBlocking(firestore, venueDocRef);
     toast({
