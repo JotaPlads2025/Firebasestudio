@@ -47,10 +47,8 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const { toast } = useToast();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-    // ESTA ES LA CORRECCIÓN CLAVE: Solo crear la referencia si el user.uid existe.
-    if (!user?.uid) return null; 
     return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user]);
+  }, [firestore, user.uid]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -73,7 +71,6 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const selectedRegion = form.watch('region');
 
   const onSubmit = async (data: z.infer<typeof venueSchema>) => {
-    if (!venuesCollectionRef) return;
     setIsSubmitting(true);
     
     const newVenue: Omit<Venue, 'id'> = {
@@ -82,7 +79,7 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
     };
 
     try {
-        await addDocumentNonBlocking(firestore, venuesCollectionRef, newVenue);
+        await addDocumentNonBlocking(firestore, venuesCollectionRef!, newVenue);
         toast({
             title: '¡Sede Añadida!',
             description: `La sede "${data.name}" ha sido guardada.`,
