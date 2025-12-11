@@ -20,6 +20,11 @@ interface ClassCalendarProps {
 
 export default function ClassCalendar({ classes, month, venues, onClassSelect }: ClassCalendarProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const classesByDate = classes.reduce((acc, cls) => {
     if (cls.date) {
@@ -50,6 +55,10 @@ export default function ClassCalendar({ classes, month, venues, onClassSelect }:
     
   const getVenueName = (venueId: string) => {
     return venues.find(v => v.id === venueId)?.name || 'Sede no especificada';
+  }
+
+  if (!isClient) {
+    return null; // or a skeleton loader
   }
 
   return (
