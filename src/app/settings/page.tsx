@@ -48,10 +48,10 @@ export default function SettingsPage() {
   const { user, isUserLoading } = useUser();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-      // CRITICAL: Ensure firestore and user are available before creating the collection reference.
-      if (!firestore || !user?.uid) return null;
-      return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user]);
+    // CRITICAL: Ensure firestore and user are available before creating the collection reference.
+    if (!firestore || !user?.uid) return null;
+    return collection(firestore, 'users', user.uid, 'venues');
+  }, [firestore, user?.uid]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -112,8 +112,7 @@ export default function SettingsPage() {
     })
   }
 
-  // Render a loading state while the user is being authenticated.
-  // This prevents Firestore queries from running before the user is ready.
+  // Render a loading state while the user is being authenticated or data is being fetched.
   if (isUserLoading) {
     return (
         <div className="flex h-full w-full items-center justify-center p-16">
@@ -390,5 +389,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
