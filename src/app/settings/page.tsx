@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Rocket, PlusCircle, MapPin, Trash2, Loader2 } from 'lucide-react';
+import { Rocket, PlusCircle, MapPin, Trash2, Loader2 as LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,8 +47,10 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const { toast } = useToast();
 
   const venuesCollectionRef = useMemoFirebase(() => {
+    // ESTA ES LA CORRECCIÓN CLAVE: Solo crear la referencia si el user.uid existe.
+    if (!user?.uid) return null; 
     return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user.uid]);
+  }, [firestore, user]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -121,7 +123,7 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
           <div className="space-y-4">
             {isLoadingVenues ? (
                 <div className="flex justify-center items-center h-24">
-                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <LoaderCircle className="h-6 w-6 animate-spin" />
                 </div>
             ) : venues && venues.length > 0 ? (
                 venues.map((venue) => (
@@ -218,7 +220,7 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
                     <div className="flex justify-end gap-2">
                          <Button variant="ghost" type="button" onClick={() => setIsAddingVenue(false)} disabled={isSubmitting}>Cancelar</Button>
                          <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                             Guardar Sede
                          </Button>
                     </div>
@@ -360,60 +362,60 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
 
 
 export default function SettingsPage() {
-  const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || isUserLoading || !firestore) {
-    return (
-      <div className="flex h-full w-full items-center justify-center p-16">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-     return (
-      <div className="flex flex-col gap-8">
-        <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
-        <Card>
-           <CardHeader>
-            <CardTitle className="font-headline">Mis Sedes</CardTitle>
-          </CardHeader>
-           <CardContent>
-            <div className="flex h-24 items-center justify-center">
-              <p className='text-muted-foreground'>Inicia sesión para ver tus configuraciones.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-     )
-  }
-
-  return (
-    <div className="flex flex-col gap-8">
-        <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Plan Actual</CardTitle>
-                <CardDescription>
-                    Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
-                </CardDescription>
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+    const [isClient, setIsClient] = useState(false);
+  
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
+  
+    if (!isClient || isUserLoading || !firestore) {
+      return (
+        <div className="flex h-full w-full items-center justify-center p-16">
+          <LoaderCircle className="h-8 w-8 animate-spin" />
+        </div>
+      );
+    }
+  
+    if (!user) {
+       return (
+        <div className="flex flex-col gap-8">
+          <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+          <Card>
+             <CardHeader>
+              <CardTitle className="font-headline">Mis Sedes</CardTitle>
             </CardHeader>
-            <CardContent>
-                <Link href="/pro-plan">
-                    <Button>
-                        <Rocket className="mr-2 h-4 w-4" />
-                        Mejorar a Pro
-                    </Button>
-                </Link>
+             <CardContent>
+              <div className="flex h-24 items-center justify-center">
+                <p className='text-muted-foreground'>Inicia sesión para ver tus configuraciones.</p>
+              </div>
             </CardContent>
-        </Card>
-        <SettingsContent user={user} firestore={firestore} />
-    </div>
-  );
+          </Card>
+        </div>
+       )
+    }
+
+    return (
+        <div className="flex flex-col gap-8">
+            <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Plan Actual</CardTitle>
+                    <CardDescription>
+                        Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/pro-plan">
+                        <Button>
+                            <Rocket className="mr-2 h-4 w-4" />
+                            Mejorar a Pro
+                        </Button>
+                    </Link>
+                </CardContent>
+            </Card>
+            <SettingsContent user={user} firestore={firestore} />
+        </div>
+      );
 }
