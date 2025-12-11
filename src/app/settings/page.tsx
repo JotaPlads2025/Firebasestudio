@@ -47,10 +47,8 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const { toast } = useToast();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-    // Only create the collection reference if we have a user and firestore instance
-    if (!user || !firestore) return null;
     return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user]);
+  }, [firestore, user.uid]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -399,25 +397,23 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
         <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
-
         <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Plan Actual</CardTitle>
-          <CardDescription>
-            Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/pro-plan">
-            <Button>
-              <Rocket className="mr-2 h-4 w-4" />
-              Mejorar a Pro
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-      
-      <SettingsContent user={user} firestore={firestore} />
+            <CardHeader>
+                <CardTitle className="font-headline">Plan Actual</CardTitle>
+                <CardDescription>
+                    Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Link href="/pro-plan">
+                    <Button>
+                        <Rocket className="mr-2 h-4 w-4" />
+                        Mejorar a Pro
+                    </Button>
+                </Link>
+            </CardContent>
+        </Card>
+        <SettingsContent user={user} firestore={firestore} />
     </div>
   );
 }
