@@ -45,10 +45,10 @@ export default function SettingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-      // Ensure both firestore and user are available before creating the collection reference.
+      // CRITICAL: Ensure firestore and user are available before creating the collection reference.
       if (!firestore || !user?.uid) return null;
       return collection(firestore, 'users', user.uid, 'venues');
   }, [firestore, user]);
@@ -110,6 +110,16 @@ export default function SettingsPage() {
       title: 'Sede eliminada',
       description: 'La sede ha sido eliminada correctamente.',
     })
+  }
+
+  // Render a loading state while the user is being authenticated.
+  // This prevents Firestore queries from running before the user is ready.
+  if (isUserLoading) {
+    return (
+        <div className="flex h-full w-full items-center justify-center p-16">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
   }
 
   return (
@@ -227,7 +237,7 @@ export default function SettingsPage() {
                                     <FormControl>
                                         <SelectTrigger>
                                         <SelectValue placeholder="Selecciona una comuna" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                     </FormControl>
                                     <SelectContent>
                                         {selectedRegion && communesByRegion[selectedRegion]?.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
@@ -380,3 +390,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
