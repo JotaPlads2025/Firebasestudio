@@ -29,7 +29,7 @@ import { regions, communesByRegion } from '@/lib/locations';
 import { useState } from 'react';
 import type { Venue } from '@/lib/types';
 import { useFirestore, useUser, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, type Firestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from 'firebase/auth';
 
@@ -41,14 +41,13 @@ const venueSchema = z.object({
 });
 
 // Componente hijo que renderiza el contenido principal solo cuando el usuario está cargado.
-function SettingsContent({ user }: { user: User }) {
+function SettingsContent({ user, firestore }: { user: User, firestore: Firestore }) {
   const [isAddingVenue, setIsAddingVenue] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const firestore = useFirestore();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+    // firestore and user are guaranteed to exist here
     return collection(firestore, 'users', user.uid, 'venues');
   }, [firestore, user.uid]);
 
@@ -73,7 +72,7 @@ function SettingsContent({ user }: { user: User }) {
   const selectedRegion = form.watch('region');
 
   const onSubmit = async (data: z.infer<typeof venueSchema>) => {
-    if (!firestore || !venuesCollectionRef) return;
+    if (!venuesCollectionRef) return;
     setIsSubmitting(true);
     
     const newVenue: Omit<Venue, 'id'> = {
@@ -102,7 +101,6 @@ function SettingsContent({ user }: { user: User }) {
   };
 
   const removeVenue = (id: string) => {
-    if (!firestore) return;
     const venueDocRef = doc(firestore, 'users', user.uid, 'venues', id);
     deleteDocumentNonBlocking(firestore, venueDocRef);
     toast({
@@ -364,8 +362,9 @@ function SettingsContent({ user }: { user: User }) {
 
 export default function SettingsPage() {
   const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
 
-  if (isUserLoading) {
+  if (isUserLoading || !firestore) {
     return (
         <div className="flex h-full w-full items-center justify-center p-16">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -394,13 +393,15 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
       
-      {user ? <SettingsContent user={user} /> : (
+      {user && firestore ? <SettingsContent user={user} firestore={firestore} /> : (
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Mis Sedes</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Debes iniciar sesión para administrar tus sedes.</p>
+             <div className="flex h-24 items-center justify-center">
+                <p className="text-muted-foreground">Cargando datos de usuario...</p>
+            </div>
           </CardContent>
         </Card>
       )}
