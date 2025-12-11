@@ -143,7 +143,7 @@ function SettingsContent({ user }: { user: User }) {
                     </div>
                 ))
             ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">No has añadido ninguna sede todavía.</p>
+                !isAddingVenue && <p className="text-sm text-muted-foreground text-center py-4">No has añadido ninguna sede todavía.</p>
             )}
           </div>
 
@@ -206,8 +206,8 @@ function SettingsContent({ user }: { user: User }) {
                                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedRegion}>
                                     <FormControl>
                                         <SelectTrigger>
-                                        <SelectValue placeholder="Selecciona una comuna" />
-                                        </Trigger>
+                                            <SelectValue placeholder="Selecciona una comuna" />
+                                        </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                         {selectedRegion && communesByRegion[selectedRegion]?.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
