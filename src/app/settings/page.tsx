@@ -31,6 +31,7 @@ import type { Venue } from '@/lib/types';
 import { useFirestore, useUser, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import type { User } from 'firebase/auth';
 
 const venueSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres.'),
@@ -39,19 +40,17 @@ const venueSchema = z.object({
   commune: z.string().min(1, 'Debes seleccionar una comuna.'),
 });
 
-
-export default function SettingsPage() {
+// Componente hijo que renderiza el contenido principal solo cuando el usuario está cargado.
+function SettingsContent({ user }: { user: User }) {
   const [isAddingVenue, setIsAddingVenue] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
 
   const venuesCollectionRef = useMemoFirebase(() => {
-    // CRITICAL: Ensure firestore and user are available before creating the collection reference.
-    if (!firestore || !user?.uid) return null;
+    if (!firestore) return null;
     return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user?.uid]);
+  }, [firestore, user.uid]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -74,7 +73,7 @@ export default function SettingsPage() {
   const selectedRegion = form.watch('region');
 
   const onSubmit = async (data: z.infer<typeof venueSchema>) => {
-    if (!firestore || !venuesCollectionRef || !user?.uid) return;
+    if (!firestore || !venuesCollectionRef) return;
     setIsSubmitting(true);
     
     const newVenue: Omit<Venue, 'id'> = {
@@ -103,7 +102,7 @@ export default function SettingsPage() {
   };
 
   const removeVenue = (id: string) => {
-    if (!firestore || !user?.uid) return;
+    if (!firestore) return;
     const venueDocRef = doc(firestore, 'users', user.uid, 'venues', id);
     deleteDocumentNonBlocking(firestore, venueDocRef);
     toast({
@@ -112,36 +111,8 @@ export default function SettingsPage() {
     })
   }
 
-  // Render a loading state while the user is being authenticated or data is being fetched.
-  if (isUserLoading) {
-    return (
-        <div className="flex h-full w-full items-center justify-center p-16">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Plan Actual</CardTitle>
-          <CardDescription>
-            Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/pro-plan">
-            <Button>
-              <Rocket className="mr-2 h-4 w-4" />
-              Mejorar a Pro
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-      
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Mis Sedes</CardTitle>
@@ -386,6 +357,53 @@ export default function SettingsPage() {
           </p>
         </CardContent>
       </Card>
+    </>
+  );
+}
+
+
+export default function SettingsPage() {
+  const { user, isUserLoading } = useUser();
+
+  if (isUserLoading) {
+    return (
+        <div className="flex h-full w-full items-center justify-center p-16">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Plan Actual</CardTitle>
+          <CardDescription>
+            Actualmente estás en el plan Gratuito. Mejora a Pro para desbloquear más funciones.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/pro-plan">
+            <Button>
+              <Rocket className="mr-2 h-4 w-4" />
+              Mejorar a Pro
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+      
+      {user ? <SettingsContent user={user} /> : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Mis Sedes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Debes iniciar sesión para administrar tus sedes.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
