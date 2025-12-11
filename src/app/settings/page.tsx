@@ -47,8 +47,10 @@ function SettingsContent({ user, firestore }: { user: User, firestore: Firestore
   const { toast } = useToast();
 
   const venuesCollectionRef = useMemoFirebase(() => {
+    // Only create the collection reference if we have a user and firestore instance
+    if (!user || !firestore) return null;
     return collection(firestore, 'users', user.uid, 'venues');
-  }, [firestore, user.uid]);
+  }, [firestore, user]);
 
   const { data: venues, isLoading: isLoadingVenues } = useCollection<Venue>(venuesCollectionRef);
 
@@ -376,11 +378,29 @@ export default function SettingsPage() {
     );
   }
 
+  if (!user) {
+     return (
+      <div className="flex flex-col gap-8">
+        <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+        <Card>
+           <CardHeader>
+            <CardTitle className="font-headline">Mis Sedes</CardTitle>
+          </CardHeader>
+           <CardContent>
+            <div className="flex h-24 items-center justify-center">
+              <p className='text-muted-foreground'>Inicia sesión para ver tus configuraciones.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+     )
+  }
+
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
+        <h1 className="font-headline text-3xl font-semibold">Configuraciones</h1>
 
-      <Card>
+        <Card>
         <CardHeader>
           <CardTitle className="font-headline">Plan Actual</CardTitle>
           <CardDescription>
@@ -397,18 +417,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
       
-      {user ? <SettingsContent user={user} firestore={firestore} /> : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Mis Sedes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex h-24 items-center justify-center">
-              <p className='text-muted-foreground'>Inicia sesión para ver tus sedes.</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <SettingsContent user={user} firestore={firestore} />
     </div>
   );
 }
