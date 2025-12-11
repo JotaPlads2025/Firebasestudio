@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -68,6 +67,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const pathname = usePathname();
   const publicPages = ['/login', '/privacy', '/terms'];
@@ -124,7 +128,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return <main className="flex-1 p-4 md:p-8">{children}</main>;
   }
 
-  if (isUserLoading && !isPublicPage) {
+  if ((isUserLoading && !isPublicPage) || !isClient) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
